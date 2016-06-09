@@ -27,6 +27,7 @@ function varargout=readsac(filename,plotornot,osd)
 % See SETVAR.PL out of SACLIB.PM
 % 
 % Last modified by fjsimons-at-alum.mit.edu, 03/02/2016
+% Last modified by abrummen-at-princeton.edu, 06/07/2016
 
 defval('plotornot',0)
 defval('osd',osdep)
