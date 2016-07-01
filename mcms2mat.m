@@ -109,14 +109,8 @@ for index=1:length(HH)
   for ondex=1:length(cmp)
     % Make the MINISEED FILENAME with the precise time in it now also
     msx=fullfile(dirx,sprintf(msfmt,cmp{ondex},dst1,'miniseed'));
-    % Used for titles and plot names... watch the underscore 
-    if verLessThan('matlab','8.4')
-      mss=nounder(suf(msx,'/'),'\_');
-    else      
-      mss=nounder(suf(msx,'/'),'_');
-    end
-    epsnoex=sprintf('%s',pref(suf(msx,'/'),'miniseed'));
-    epsnoex=epsnoex(1:end-1);
+    % Full figure name... but notice the trouble with periods in
+    % the filenames, which is very annoying and gets fixed down below
     pdfname=sprintf('%spdf',pref(suf(msx,'/'),'miniseed'));
     % Better test that the MINISEED exists as a filename
     if exist(msx,'file')==2
@@ -146,6 +140,12 @@ for index=1:length(HH)
       [s{ondex},h{ondex},t{ondex},p{ondex}]=readsac(sax,qp);
       % If plotting, finish up with underscores in the title as needed
       if qp==1
+	% Used for titles and plot names... watch the underscore... options
+	if verLessThan('matlab','8.4')
+	  mss=nounder(suf(msx,'/'),'\_');
+	else      
+	  mss=nounder(suf(msx,'/'),'\_');
+	end
 	set(t{ondex},'string',mss);
 	p{ondex}(3)=ylabel(cmp{ondex});
       end
@@ -171,8 +171,8 @@ for index=1:length(HH)
       movev(t{ondex},range(get(ah(ondex),'ylim'))/20)
     end
     % Actually print to file? At least give a print suggestion! Force PDF
-    atmp=figdisp(epsnoex,[],[],~~pdf*2);
-    % Better move that plot to the working directory 
+    atmp=figdisp(pdfname,[],[],~~pdf*2);
+    % Better move that plot to the working directory, fix extension
     if pdf==1
       system(sprintf('mv -f %s %s',fullfile(getenv('EPS'),pdfname),dirx));
     end
