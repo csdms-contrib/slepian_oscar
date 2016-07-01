@@ -87,7 +87,7 @@ defval('reply','y')
 % GENERIC STUFF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 % Detailed-level data directory where we should be looking for data
-dirx=fullfile(diro,datestr(datenum(yyyy,mm,dd),'yyyy/mm/dd'));
+dirx=fullfile(MC,datestr(datenum(yyyy,mm,dd),'yyyy/mm/dd'));
 
 % For all hours requested, or all hours available if none too specific
 for index=1:length(HH)
