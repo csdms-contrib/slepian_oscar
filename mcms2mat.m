@@ -41,6 +41,7 @@ function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
 
 % Default data directory with the YYYY/MM/DD directories, set your own 'MC'
 setenv('MC',getenv('MC'))
+dirx=getenv('MC');
 
 % Default directory where the EPS files will go, best to set your own 'EPS'
 setenv('EPS',getenv('EPS'))
@@ -87,7 +88,7 @@ defval('reply','y')
 % GENERIC STUFF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 % Detailed-level data directory where we should be looking for data
-dirx=fullfile(MC,datestr(datenum(yyyy,mm,dd),'yyyy/mm/dd'));
+dirx=fullfile(dirx,datestr(datenum(yyyy,mm,dd),'yyyy/mm/dd'));
 
 % For all hours requested, or all hours available if none too specific
 for index=1:length(HH)
@@ -109,8 +110,13 @@ for index=1:length(HH)
     % Make the MINISEED FILENAME with the precise time in it now also
     msx=fullfile(dirx,sprintf(msfmt,cmp{ondex},dst1,'miniseed'));
     % Used for titles and plot names... watch the underscore 
-    mss=nounder(suf(msx,'/'),'_');
-    epsname=sprintf('%seps',pref(suf(msx,'/'),'miniseed'));
+    if verLessThan('matlab','8.4')
+      mss=nounder(suf(msx,'/'),'\_');
+    else      
+      mss=nounder(suf(msx,'/'),'_');
+    end
+    epsnoex=sprintf('%s',pref(suf(msx,'/'),'miniseed'));
+    epsnoex=epsnoex(1:end-1);
     pdfname=sprintf('%spdf',pref(suf(msx,'/'),'miniseed'));
     % Better test that the MINISEED exists as a filename
     if exist(msx,'file')==2
@@ -144,7 +150,7 @@ for index=1:length(HH)
 	p{ondex}(3)=ylabel(cmp{ondex});
       end
       % Remove the temporary SAC files
-      system(sprintf('rm %s',sax));
+      system(sprintf('rm -f %s',sax));
       % Preserve the ability to make the plot
       nix=1;
     else
@@ -165,7 +171,7 @@ for index=1:length(HH)
       movev(t{ondex},range(get(ah(ondex),'ylim'))/20)
     end
     % Actually print to file? At least give a print suggestion! Force PDF
-    atmp=figdisp(epsname,[],[],~~pdf*2);
+    atmp=figdisp(epsnoex,[],[],~~pdf*2);
     % Better move that plot to the working directory 
     if pdf==1
       system(sprintf('mv -f %s %s',fullfile(getenv('EPS'),pdfname),dirx));
