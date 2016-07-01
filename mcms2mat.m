@@ -60,7 +60,7 @@ msfmt=sprintf('%s.%s_%s_%s.%s',STA,CHA,DEV,'%s','%s');
 scfmt=sprintf('.%s..%s.%s.%s.%s.%s.SAC',STA,CHA,'D','%i','%i','%s');
       
 % We may change our minds on this
-defval('of',2)
+defval('of',1)
     
 % INPUT STUFF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
@@ -188,7 +188,7 @@ for index=1:length(HH)
        % Their headers
        hx=h{1}; hy=h{2}; hz=h{3};
        % ...easier to subsequently direct-LOAD in, component by component 
-       save(mtx,'s','h','sx','sy','sz','hx','hy','hz')
+       save(mtx,'sx','sy','sz','hx','hy','hz')
      case 2
       % Any components we have, save them TOGETHER in a MAT file
       save(mtx,'s','h')
