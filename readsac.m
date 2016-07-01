@@ -18,16 +18,19 @@ function varargout=readsac(filename,plotornot,osd)
 %
 % OUTPUT:
 %
-% SeisData        The number vector
+% SeisData        The numbers vector
 % HdrData         The header structure array
 % tnu             The handle to the plot title; or appropriate string
 % pobj            The handle to the plot line and the xlabel
 % tims            The times on the x-axis
 %
 % See SETVAR.PL out of SACLIB.PM
+%
+% SEE ALSO:
+%
+% WRITESAC, PLOTSAC
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 03/02/2016
-% Last modified by abrummen-at-princeton.edu, 06/07/2016
+% Last modified by fjsimons-at-alum.mit.edu, 07/01/2016
 
 defval('plotornot',0)
 defval('osd',osdep)
