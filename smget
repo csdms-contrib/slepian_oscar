@@ -1,0 +1,62 @@
+#!/bin/tcsh -f
+#
+# MCGET CMTCODE, e.g.
+# MCGET C201606261117A
+#
+# Downloads a bunch of simulations from the ShakeMovie website
+#
+# Last modified by fjsimons-at-alum.mit.edu, 07/07/2016
+
+# Where is the website?
+set IP = 128.112.172.121
+set NS = global.shakemovie.princeton.edu
+set PR = http://
+
+# The CMT code
+set CMT = $1
+
+# The station we want
+set STAT = PPGUY
+# What we know the network is
+set NETW = PN
+
+# Flags identifying the "channels"
+set SIM = (1d   3d)
+# What we know their extensions are
+set EXT = (modes sem)
+# What we know their components are
+set CMP = (LX    MX)
+
+# Where you will put it
+set mydata = $MC
+set myddir = $MC/SEM
+set mydcmt = $MC/SEM/$CMT
+
+# If you didn't have it, will make it
+test ! -d $mydata && mkdir $mydata
+test ! -d $myddir && mkdir $myddir
+test ! -d $mydcmt && mkdir $mydcmt
+
+# Get the files! 
+foreach index (`seq 1 $#SIM`)
+   # Destination filename
+   set fname = $CMT\_$SIM[$index].sac.tar.gz
+   # Perform the query
+   curl -o $fname ''$PR''$NS'/shakemovie/dl?evid='$CMT'&product='$SIM[$index]''
+   # Make the destination
+   set fpart = $NETW.$STAT.$CMP[$index]
+   set lpart = $EXT[$index].sac
+   # Turns out the components are E, N, and Z
+   set wewant = ( {$fpart}E.$lpart \
+                  {$fpart}N.$lpart \
+                  {$fpart}Z.$lpart)
+   # Extract the station etc of interest
+   tar xvfz $fname $wewant
+   rm $fname
+   # Now actually put it there
+   mv $wewant $mydcmt
+end
+
+
+
+
