@@ -56,7 +56,3 @@ foreach index (`seq 1 $#SIM`)
    # Now actually put it there
    mv $wewant $mydcmt
 end
-
-
-
-

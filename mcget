@@ -37,6 +37,3 @@ test ! -d $myddir && mkdir $myddir
 echo Downloading /media/removable0/$yr/$mo/$dy/\* to $myddir
 
 scp $flag $USER@$IP\:/media/removable0/$yr/$mo/$dy/\* $myddir
-
-
-
