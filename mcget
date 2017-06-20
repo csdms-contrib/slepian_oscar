@@ -1,4 +1,4 @@
-#!/bin/tcsh 
+#!/bin/tcsh -f
 #
 # MCGET YYYY MO DD, e.g.
 # MCGET 2016 06 25, or
@@ -37,3 +37,4 @@ test ! -d $myddir && mkdir $myddir
 echo Downloading /media/removable0/$yr/$mo/$dy/\* to $myddir
 
 scp $flag $USER@$IP\:/media/removable0/$yr/$mo/$dy/\* $myddir
+
