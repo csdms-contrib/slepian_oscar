@@ -124,6 +124,7 @@ sub hvars {
 	      LCALDA   => 109,
 	      KSTNM    => 110,
 	      KHOLE    => 116,
+	      KCMPNM   => 150,
 	      KNETWK   => 152,
 	      KINST    => 156,
 	      );
