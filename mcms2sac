@@ -1,0 +1,47 @@
+#!/bin/tcsh -f
+#
+# Converts an "old-school" miniseed file (obtained from MCGET)
+# to a properly named SAC file via the intermediary of MSEED2SAC, e.g.
+#
+# mv .S0001..HHX.D.2017.073.170000.SAC PP.S0001.00.HHX.D.2017.073.170000.SAC
+#
+#  Last modified by jirving-at-princeton.edu on 06/19/2017
+#  Last modified by fjsimons-at-alum.mit.edu on 06/19/2017
+
+# Our fixes
+set KNETWK = PP
+set KHOLE  = 00
+
+# Into the directory structure
+set years = `ls -d 20??`
+
+# Go in, come out!
+foreach year ($years[*])
+    cd $year
+    set monts = `ls -d ??`
+    foreach mont ($monts[*])
+	cd $mont
+	set days = `ls -d ??`
+	foreach day ($days[*])
+            cd $day
+	    set files = `ls *.miniseed`
+	    foreach file ($files[*])
+	       mseed2sac $file
+	       # We think there should only be one file created, with the same time as in the filename
+	       set exptim = `echo $file | sed 's/\_/ /g' | sed 's/\.miniseed//g' | awk '{print $NF}'`
+	       # And so we rename this file, assuming it exists
+	       set oldfile = `ls .S0001..*{$exptim}.SAC`
+               set newfile = `echo $oldfile | sed 's/\.\./\.'$KHOLE'\./g'`
+               mv $oldfile {$KNETWK}$newfile
+	       # Keep a record of the files that showed up unexpectedly, and were not converted
+	       # Ignore the "no match" statements, that means there wasn't anything unexpected
+               ls .S0001..*.SAC >>! notconverted
+	       # And remove them, ignoring the "no match" statements
+               /bin/rm .S0001..*.SAC
+            end
+            cd ..
+        end
+	cd ..
+    end
+    cd ..
+end
