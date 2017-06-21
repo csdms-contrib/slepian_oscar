@@ -1,43 +1,74 @@
 #!/bin/tcsh -f
 #
-# Converts an "old-school" miniseed file (obtained from MCGET)
-# to a properly named SAC file via the intermediary of MSEED2SAC, e.g.
-#
+# Converts an miniseed file (obtained from MCGET) to a properly named
+# SAC file via the intermediary of MSEED2SAC, e.g. for OLD FILES
 # mv .S0001..HHX.D.2017.073.170000.SAC PP.S0001.00.HHX.D.2017.073.170000.SAC
+# For NEW FILES, THE KNETWK AND KHOLE HAVE ALREADY BEEN SET, going forward.
 #
-#  Last modified by jirving-at-princeton.edu on 06/19/2017
-#  Last modified by fjsimons-at-alum.mit.edu on 06/19/2017
+# Only exception where this needed to be done by hand is 2017/06/19
+# when the conversion between old and new file name convention
+# happened right at the 18th hour. 
+#
+# Note that is MSEED2SAC returns more than one file, dated at past the
+# ??000 hour, these are due to small timing errors, and we get rid of
+# those, while keeping a log
+#
+#  Last modified by jirving-at-princeton.edu on 06/20/2017
+#  Last modified by fjsimons-at-alum.mit.edu on 06/20/2017
 
-# Our fixes
+# OLD FILES, which didn't have this set yet
 set KNETWK = PP
 set KHOLE  = 00
 
 # Into the directory structure
 set years = `ls -d 20??`
+# SPECIFIC YEAR ########################################
+set years = 2017
 
 # Go in, come out!
 foreach year ($years[*])
     cd $year
     set monts = `ls -d ??`
+    # SPECIFIC MONTH ########################################
+    set monts = 06
+
     foreach mont ($monts[*])
 	cd $mont
 	set days = `ls -d ??`
+	# SPECIFIC DAY ########################################
+	set days = 19
+	
 	foreach day ($days[*])
             cd $day
-	    set files = `ls *.miniseed`
+	    # OLD FILES ########################################
+	    set files = `ls S0001.*.miniseed`
+	    # NEW FILES ########################################
+	    set files = `ls PP.S0001.*.miniseed`
+
 	    foreach file ($files[*])
-	       mseed2sac $file
+	       # CONVERSION
+	      echo mseed2sac $file
 	       # We think there should only be one file created, with the same time as in the filename
+	       # which, in practice, should be a very round number, e.g. 120000
 	       set exptim = `echo $file | sed 's/\_/ /g' | sed 's/\.miniseed//g' | awk '{print $NF}'`
 	       # And so we rename this file, assuming it exists
-	       set oldfile = `ls .S0001..*{$exptim}.SAC`
-               set newfile = `echo $oldfile | sed 's/\.\./\.'$KHOLE'\./g'`
-               mv $oldfile {$KNETWK}$newfile
+
+               # OLD FILES ########################################
+	       # set oldfile = `ls .S0001..*{$exptim}.SAC`
+               # set newfile = `echo $oldfile | sed 's/\.\./\.'$KHOLE'\./g'`
+               # mv $oldfile {$KNETWK}$newfile
 	       # Keep a record of the files that showed up unexpectedly, and were not converted
 	       # Ignore the "no match" statements, that means there wasn't anything unexpected
-               ls .S0001..*.SAC >>! notconverted
+               # ls .S0001..*.SAC >>! notconverted
 	       # And remove them, ignoring the "no match" statements
-               /bin/rm .S0001..*.SAC
+               # /bin/rm .S0001..*.SAC
+
+               # NEW FILES ########################################
+	       # We get most of it right, except it may not have a bunch of zeros where we want it
+	       set exphrs = `echo $exptim | sed 's/0000//g'`
+	       set badfile = `ls PP.S0001.*{$exphrs}[1-9]???.SAC` 
+               /bin/rm $badfile
+               echo $badfile >>! notconverted
             end
             cd ..
         end
@@ -45,3 +76,5 @@ foreach year ($years[*])
     end
     cd ..
 end
+
+# Then do a bunch of setvar.pl for KINSTM, see SAC2SAC
