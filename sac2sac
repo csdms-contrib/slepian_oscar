@@ -1,0 +1,37 @@
+#!/bin/tcsh -f
+#
+# Update SAC headers
+#
+#  Last modified by jirving-at-princeton.edu on 06/20/2017
+#  Last modified by fjsimons-at-alum.mit.edu on 06/20/2017
+
+# Our fixes to the SAC headers!
+
+# Into the directory structure
+set years = `ls -d 20??`
+
+# Go in, come out!
+foreach year ($years[*])
+    cd $year
+    set monts = `ls -d ??`
+    foreach mont ($monts[*])
+	cd $mont
+	set days = `ls -d ??`
+	foreach day ($days[*])
+            cd $day
+	    set files = `ls *.SAC`
+	    foreach file ($files[*])
+		setvar.pl $file  KNETWK  PP
+		setvar.pl $file  KHOLE   00
+		setvar.pl $file  KINST   MC120PH2
+		setvar.pl $file  STLO    -74.65475
+		setvar.pl $file  STLA     40.34585
+		setvar.pl $file  STEL     6.0
+            end
+            cd ..
+        end
+	cd ..
+    end
+    cd ..
+end
+
