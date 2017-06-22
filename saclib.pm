@@ -121,6 +121,7 @@ sub hvars {
 	      GCARC    =>  53,
 	      CMPAZ    =>  57,
 	      CMPINC   =>  58,
+	      NPTS     =>  79,
 	      LCALDA   => 109,
 	      KSTNM    => 110,
 	      KHOLE    => 116,
