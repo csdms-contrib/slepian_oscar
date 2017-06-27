@@ -93,7 +93,6 @@ if isempty(strfind(fname,'demo'))
     if (time > tend )
       nogood=nogood+(Nquakes-i+1);
       break
-      
     elseif (time >= tbeg && depth <=depmax && depth >= depmin ...
 	    && mb>= mblo && mb<= mbhi)
       
@@ -126,16 +125,18 @@ if isempty(strfind(fname,'demo'))
       % the pointer to read the next quake and count it as not used
     else
       nogood=nogood+1;
+      % Get two more lines!
       fgetl(fid);
       fgetl(fid);
     end
     
     % Show progress
-    if mod(i,1000)==0
+    if mod(i,2000)==0
       disp(sprintf('Have read %5.5d of %d events from CMT catalog',i,Nquakes));
     end
   end
 
+  % Sew it shut
   fclose(fid);
 
   % Resize array to correct output
@@ -149,9 +150,9 @@ elseif strcmp(fname,'demo1')
   if exist(fname,'file')==2
     load(fname)
   else
-    QUAKES=readCMT([],[],datenum('1977/01/01 00:00:01'),...
+    [QUAKES,Mw]=readCMT([],[],datenum('1977/01/01 00:00:01'),...
 		         datenum('1985/03/31 00:00:01'),[],[],[],[]);
-    save(fname,'QUAKES')
+    save(fname,'QUAKES','Mw')
   end
 elseif strcmp(fname,'demo2')
   % Pick out C&G earthquakes excluding those at shallow depth during '77-'80
@@ -160,10 +161,10 @@ elseif strcmp(fname,'demo2')
   if exist(fname,'file')==2
     load(fname)
   else
-    include=readCMT([],[],datenum('1977/01/01 00:00:01'),...
+    [include,Mwin]=readCMT([],[],datenum('1977/01/01 00:00:01'),...
 		          datenum('1985/03/31 00:00:01'),5.5,[],[],[]);
 
-    exclude=readCMT([],[],datenum('1977/01/01 00:00:01'),...
+    [exclude,Mwex]=readCMT([],[],datenum('1977/01/01 00:00:01'),...
 		          datenum('1981/01/01 00:00:01'),5.5,6.5,0,100);
 
     xcount=1;
@@ -171,22 +172,25 @@ elseif strcmp(fname,'demo2')
       if xcount>size(exclude,1)
 	break
       elseif include(j,1)==exclude(xcount,1)
-	include(j,:)=0; xcount=xcount+1;
+	include(j,:)=0; 
+	Mwin(j)=0; 
+	xcount=xcount+1;
       end
     end
     QUAKES=include(include(:,1)~=0,:);
-    save(fname,'QUAKES')
+    Mw=Mwin(Mwin~=0,:);
+    save(fname,'QUAKES','Mw')
   end
 elseif strcmp(fname,'demo3')
-  % Get all earthquakes from CMT catalog for 1977 to howver long you had it
+  % Get all earthquakes from CMT catalog for 1977 to however long you have it
   defval('dirn',fullfile(getenv('IFILES'),'CMT'))
   fname=fullfile(dirn,'quakes77_2013.mat');
   if exist(fname,'file')==2
     load(fname)
   else
-    QUAKES=readCMT('jan76_dec13.ndk',[],datenum('1977/01/01 00:00:01'),...
+    [QUAKES,Mw]=readCMT('jan76_dec13.ndk',[],datenum('1977/01/01 00:00:01'),...
 		   [],[],[],[],[]);
-    save(fname,'QUAKES')
+    save(fname,'QUAKES','Mw')
   end
 elseif strcmp(fname,'demo4')
   % Get all earthquakes from CMT catalog for '77-2010 except the
@@ -196,11 +200,12 @@ elseif strcmp(fname,'demo4')
   if exist(fname,'file')==2
     load(fname)
   else
-    pre=readCMT('demo2');
-    post=readCMT('jan76_dec13.ndk',[],datenum('1985/03/31 00:00:01'),...
+    [pre,Mwpre]=readCMT('demo2');
+    [post,Mwpost]=readCMT('jan76_dec13.ndk',[],datenum('1985/03/31 00:00:01'),...
 		 [],[],[],[],[]);
     QUAKES=vertcat(pre,post);
-    save(fname,'QUAKES')
+    Mw=vertcat(Mwpre,Mwpost);
+    save(fname,'QUAKES','Mw')
   end
 end
 
