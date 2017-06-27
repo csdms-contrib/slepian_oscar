@@ -1,17 +1,19 @@
 function varargout=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
 % [QUAKES,Mw]=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
 %
-% Reads in CMT catalog of events (default format is that of jan76_dec13.ndk).
+% Reads in CMT earthquake catalog in default format of www.globalcmt.org, 
+% http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/jan76_dec13.ndk
 %
 % INPUT:
 %
-% fname          CMT file name (www.globalcmt.org) [jan76_feb10.ndk]
-% dirn           Directory of the .ndk file [IFILES/CMT]
-% tbeg, tend     Serial datenumbers with the time interval of interest
+% fname          CMT filename in .ndk format [default: jan76_feb10.ndk]
+% dirn           Directory containing the CMT file [default: $IFILES/CMT]
+% tbeg, tend     Serial datenumbers [e.g. datenum('1985/03/31 00:00:01')]
+%                with the time interval of interest 
 %                If CMT catalog is not known to be chronological then
-%                this should be set to infinity
-% mblo, mbhi     Body-wave magnitude interval of interest
-% depmin,depmax  Depth range of interest     
+%                tbeg should be set to 0 and tend should be set to Inf
+% mblo, mbhi     Body-wave moment magnitude interval of interest
+% depmin,depmax  Depth range of interest [km]
 %
 % OUTPUT:     
 %
@@ -20,23 +22,35 @@ function varargout=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
 %
 % EXAMPLES:
 %
-% readCMT('demo1') % Quakes between 1977/01/01 and 1985/03/31
-% readCMT('demo2') % Chao & Gross earthquakes excluding shallow depth for '77-'80
-% readCMT('demo3') % Quakes between 1977/01/01 and present
+% readCMT('demo1') % Chao & Gross quakes between 1977/01/01 and 1985/03/31
+% readCMT('demo2') % Chao & Gross quakes excluding shallow ones for '77-'80
+% readCMT('demo3') % Quakes since 1977/01/01 and present
+% readCMT('demo4') % Quakes since 1977/01/01 excluding shallow ones as demo2
 %
 % SEE ALSO:
 %
-% CMTSOL
+% CMTSOL, SMOMENT
+%
+% NOTES:
+%
+% The monthly CMT solutions are here:
+% http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/NEW_MONTHLY/
+% And the quick (not-final) ones are here:
+% http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/NEW_QUICK/qcmt.ndk
+%
+% We refer to Chao and Gross 1987, doi: 10.1111/j.1365-246X.1987.tb01659.x
 %
 % Last modified by efwelch@princeton.edu, 06/25/2010
 % Correction supplied by Xiaojun Chen (Yale), 04/14/2014
-% Last modified by fjsimons-at-alum.mit.edu, 11/29/2015
+% Last modified by fjsimons-at-alum.mit.edu, 06/28/2017
 
 % Check to see if it's a demo case
 if isempty(strfind(fname,'demo'))
-  % Assign default values
+  % Assign default catalog filename
   defval('fname','jan76_dec13.ndk')
+  % You will need to make sure $IFILES returns something, or else change
   defval('dirn',fullfile(getenv('IFILES'),'CMT'))
+  % Assign default catalog search parameters
   defval('tbeg',0)
   defval('tend',Inf)
   defval('mblo',0)
@@ -127,15 +141,16 @@ if isempty(strfind(fname,'demo'))
   % Resize array to correct output
   QUAKES=QUAKES(1:Nquakes-nogood,:);
   Mw=Mw(1:Nquakes-nogood,:);
+
 elseif strcmp(fname,'demo1')
-  % pick out Chao & Gross earthquakes including those at shallow depth  
+  % Pick out Chao & Gross earthquakes including those at shallow depth
   defval('dirn',fullfile(getenv('IFILES'),'CMT'))
   fname=fullfile(dirn,'quakes77_85.mat');
   if exist(fname,'file')==2
     load(fname)
   else
     QUAKES=readCMT([],[],datenum('1977/01/01 00:00:01'),...
-		   datenum('1985/03/31 00:00:01'),[],[],[],[]);
+		         datenum('1985/03/31 00:00:01'),[],[],[],[]);
     save(fname,'QUAKES')
   end
 elseif strcmp(fname,'demo2')
@@ -146,10 +161,10 @@ elseif strcmp(fname,'demo2')
     load(fname)
   else
     include=readCMT([],[],datenum('1977/01/01 00:00:01'),...
-		    datenum('1985/03/31 00:00:01'),5.5,[],[],[]);
+		          datenum('1985/03/31 00:00:01'),5.5,[],[],[]);
 
     exclude=readCMT([],[],datenum('1977/01/01 00:00:01'),...
-		    datenum('1981/01/01 00:00:01'),5.5,6.5,0,100);
+		          datenum('1981/01/01 00:00:01'),5.5,6.5,0,100);
 
     xcount=1;
     for j=1:size(include,1);
@@ -160,13 +175,12 @@ elseif strcmp(fname,'demo2')
       end
     end
     QUAKES=include(include(:,1)~=0,:);
-
     save(fname,'QUAKES')
   end
 elseif strcmp(fname,'demo3')
-  % Get all earthquakes from CMT catalog for 1977-2010 - or beyond!
+  % Get all earthquakes from CMT catalog for 1977 to howver long you had it
   defval('dirn',fullfile(getenv('IFILES'),'CMT'))
-  fname=fullfile(dirn,'quakes77_2010.mat');
+  fname=fullfile(dirn,'quakes77_2013.mat');
   if exist(fname,'file')==2
     load(fname)
   else
@@ -176,7 +190,7 @@ elseif strcmp(fname,'demo3')
   end
 elseif strcmp(fname,'demo4')
   % Get all earthquakes from CMT catalog for '77-2010 except the
-  % ones C&G claim to exclude in CG (1987)
+  % ones C&G claim to exclude in C&G (1987)
   defval('dirn',fullfile(getenv('IFILES'),'CMT'))
   fname=fullfile(dirn,'quakes77_2010except.mat');
   if exist(fname,'file')==2
@@ -193,4 +207,3 @@ end
 % Provide output if requested
 varns={QUAKES,Mw};
 varargout=varns(1:nargout);
-
