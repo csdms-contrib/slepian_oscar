@@ -1,48 +1,36 @@
-function [x,y,z]=polecircle(lonlatp,xyzR,N,method)
-% [x,y,z]=POLECIRCLE(lonlatp,xyzR,N,method)
+function varargout=polecircle(lonlatp,xyzR,N,method)
+% varargout=POLECIRCLE(lonlatp,xyzR,N,method)
 %
-% Finds the Cartesian coordinates of the great circle slicing a
+% Finds (and plots) the Cartesian coordinates of the great circle slicing a
 % three-dimensional sphere of a certain radius centered at a certain point,
 % when viewed from a certain point on the unit sphere centered at the
-% origin. This amounts to finding the coordinates of a circle, the
-% circumference of a disk, positioned with respect to a certain pole.
+% origin of the coordinate system. This amounts to finding the 
+% coordinates of a circle, the circumference of a disk, positioned with
+% respect to a certain pole. When plotted and viewed looking from the
+% outside out down along the pole, the graph indeed produces
+% circle. The view pole and the connecting vectors are also shown.
 %
 % INPUT:
 %
-% lonlatp      Coordinates of the viewing pole [degrees]
-% xyzR         Coordinates of the sphere
-% N            Number of points defining the circle
-% method       1 One easy way
-%              2 Another, more complicated way
+% lonlatp      Coordinates of the viewing pole on the unit sphere [degrees]
+% xyzR         Coordinates of the sphere that is the target of our viewing
+% N            Number of points defining the circle that shall be drawn
+% method       1 One easy way to perform the procedure
+%              2 Another, more complicated way that also works
+%                If 'method' is negative, do not produce a plot
 %
 % OUTPUT:
 %
-% x,y,z     Coordinates of the circle bounding the pole-perpendicular disk 
+% x,y,z        Coordinates of the circle bounding the pole-perpendicular disk 
+% xp,yp,zp     Coordinates of the tip of the viewing pole
 %
 % EXAMPLE:
 %
-% Four spheres which should intersect at the right location!
-% 
-%% Guyot Hall in lon/lat and on the unit sphere
-% lonlatp=[-74.65475 40.34585];
-% [xp,yp,zp]=sph2cart(lonlatp(1)*pi/180,lonlatp(2)*pi/180,1); 
-%% Four random satellite positions...
-% xyzR=100*randn(4,3);
-%% at the exact right (because: computed) distance...
-% xyzR(:,4)=sqrt([xyzR(:,1)-xp].^2+[xyzR(:,2)-yp].^2+[xyzR(:,3)-zp].^2);
-%% Plot those positions
-% plot3(xp,yp,zp,'bs'); hold on; plot3(xyzR(:,1),xyzR(:,2),xyzR(:,3),'+')
-%% Add the continents if you wish, to make sure it's right
-% plotcont([],[],11,[],[],lonlatp)
-%% Now let's look at all of those from a common view angle 
-%% In which case we still need to adjust for the difference in angle
-% between the look angle and the view point
-% for index=1:size(xyzR,1)
-%  hold on; polecircle(lonlatp,xyzR(index,:),N); hold on
-% end
-%% Them circles all better go through Guyot Hall!
+% polecircle('demo1') % Step across longitudes for a pretty picture
+% polecircle('demo2') % Step across longitudes for a pretty picture
+% polecircle('demo3') % An example relevant to satellite geolocation
 %
-% Last modified by fjsimons-at-alum.mit.edu, 07/18/2017
+% Last modified by fjsimons-at-alum.mit.edu, 07/20/2017
 
 % Random inputs for all variables
 defval('lonlatp',[randi(360) 90-randi(180)])
@@ -50,7 +38,9 @@ defval('xyzR',[50*randn(3,1) ; randi(5)])
 defval('N',100)
 defval('method',1)
 
-switch method 
+if ~isstr(lonlatp)
+   
+switch abs(method) 
  case 1
   % Here is an equator in the plane, at the right radius
   [xe,ye,ze]=sph2cart(linspace(0,2*pi,N),0,xyzR(4));
@@ -73,23 +63,86 @@ x=x+xyzR(1);
 y=y+xyzR(2);
 z=z+xyzR(3);
 
-% Plot, this is how I got there, by looking
-plot3(x,y,z); 
-xlabel('x'); ylabel('y'); zlabel('z'); 
-grid on; axis image
+% Make the plot
+if method>0
+   p{1}=plot3(x,y,z);
+   xlabel('x'); ylabel('y'); zlabel('z'); 
+   grid on; axis image
 
-% Fancy continents which helped me find what to do
-% hold on ; plotcont([],[],11,[],[],lonlatp); hold on
+   % Fancy continents which helped me find what to do
+   % hold on ; pc=plotcont([],[],11,[],[],lonlatp); hold on
 
-% In case you want the pole also (which you could use with VIEW also!
-% I did this for origin-centered spheres only
-%[xp,yp,zp]=sph2cart(lonlatp(1)*pi/180,lonlatp(2)*pi/180,1);
-%hold on; plot3([xyzR(1) xp],[xyzR(2) yp],[xyzR(3) zp],'b+-'); hold off
+   % In case you want the view pole also (which you could use with VIEW also!)
+   [xp,yp,zp]=sph2cart(lonlatp(1)*pi/180,lonlatp(2)*pi/180,1);
 
-% Matlab's VIEW is measured from the negative y axis... duh
-view(90+round(lonlatp(1)),round(lonlatp(2)));
-% In the view angle, we should see a circle
-% I did this for origin-centered spheres only
-%axis(repmat([-1.1 1.1]*xyzR(4),1,3))
-% Perpedicularly to the view angle, we should see a line
+   hold on
+   % The vector from the origin of the coordinate system to the view point
+   plot3(0,0,0,'ro');
+   plot3([0 xp],[0 yp],[0 zp],'r-');
+   % The vector from the view point to the origin of the sphere
+   plot3([xyzR(1) xp],[xyzR(2) yp],[xyzR(3) zp],'b-');
+   % The origin of the viewing sphere
+   plot3(xp,yp,zp,'o','MarkerFaceColor','b','MarkerEdgeColor','b')
+   % The origin of the viewed sphee
+   plot3(xyzR(1),xyzR(2),xyzR(3),'v','MarkerFaceColor','r','MarkerEdgeColor','r')
+   hold off
 
+   % Matlab's VIEW is measured from the negative y axis... duh
+   view(90+round(lonlatp(1)),round(lonlatp(2)));
+   % In the view angle, we should see a circle
+   % I did this for origin-centered spheres only
+   axis(repmat([-1.1 1.1]*[max(abs(xyzR(1:3)))+xyzR(4)],1,3))
+   axis tight
+   % Perpedicularly to the view angle, we should see a line
+end
+
+% Produce output
+varns={x,y,z,xp,yp,zp};
+varargout=varns(1:nargout);
+
+elseif strcmp(lonlatp,'demo1')
+       % Guyot Hall in lon/lat and on the unit sphere
+       lonlatp=[-74.65475 40.34585]; 
+       % View come other point from there
+       xyzR=[0.8 0.7 0.9 0.3];
+       % Step across the LONGITUDES and see what you get
+       for index=0:36
+       	   polecircle(lonlatp+[index*10 0],xyzR); hold on
+	   pause
+       end
+elseif strcmp(lonlatp,'demo2')
+       % Guyot Hall in lon/lat and on the unit sphere
+       lonlatp=[-74.65475 40.34585]; 
+       % View come other point from there
+       xyzR=[0.8 0.7 0.9 0.3];
+       % Step across the LATITUDES and see what you get
+       for index=0:36
+       	   polecircle(lonlatp+[0 index*10],xyzR); hold on
+	   pause
+       end
+elseif strcmp(lonlatp,'demo3')
+       % Guyot Hall in lon/lat and on the unit sphere
+       lonlatp=[-74.65475 40.34585]; 
+       % Where that is, in three-dimensional space
+       [xp,yp,zp]=sph2cart(lonlatp(1)*pi/180,lonlatp(2)*pi/180,1); 
+       % Now random satellite positions...
+       xyzR=[randn(4,3) nan(4,1)];
+       % This is the distance between the sphere center and the pole POINT
+       dpo=sqrt([xyzR(:,1)-xp].^2+[xyzR(:,2)-yp].^2+[xyzR(:,3)-zp].^2);
+
+       % But we rather want the perpendicular distance to the pole AXIS...
+       dpp=point3line(0,xp,0,yp,0,zp,xyzR(:,1),xyzR(:,2),xyzR(:,3));
+       % ... and that is the radius we could be plotting (in projection!)
+       xyzR(:,4)=dpp;
+
+       % Now plot the spherical surface when looking straight down into Guyot
+       for index=1:size(xyzR,1)
+          [~,~,~,xp,yp,zp]=polecircle(lonlatp,xyzR(index,:)); hold on; pause
+       end
+       hold off
+       % You might zoom in to the pole tip and be reminded of the view angle
+       title(sprintf('[x_p,y_p,z_p]=[%6.3f,%6.3f,%6.3f]',xp,yp,zp))
+        disp(sprintf('[x_p,y_p,z_p]=[%6.3f,%6.3f,%6.3f]',xp,yp,zp))
+       % All circles all better go touch Guyot Hall when viewed downpole!
+       % Nevertheless, this is not what I wanted to show. More to come.
+end    
