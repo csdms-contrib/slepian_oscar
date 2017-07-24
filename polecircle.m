@@ -1,20 +1,25 @@
-function varargout=polecircle(lonlatp,xyzR,N,method)
-% varargout=POLECIRCLE(lonlatp,xyzR,N,method)
+function varargout=polecircle(lonlatp,xyzR,th,method)
+% varargout=POLECIRCLE(lonlatp,xyzR,th,method)
 %
 % Finds (and plots) the Cartesian coordinates of the great circle slicing a
 % three-dimensional sphere of a certain radius centered at a certain point,
 % when viewed from a certain point on the unit sphere centered at the
 % origin of the coordinate system. This amounts to finding the 
 % coordinates of a circle, the circumference of a disk, positioned with
-% respect to a certain pole. When plotted and viewed looking from the
-% outside out down along the pole, the graph indeed produces
+% respect to a certain viewing pole. When plotted and viewed looking
+% from the outside out down along the pole, the graph indeed produces
 % circle. The view pole and the connecting vectors are also shown.
 %
 % INPUT:
 %
 % lonlatp      Coordinates of the viewing pole on the unit sphere [degrees]
 % xyzR         Coordinates of the sphere that is the target of our viewing
-% N            Number of points defining the circle that shall be drawn
+% th           angles defining the segment that shall be drawn [degrees]
+%              in the original xy plane counterclockwise from +x, i.e.
+%              counterclockwise counting from six o'clock on the circle;
+%              the default is 100 points on an entire circle
+%              CHECK THAT THIS BEHAVES THE SAME UNDER 1 AND 2
+%              CHECK THAT WE GET EASY EXAMPLES, DEPENDING ON AXIS DIRECTION
 % method       1 One easy way to perform the procedure
 %              2 Another, more complicated way that also works
 %                If 'method' is negative, do not produce a plot
@@ -34,26 +39,26 @@ function varargout=polecircle(lonlatp,xyzR,N,method)
 
 % Random inputs for all variables
 defval('lonlatp',[randi(360) 90-randi(180)])
-defval('xyzR',[50*randn(3,1) ; randi(5)])
-defval('N',100)
+defval('xyzR',[5*randn(2,1); 0 ; randi(5)])
+defval('th',linspace(0,360,100))
 defval('method',1)
 
 if ~isstr(lonlatp)
    
 switch abs(method) 
  case 1
-  % Here is an equator in the plane, at the right radius
-  [xe,ye,ze]=sph2cart(linspace(0,2*pi,N),0,xyzR(4));
+  % Here is an equator in the xy-plane, at the right radius
+  [xe,ye,ze]=sph2cart(th/180*pi,0,xyzR(4));
   % Here is that appropriately rotated equator
-  xyz=deal([rotz(-lonlatp(1)*pi/180)*roty(-[90-lonlatp(2)]*pi/180)*...
-	     [xe ; ye ; repmat(ze,1,length(ye))]]');
+  xyz=[rotz(-lonlatp(1)*pi/180)*roty(-[90-lonlatp(2)]*pi/180)*...
+	     [xe ; ye ; repmat(ze,1,length(ye))]]';
   x=xyz(:,1);
   y=xyz(:,2);
   z=xyz(:,3);
  case 2
    % Find the set of points that goes through great circles at all aziumths
    % at epicentral angular distance of 90 degrees, itself a great circle
-   [lon2,lat2]=grcazim(lonlatp,90,linspace(0,360,N),'unitsphere');
+   [lon2,lat2]=grcazim(lonlatp,90,th,'unitsphere');
    % Convert that circle to a Cartesian coordinate system, with the right radius
    [x,y,z]=sph2cart(lon2*pi/180,lat2*pi/180,xyzR(4));
 end
@@ -63,27 +68,27 @@ x=x+xyzR(1);
 y=y+xyzR(2);
 z=z+xyzR(3);
 
+% In case you want the view pole also (which you could use with VIEW also!)
+[xp,yp,zp]=sph2cart(lonlatp(1)*pi/180,lonlatp(2)*pi/180,1);
+
 % Make the plot
 if method>0
    p{1}=plot3(x,y,z);
    xlabel('x'); ylabel('y'); zlabel('z'); 
    grid on; axis image
 
-   % Fancy continents which helped me find what to do
-   % hold on ; pc=plotcont([],[],11,[],[],lonlatp); hold on
-
-   % In case you want the view pole also (which you could use with VIEW also!)
-   [xp,yp,zp]=sph2cart(lonlatp(1)*pi/180,lonlatp(2)*pi/180,1);
-
    hold on
+
+   % Fancy continents which helped me find what to do
+   % pc=plotcont([],[],11,[],[],lonlatp); hold on
+
    % The vector from the origin of the coordinate system to the view point
    plot3(0,0,0,'ro');
    plot3([0 xp],[0 yp],[0 zp],'r-');
-   % The vector from the view point to the origin of the sphere
-   plot3([xyzR(1) xp],[xyzR(2) yp],[xyzR(3) zp],'b-');
-   % The origin of the viewing sphere
    plot3(xp,yp,zp,'o','MarkerFaceColor','b','MarkerEdgeColor','b')
-   % The origin of the viewed sphee
+   % The vector from the view point to the origin of the sphere
+   plot3([xyzR(1) xp],[xyzR(2) yp],[xyzR(3) zp],'b--');
+   % The origin of the viewed sphere
    plot3(xyzR(1),xyzR(2),xyzR(3),'v','MarkerFaceColor','r','MarkerEdgeColor','r')
    hold off
 
@@ -93,7 +98,7 @@ if method>0
    % I did this for origin-centered spheres only
    axis(repmat([-1.1 1.1]*[max(abs(xyzR(1:3)))+xyzR(4)],1,3))
    axis tight
-   % Perpedicularly to the view angle, we should see a line
+   % Perpendicularly to the view angle, we should see a line
 end
 
 % Produce output
@@ -110,6 +115,8 @@ elseif strcmp(lonlatp,'demo1')
        	   polecircle(lonlatp+[index*10 0],xyzR); hold on
 	   pause
        end
+       hold off
+       view(3)
 elseif strcmp(lonlatp,'demo2')
        % Guyot Hall in lon/lat and on the unit sphere
        lonlatp=[-74.65475 40.34585]; 
@@ -120,6 +127,8 @@ elseif strcmp(lonlatp,'demo2')
        	   polecircle(lonlatp+[0 index*10],xyzR); hold on
 	   pause
        end
+       hold off
+       view(3)
 elseif strcmp(lonlatp,'demo3')
        % Guyot Hall in lon/lat and on the unit sphere
        lonlatp=[-74.65475 40.34585]; 
@@ -140,9 +149,10 @@ elseif strcmp(lonlatp,'demo3')
           [~,~,~,xp,yp,zp]=polecircle(lonlatp,xyzR(index,:)); hold on; pause
        end
        hold off
+
        % You might zoom in to the pole tip and be reminded of the view angle
        title(sprintf('[x_p,y_p,z_p]=[%6.3f,%6.3f,%6.3f]',xp,yp,zp))
-        disp(sprintf('[x_p,y_p,z_p]=[%6.3f,%6.3f,%6.3f]',xp,yp,zp))
+       disp(sprintf('[x_p,y_p,z_p]=[%6.3f,%6.3f,%6.3f]',xp,yp,zp))
        % All circles all better go touch Guyot Hall when viewed downpole!
        % Nevertheless, this is not what I wanted to show. More to come.
 end    
