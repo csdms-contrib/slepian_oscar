@@ -35,6 +35,8 @@ function varargout=polecircle(lonlatp,xyzR,th,method,rref,xver)
 % polecircle('demo2') % Step across longitudes for a pretty picture
 % polecircle('demo3') % An example relevant to satellite geolocation
 %
+% Tested on 8.3.0.532 (R2014a) and 9.0.0.341360 (R2016a)
+%
 % Last modified by fjsimons-at-alum.mit.edu, 07/26/2017
 
 % Random inputs for all variables
