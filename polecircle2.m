@@ -13,7 +13,7 @@ function varargout=polecircle2(xyzE,xyzR,thr,th,method,rref,xver)
 %
 % xyzE        Coordinates of a special point in three dimensions
 % xyzR        Coordinates of the sphere that is the target of our viewing
-% thr         Rotation angle of the circle about the axis joing both points
+% thr         Rotation angle of the circle about the axis joiningg both points
 % th          Angles defining the segment that shall be drawn [degrees]
 %             in the original xy plane counterclockwise from +x, i.e.
 %             counterclockwise counting from six o'clock on the circle;
@@ -28,8 +28,10 @@ function varargout=polecircle2(xyzE,xyzR,thr,th,method,rref,xver)
 %
 % polecircle2('demo1',32)
 % polecircle2('demo2')
+% polecircle2('demo3')
+% polecircle2('demo4')
 %
-% Last modified by fjsimons-at-alum.mit.edu, 07/25/2017
+% Last modified by fjsimons-at-alum.mit.edu, 07/26/2017
 
 com.mathworks.services.Prefs.setBooleanPref('EditorGraphicalDebugging',false)
 
@@ -39,7 +41,7 @@ defval('thr',0)
 defval('th',linspace(0,360,100))
 defval('method',1)
 defval('rref',1)
-defval('xver',1)
+defval('xver',0)
 
 if ~isstr(xyzE)
   defval('xyzR',[5*randn(3,1) ; randi(5)])
@@ -192,6 +194,30 @@ elseif strcmp(xyzE,'demo3')
   % You might zoom in to the (last?)! pole tip and be reminded of the view angle
   title(sprintf('[x_p,y_p,z_p]=[%6.3f,%6.3f,%6.3f]',xp,yp,zp))
   disp(sprintf('[x_p,y_p,z_p]=[%6.3f,%6.3f,%6.3f]',xp,yp,zp))
-					   % All circles all better go touch Guyot Hall when viewed downpole!
+
+  % All circles all better go touch Guyot Hall when viewed downpole!
+elseif strcmp(xyzE,'demo4')
+  lonlatp=[-74.65475 40.34585]; 
+  rref=6371;
+  [x,y,z]=sph2cart(lonlatp(1)*pi/180,lonlatp(2)*pi/180,rref);
+  xyzR=[7000 8000 9000 3000];
+  
+  clf
+  % Looked at head on
+  ah(1)=subplot(121);
+  polecircle(lonlatp,xyzR,[],[],rref,1)
+  view(-71,-4)
+
+  % Looked at in the plane of the joining vectors
+  xyzV=cross([x ; y; z],xyzR(1:3));
+  xyzV=xyzV/norm(xyzV);
+  [lonv,latv]=cart2sph(xyzV(1),xyzV(2),xyzV(3));
+  lonlatv=[lonv latv]*180/pi;
+  % Maybe should return this more easily?
+  thr=270-lonlatv(2);
+
+  ah(2)=subplot(122);
+  polecircle2([x y z],xyzR,thr,[],[],rref,1)
+  view(-71,-4)
 end
 
