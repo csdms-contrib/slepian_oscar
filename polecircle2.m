@@ -31,6 +31,8 @@ function varargout=polecircle2(xyzE,xyzR,thr,th,method,rref,xver)
 % polecircle2('demo3')
 % polecircle2('demo4')
 %
+% Tested on 8.3.0.532 (R2014a) and 9.0.0.341360 (R2016a)
+% 
 % Last modified by fjsimons-at-alum.mit.edu, 07/26/2017
 
 com.mathworks.services.Prefs.setBooleanPref('EditorGraphicalDebugging',false)
@@ -206,8 +208,15 @@ elseif strcmp(xyzE,'demo4')
   % Looked at head on
   ah(1)=subplot(121);
   polecircle(lonlatp,xyzR,[],[],rref,1)
+  title('POLECIRCLE')
+
+  % Try these
   view(-71,-4)
 
+  view([x y z])
+  
+  [x y z]
+  
   % Looked at in the plane of the joining vectors
   xyzV=cross([x ; y; z],xyzR(1:3));
   xyzV=xyzV/norm(xyzV);
@@ -218,6 +227,11 @@ elseif strcmp(xyzE,'demo4')
 
   ah(2)=subplot(122);
   polecircle2([x y z],xyzR,thr,[],[],rref,1)
+  title('POLECIRCLE2')
+
+  % Try these
   view(-71,-4)
+  
+  view([x y z])
 end
 
