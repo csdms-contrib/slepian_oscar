@@ -1,11 +1,13 @@
 #!/bin/tcsh -f
 #
-# MCGET CMTCODE, e.g.
-# MCGET C201606261117A
+# SMGET CMTCODE, e.g.
+# SMGET C201606261117A
 #
 # Downloads a bunch of simulations from the ShakeMovie website
 #
-# Last modified by fjsimons-at-alum.mit.edu, 07/07/2016
+# Last modified by fjsimons-at-alum.mit.edu, 07/26/2017
+
+# Make sure the environmental variable MC is set
 
 # Where is the website?
 set IP = 128.112.172.121
@@ -27,7 +29,7 @@ set EXT = (modes sem)
 # What we know their components are
 set CMP = (LX    MX)
 
-# Where you will put it
+# Where you will put it?
 set mydata = $MC
 set myddir = $MC/SEM
 set mydcmt = $MC/SEM/$CMT
