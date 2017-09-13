@@ -1,40 +1,51 @@
 #!/bin/tcsh -f
+# Use -x to see what exactly gets expanded
+# Do not use leading 0... past 7 these are invalid octals
 #
-# MCGET YYYY MO DD, e.g.
-# MCGET 2016 06 25, or
-# MCGET 2016 6 25, etc
+# MCGETMS YYYY MM, e.g.
+# MCGETMS 2017  7
+#
+# MCGETMS YYYY MM DD, e.g.
+# MCGETMS 2017  9 25, etc
 #
 # Downloads a bunch of data from the MC-PH1_0248
 #
-# After this, run in Matlab, e.g.
-# mcms2mat(2016,06,25,21)
+# See MCMS2SAC (shell script)
+# See MCMS2MAT (MATLAB script)
 #
-# Last modified by fjsimons-at-alum.mit.edu, 06/27/2016
+# Last modified by fjsimons-at-alum.mit.edu, 09/12/2017
+# Last modified by jirving-at-princeton.edu, 09/12/2017
 
-# Where is the instrument reachable
-set IP = 169.254.47.47
+# Where is the instrument reachable? Better ping it to be sure.
+set IP = geo-mcph1-0248
+
+# The environmental variable $MC needs to be set to a valid directory
+test ! -d $MC         && mkdir $MC
 
 # Set this flag if you need to
 set flag  = "-o PubkeyAuthentication=no"
 
-# Parameters of the "search"
+# Parameters of the "search" and making of target directories
 set yr = $1
+test ! -d $MC/$yr     && mkdir $MC/$yr
+
 set mo = `printf "%2.2i" $2`
-set dy = `printf "%2.2i" $3`
+test ! -d $MC/$yr/$mo && mkdir $MC/$yr/$mo
 
-# Where you will put it
-set mydata = $MC
-set myddir = $mydata/$yr/$mo/$dy 
+if ($# >2) then
+    set dy = `printf "%2.2i" $3`
+    echo Recursively downloading $IP\:/media/removable0/$yr/$mo/$dy to $MC/$yr/$mo/$dy
+echo     scp -rp $flag $USER@$IP\:/media/removable0/$yr/$mo/$dy $MC/$yr/$mo
+else 
+    echo Recursively downloading $IP\:/media/removable0/$yr/$mo to $MC/$yr/$mo
+echo    scp -rp $flag $USER@$IP\:/media/removable0/$yr/$mo $MC/$yr
+endif
 
-# If you didn't have it, will make it
-test ! -d $mydata && mkdir $mydata
-test ! -d $mydata/$yr && mkdir $mydata/$yr
-test ! -d $mydata/$yr/$mo && mkdir $mydata/$yr/$mo
-test ! -d $myddir && mkdir $myddir
+stop
 
-# This is where it thinks it is
 
-echo Downloading /media/removable0/$yr/$mo/$dy/\* to $myddir
-
-scp $flag $USER@$IP\:/media/removable0/$yr/$mo/$dy/\* $myddir
+# Set the permissions to not very permissive
+chmod 444 $MC/$yr/$mo/$dy/*
+chmod 555 $MC/$yr/$mo/$dy/soh
+chmod 444 $MC/$yr/$mo/$dy/soh/*
 
