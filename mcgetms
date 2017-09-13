@@ -1,6 +1,5 @@
 #!/bin/tcsh -f
-# Use -x to see what exactly gets expanded
-# Do not use leading 0... past 7 these are invalid octals
+# Downloads a MONTH or a DAY of MINISEED data from the MC-PH1_0248 seismometer
 #
 # MCGETMS YYYY MM, e.g.
 # MCGETMS 2017  7
@@ -8,13 +7,14 @@
 # MCGETMS YYYY MM DD, e.g.
 # MCGETMS 2017  9 25, etc
 #
-# Downloads a bunch of data from the MC-PH1_0248
+# Notes: Use -x to see what exactly gets expanded
+#        Do not use leading 0... past 7 these are invalid octals
 #
-# See MCMS2SAC (shell script)
-# See MCMS2MAT (MATLAB script)
+# See also: MCMS2SAC (shell script)
+#           MCMS2MAT (MATLAB script)
 #
-# Last modified by fjsimons-at-alum.mit.edu, 09/12/2017
 # Last modified by jirving-at-princeton.edu, 09/12/2017
+# Last modified by fjsimons-at-alum.mit.edu, 09/12/2017
 
 # Where is the instrument reachable? Better ping it to be sure.
 set IP = geo-mcph1-0248
@@ -22,7 +22,7 @@ set IP = geo-mcph1-0248
 # The environmental variable $MC needs to be set to a valid directory
 test ! -d $MC         && mkdir $MC
 
-# Set this flag if you need to
+# Set this flag if you need to, which you probably do
 set flag  = "-o PubkeyAuthentication=no"
 
 # Parameters of the "search" and making of target directories
@@ -35,14 +35,13 @@ test ! -d $MC/$yr/$mo && mkdir $MC/$yr/$mo
 if ($# >2) then
     set dy = `printf "%2.2i" $3`
     echo Recursively downloading $IP\:/media/removable0/$yr/$mo/$dy to $MC/$yr/$mo/$dy
-echo     scp -rp $flag $USER@$IP\:/media/removable0/$yr/$mo/$dy $MC/$yr/$mo
+    scp -rp $flag $USER@$IP\:/media/removable0/$yr/$mo/$dy $MC/$yr/$mo
 else 
     echo Recursively downloading $IP\:/media/removable0/$yr/$mo to $MC/$yr/$mo
-echo    scp -rp $flag $USER@$IP\:/media/removable0/$yr/$mo $MC/$yr
+    scp -rp $flag $USER@$IP\:/media/removable0/$yr/$mo $MC/$yr
 endif
 
 stop
-
 
 # Set the permissions to not very permissive
 chmod 444 $MC/$yr/$mo/$dy/*
