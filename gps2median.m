@@ -12,7 +12,7 @@ function varargout=gps2median(fname,intvm,method,ifwrite,offsetm,utmtrue)
 %
 % INPUT:
 %
-% fname    Complete path and filename string [default: 'HargravsGPS_60cx']
+% fname    Complete path and filename string [default: 'HargravesGPS_60cx']
 % intvm    Desired reporting interval (in minutes) [default: 5]
 % method   1 Exact mapping by binning to intervals (exact, slow!) [default]
 %          2 Interpolated to sequential intervals (approximate, fast!)
