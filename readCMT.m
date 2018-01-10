@@ -40,9 +40,12 @@ function varargout=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
 %
 % We refer to Chao and Gross 1987, doi: 10.1111/j.1365-246X.1987.tb01659.x
 %
+% Note that this is slow, see CMTSOL for how to use textscan, which is
+% much faster. 
+%
 % Last modified by efwelch@princeton.edu, 06/25/2010
 % Correction supplied by Xiaojun Chen (Yale), 04/14/2014
-% Last modified by fjsimons-at-alum.mit.edu, 06/28/2017
+% Last modified by fjsimons-at-alum.mit.edu, 06/29/2017
 
 % Check to see if it's a demo case
 if isempty(strfind(fname,'demo'))
