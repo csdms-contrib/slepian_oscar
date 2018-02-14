@@ -36,15 +36,18 @@ if ($# >2) then
     set dy = `printf "%2.2i" $3`
     echo Recursively downloading $IP\:/media/removable0/$yr/$mo/$dy to $MC/$yr/$mo/$dy
     scp -rp $flag $USER@$IP\:/media/removable0/$yr/$mo/$dy $MC/$yr/$mo
+
+    # Set the permissions to not very permissive
+    chmod 444 $MC/$yr/$mo/$dy/*
+    chmod 555 $MC/$yr/$mo/$dy/soh
+    chmod 444 $MC/$yr/$mo/$dy/soh/*
 else 
     echo Recursively downloading $IP\:/media/removable0/$yr/$mo to $MC/$yr/$mo
     scp -rp $flag $USER@$IP\:/media/removable0/$yr/$mo $MC/$yr
+    # Set the permissions to not very permissive
+    chmod 444 $MC/$yr/$mo/*/*
+    chmod 555 $MC/$yr/$mo/*/soh
+    chmod 444 $MC/$yr/$mo/*/soh/*
 endif
 
-stop
-
-# Set the permissions to not very permissive
-chmod 444 $MC/$yr/$mo/$dy/*
-chmod 555 $MC/$yr/$mo/$dy/soh
-chmod 444 $MC/$yr/$mo/$dy/soh/*
 
