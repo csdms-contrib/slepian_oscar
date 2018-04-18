@@ -1,0 +1,68 @@
+#!/bin/tcsh
+#
+# Takes screenshots of downloaded ShakeMovies using MPLAYER
+# and organizes them in a good directory structure with stills
+#
+# You will be inside a directory, e.g. 
+# S201109111227A
+# and in there you will have downloaded the ShakeMovie files
+# which this script organizes into a directory structure as:
+# AB/S201109111227A-angled-blue.mpg
+# AO/S201109111227A-angled-orange.mpg
+# GB/S201109111227A-global-blue.mpg
+# GO/S201109111227A-global-orange.mpg
+# RB/S201109111227A-rotating-blue.mpg
+# RO/S201109111227A-rotating-orange.mpg
+# and then they get moved to their directories AB, AO, GB, etc
+#
+# Last modified by fjsimons-at-alum.mit.edu, 04/18/2018
+
+# The seconds at which you will attempt to extract frames form the movies
+set seconds = (0 1 2 3 5 10 15 20 25 30 35 40 45 50 55 60 65 70)
+
+# RENAMING DOWNLOADED FILES ############################################
+
+# Hardcode these names, check against what ShakeMovie throws in
+set oldnames = ( blue orange blueRotating orangeRotating orangeNonrotating blueNonrotating.mpg )
+# These are based on my personal preferences, but they make sense
+set newnames = ( angled-blue angled-orange rotating-blue rotating-orange globe-orange globe-blue )
+
+# Pick out the directory name for the renaming scheme
+set dirname =  `echo $cwd | sed 's/\// /g' | awk '{print $NF}'`
+
+# Rename them
+set index = 0 
+foreach oldname ($oldnames[*])
+    @ index += 1
+    mv $oldname.mpg $dirname-$newnames[$index].mpg
+end
+
+# FRAME-EXTRACTING FROM FILES ##########################################
+
+# Get all the files inside, there should be only six and the listing
+# should correspond to the alphabetical order of the directory
+# variable below
+set files = `ls *.mpg`
+
+# The directories that WILL be made to contain the files
+set diros = (AB AO GB GO RB RO)
+
+# Loop over the files
+set index = 0 
+foreach file ($files[*])
+    # Loop over the seconds
+    foreach second ($seconds[*])
+        # Use MPLAYER to extract stills at the requested seconds
+	mplayer $file -vo png -ss $second -frames 1
+	# Make a tag to rename the files
+	set tag = `printf "%3.3i" $second`
+	# Then do rename the files
+        mv 00000001.png $file:r_$tag.png
+    end
+    @ index += 1
+    # Make the directories
+    mkdir $diros[$index]
+    # And move the files in them
+    mv $file:r* $diros[$index]
+end
+
