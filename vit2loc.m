@@ -34,4 +34,4 @@ STLA=[pv+sv/60];
 sv=suf(vitlon,'deg'); sv=str2num(sv(1:length(sv)-2));
 pv=pref(vitlon,'deg'); if pv(1)=='W'; ps=-1; else; ps=1; end
 pv=ps*str2num(pv(2:end));
-STLO=[pf+sf/60];
+STLO=[pv+sv/60];
