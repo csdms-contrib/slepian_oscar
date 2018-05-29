@@ -18,7 +18,7 @@ function [stdt,STLA,STLO]=vit2loc(vitdat,vitlat,vitlon)
 % STLA        A decimal latitude
 % STLO        A decimal longitude
 %
-% Last modified by fjsimons-at-alum.mit.edu, 05/29/2018
+% Last modified by fjsimons-at-alum.mit.edu, 05/28/2018
 
 % Replace the T by a space
 vitdat(strfind(vitdat,'T'))=32;
