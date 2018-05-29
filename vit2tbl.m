@@ -26,7 +26,7 @@ function varargout=vit2tbl(fname,foutname)
 % 20180409-08h34mn37: 1 file(s) uploaded
 % 20180409-08h34mn44: <<<<<<<<<<<<<<< Bye >>>>>>>>>>>>>>>
 %
-% Last modified by fjsimons-at-alum.mit.edu, 05/17/2018
+% Last modified by fjsimons-at-alum.mit.edu, 05/29/2018
 
 % Default filename, which MUST end in .vit
 defval('fname','/u/fjsimons/MERMAID/server/452.112-N-01.vit')
