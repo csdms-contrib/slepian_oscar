@@ -19,7 +19,7 @@ function mhqdp(dirname,fname,evpars,vitdat,vitlat,vitlon)
 % vitlon     A string from the *.vit file with the last known longitude:
 %            e.g. E134deg57.367mn
 %
-% Last modified by fjsimons-at-alum.mit.edu, 04/25/2018
+% Last modified by fjsimons-at-alum.mit.edu, 05/29/2018
 
 % Default values 
 defval('dirname','/u/fjsimons/MERMAID/KobeShip2/')
