@@ -26,7 +26,7 @@ function varargout=vit2tbl(fname,foutname)
 % 20180409-08h34mn37: 1 file(s) uploaded
 % 20180409-08h34mn44: <<<<<<<<<<<<<<< Bye >>>>>>>>>>>>>>>
 %
-% Last modified by fjsimons-at-alum.mit.edu, 05/29/2018
+% Last modified by fjsimons-at-alum.mit.edu, 05/17/2018
 
 % Default filename, which MUST end in .vit
 defval('fname','/u/fjsimons/MERMAID/server/452.112-N-01.vit')
@@ -94,7 +94,7 @@ while lred~=-1
 	formconv(jentry);
     
     % Write one line in the new file
-    fprintf(fout,'%s %11.6f %11.6f %8.3f %8.3f %5i %5i %5i %12i %5i %3i %3i %3i\n',...
+    fprintf(fout,fmtout,...
 	    stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl);
   end
     
@@ -109,6 +109,31 @@ varargout=varns(1:nargout);
 % Close and done
 fclose(fin);
 fclose(fout);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MAKE FORMAT STRING
+function fmt=fmtout
+
+% All but last one get spaces
+stdt_fmt  ='%s ';
+STLA_fmt  ='%11.6f ';
+STLO_fmt  ='%11.6f ';
+hdop_fmt  ='%8.3f ';
+vdop_fmt  ='%8.3f ';
+Vbat_fmt  ='%5i ';
+minV_fmt  ='%5i ';
+Pint_fmt  ='%5i ';
+Pext_fmt  ='%12i ';
+Prange_fmt='%5i ';
+cmdrcd_fmt='%3i ';
+f2up_fmt  ='%3i ';
+% Last one gets a closure
+fupl_fmt  ='%3i\n';
+
+% Combine all the formats, the current result is:
+% '%s %11.6f %11.6f %8.3f %8.3f %5i %5i %5i %12i %5i %3i %3i %3i\n'
+fmt=[stdt_fmt,STLA_fmt,STLO_fmt,hdop_fmt,vdop_fmt,Vbat_fmt,minV_fmt,Pint_fmt,...
+	   Pext_fmt,Prange_fmt,cmdrcd_fmt,f2up_fmt,fupl_fmt];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % FORMAT CONVERSION FROM .vit ENTRY TO ONE-LINER FOR .tbl FILE
