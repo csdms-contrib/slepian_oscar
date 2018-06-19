@@ -1,7 +1,10 @@
 function varargout=vit2tbl(fname,fnout)
 % jentry=VIT2TABL(fname,fnout)
 %
-% Reads a Mermaid *vit file and parses the content, and writes it out
+% Reads a Mermaid *vit file and parses the content, and writes it out.
+% One would start with VITIMPORT (secure copy from our receiving server).
+% One would end with copying the output to our web server.
+% One would read those files off the Google Maps API on www.earthscopeoceans.org
 %
 % INPUT:
 %
@@ -31,7 +34,7 @@ function varargout=vit2tbl(fname,fnout)
 % Last modified by fjsimons-at-alum.mit.edu, 06/19/2018
 
 % Default input filename, which MUST end in .vit
-defval('fname','/u/fjsimons/MERMAID/server/452.112-N-00.vit')
+defval('fname','/u/fjsimons/MERMAID/server/452.020-P-08.vit')
 
 % Open output for writing
 fnout=fname;
@@ -91,7 +94,8 @@ while lred~=-1
   end
 
   % If an entry is corrupted, it could have too many lines
-  if size(jentry,1)<=nrlines & index<=nrlines
+  % OVERRIDE THIS AS WE MAKE FORMCONV MORE ROBUST
+  if 1==1 | [size(jentry,1)<=nrlines & index<=nrlines]
     % Format conversion 
     [stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl]=...
 	formconv(jentry);
@@ -139,8 +143,10 @@ fmt=[stdt_fmt,STLA_fmt,STLO_fmt,hdop_fmt,vdop_fmt,Vbat_fmt,minV_fmt,Pint_fmt,...
 	   Pext_fmt,Prange_fmt,cmdrcd_fmt,f2up_fmt,fupl_fmt];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% FORMAT CONVERSION FROM .vit ENTRY TO ONE-LINER FOR .tbl FILE
+% ROBUST FORMAT CONVERSION FROM .vit ENTRY TO ONE-LINER FOR .tbl FILE
 function [stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl]=formconv(jentry)
+
+% Robustness is increasingly meaning: down to first error
 
 % Now you have one journal entry, and are ready to parse for output
 % FIRST LINE: Time stamp
@@ -152,13 +158,19 @@ vitlon=jentry{2}(37:51); % Check this is like: E135deg17.443mn
 % Convert these already
 [stdt,STLA,STLO]=vit2loc(vitdat,vitlat,vitlon);
 
-% ABORT HERE IF THE COORDINATES ARE 00, AWAYS PROBLEMS DOWN THE LINE
-
-% THIRD LINE: horizontal and vertical dilution of precision
-vitdop=textscan(jentry{3},'%*s %*s %f %*s %*s %f');
-hdop=vitdop{1}; % Check this is like: 1.27
-vdop=vitdop{2}; % Check this is like: 2.15
-
+% ABORT HERE IF THE COORDINATES ARE 00, DOP PROBLEMS DOWN THE LINE
+if STLO~=0 && STLA~=0
+  % THIRD LINE: horizontal and vertical dilution of precision
+  vitdop=textscan(jentry{3},'%*s %*s %f %*s %*s %f');
+  hdop=vitdop{1}; % Check this is like: 1.27
+  vdop=vitdop{2}; % Check this is like: 2.15
+elseif STLO==0 && STLA==0
+  STLO=NaN;
+  STLA=NaN;
+end
+defval('hdop',NaN)
+defval('vdop',NaN)
+    
 % ABORT HERE IF THE DOP ARE NEGATIVE OR MINUS SIGNS PAST THE DECIMAL SIGN
 
 % FOURTH LINE: battery level and minimum voltage
