@@ -1,12 +1,12 @@
-function varargout=vit2tbl(fname,foutname)
-% jentry=VIT2TABL(fname,foutname)
+function varargout=vit2tbl(fname,fnout)
+% jentry=VIT2TABL(fname,fnout)
 %
 % Reads a Mermaid *vit file and parses the content, and writes it out
 %
 % INPUT:
 %
-% fname     A full filename string (e.g. '/u/fjsimons/MERMAID/server/452.112-N-01.vit')
-% foutname  An output file for the reformatted data
+% fname     A full filename string (e.g. '/u/fjsimons/MERMAID/server/452.112-N-00.vit')
+% fnoutn    An output filename for the reformat [default: changed extension]
 %
 % OUTPUT:
 %
@@ -26,10 +26,12 @@ function varargout=vit2tbl(fname,foutname)
 % 20180409-08h34mn37: 1 file(s) uploaded
 % 20180409-08h34mn44: <<<<<<<<<<<<<<< Bye >>>>>>>>>>>>>>>
 %
-% Last modified by fjsimons-at-alum.mit.edu, 05/17/2018
+% TESTED ON MATLAB 9.0.0.341360 (R2016a)
+% 
+% Last modified by fjsimons-at-alum.mit.edu, 06/19/2018
 
-% Default filename, which MUST end in .vit
-defval('fname','/u/fjsimons/MERMAID/server/452.112-N-01.vit')
+% Default input filename, which MUST end in .vit
+defval('fname','/u/fjsimons/MERMAID/server/452.112-N-00.vit')
 
 % Open output for writing
 fnout=fname;
@@ -39,18 +41,19 @@ oldext='.vit';
 newext='.tbl';
 % Change extension from oldext to newext
 fnout(strfind(fname,oldext):strfind(fname,oldext)+length(oldext)-1)=newext;
-% Always write a whole new file, always process the entire file (for now)
-fout=fopen(fnout,'w+');
 
 % Open input for reading
 fin=fopen(fname,'r');
+
+% Always write a whole new file, always process the entire file (for now)
+fout=fopen(fnout,'w+');
 
 % EXACT markers of the journal entries
 begmark='BUOY';
 endmark='Bye';
 % EXACT number of blank lines in-between entries (NOT USED TO BE FLEXIBLE)
 nrblank=2;
-% EXPECTED number of lines per entry, reject if not the same
+% EXPECTED number of lines per entry, reject if it is MORE
 nrlines=10;
 
 % Keep going until the end
@@ -87,8 +90,8 @@ while lred~=-1
     isend=strfind(lred,endmark);
   end
 
-  % If an entry is corrupted, it could have too many lines, or too few
-  if size(jentry,1)==nrlines & index==10
+  % If an entry is corrupted, it could have too many lines
+  if size(jentry,1)<=nrlines & index<=nrlines
     % Format conversion 
     [stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl]=...
 	formconv(jentry);
@@ -148,11 +151,16 @@ vitlon=jentry{2}(37:51); % Check this is like: E135deg17.443mn
 			 
 % Convert these already
 [stdt,STLA,STLO]=vit2loc(vitdat,vitlat,vitlon);
- 
+
+% ABORT HERE IF THE COORDINATES ARE 00, AWAYS PROBLEMS DOWN THE LINE
+
 % THIRD LINE: horizontal and vertical dilution of precision
 vitdop=textscan(jentry{3},'%*s %*s %f %*s %*s %f');
 hdop=vitdop{1}; % Check this is like: 1.27
 vdop=vitdop{2}; % Check this is like: 2.15
+
+% ABORT HERE IF THE DOP ARE NEGATIVE OR MINUS SIGNS PAST THE DECIMAL SIGN
+
 % FOURTH LINE: battery level and minimum voltage
 vitbat=textscan(jentry{4},'%*s %*s %f %*s %*s %f');
 Vbat=vitbat{1}; % Check this is like 15425
@@ -163,9 +171,14 @@ Pint=cell2mat(textscan(jentry{5},'%*s %*s %f'));
 vitext=textscan(jentry{6},'%*s %*s %f %*s %*s %f');
 Pext=vitext{1};
 Prange=vitext{2};
+
 % SEVENTH LINE: 
 cmdrcd=cell2mat(textscan(jentry{7},'%*s %f'));
 % EIGHT LINE: 
-f2up=cell2mat(textscan(jentry{8},'%*s %f'));
+try ; f2up=cell2mat(textscan(jentry{8},'%*s %f')); end
+% Capture if the line was empty
+defval('f2up',0)
 % NINTH LINE: 
-fupl=cell2mat(textscan(jentry{9},'%*s %f'));
+try ; fupl=cell2mat(textscan(jentry{9},'%*s %f')); end
+% Capture if the line was empty
+defval('fupl',0)
