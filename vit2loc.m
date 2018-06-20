@@ -18,20 +18,20 @@ function [stdt,STLA,STLO]=vit2loc(vitdat,vitlat,vitlon)
 % STLA        A decimal latitude
 % STLO        A decimal longitude
 %
-% Last modified by fjsimons-at-alum.mit.edu, 05/28/2018
+% Last modified by fjsimons-at-alum.mit.edu, 06/19/2018
 
 % Replace the T by a space
 vitdat(strfind(vitdat,'T'))=32;
 stdt=datetime(datestr(vitdat),'TimeZone','UTC');
 
 % Latitude parsing
-sv=suf(vitlat,'deg'); sv=str2num(sv(1:length(sv)-2));
 pv=pref(vitlat,'deg'); if pv(1)=='S'; ps=-1; else; ps=1; end
+sv=suf(vitlat,'deg'); sv=ps*str2num(sv(1:length(sv)-2));
 pv=ps*str2num(pv(2:end));
 STLA=[pv+sv/60];
 
 % Longitude parsing
-sv=suf(vitlon,'deg'); sv=str2num(sv(1:length(sv)-2));
 pv=pref(vitlon,'deg'); if pv(1)=='W'; ps=-1; else; ps=1; end
+sv=suf(vitlon,'deg'); sv=ps*str2num(sv(1:length(sv)-2));
 pv=ps*str2num(pv(2:end));
 STLO=[pv+sv/60];
