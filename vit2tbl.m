@@ -1,10 +1,11 @@
 function varargout=vit2tbl(fname,fnout)
 % jentry=VIT2TABL(fname,fnout)
 %
-% Reads a Mermaid *vit file and parses the content, and writes it out.
-% One would start with VITIMPORT (secure copy from our receiving server).
-% One would end with copying the output to our web server.
-% One would read those files off the Google Maps API on www.earthscopeoceans.org
+% Reads a MERMAID *vit file, parses the content, and writes it to *.tbl
+%
+% (One would start with VITIMPORT (secure copy from our receiving server)
+% (One would end with copying the output to our web server using VITEXPORT)
+% (One would read those files off the Google Maps API on www.earthscopeoceans.org)
 %
 % INPUT:
 %
@@ -31,7 +32,7 @@ function varargout=vit2tbl(fname,fnout)
 %
 % TESTED ON MATLAB 9.0.0.341360 (R2016a)
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 06/19/2018
+% Last modified by fjsimons-at-alum.mit.edu, 07/02/2018
 
 % Default input filename, which MUST end in .vit
 defval('fname','/u/fjsimons/MERMAID/server/452.020-P-08.vit')
