@@ -1,5 +1,5 @@
 function varargout=mer2sac(fname,fnout,ornot)
-% [SeisData,HdrData]=MER2SAC(fname,fnout,ornot)
+% [SeisData,HdrEvt,HdrData]=MER2SAC(fname,fnout,ornot)
 %
 % Reads a MERMAID *MER file and parses the content, and writes it out.
 %
@@ -13,7 +13,7 @@ function varargout=mer2sac(fname,fnout,ornot)
 % OUTPUT:
 %
 % SeisData        The numbers vector, the samples of the seismograms
-% HdrEvnt         The metadata, for each of the events
+% HdrEvt         The metadata, for each of the events
 % HdrData         The main header structure array
 %
 % TESTED ON MATLAB 9.0.0.341360 (R2016a)
