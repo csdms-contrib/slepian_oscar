@@ -12,12 +12,16 @@ function varargout=mer2sac(fname,fnout,ornot)
 %
 % OUTPUT:
 %
-% SeisData        The numbers vector, the samples of the seismogram
-% HdrData         The header structure array
+% SeisData        The numbers vector, the samples of the seismograms
+% HdrEvnt         The metadata, for each of the events
+% HdrData         The main header structure array
 %
 % TESTED ON MATLAB 9.0.0.341360 (R2016a)
 % 
 % Last modified by fjsimons-at-alum.mit.edu, 07/02/2018
+
+% Default plotting or not
+defval('ornot',0)
 
 % Default input filename, which MUST end in .vit
 defval('fname','/u/fjsimons/MERMAID/server/rawdata/05_596D7EB2.MER')
@@ -61,7 +65,7 @@ for index=1:nev
   % the Python script.   
 
   % Write out
-  % writesac(SeisData,HdrDate,fnout)
+  % writesac(SeisData,HdrData,fnout)
 end
 
 % Maybe check that we are at the very end of the file?
@@ -69,12 +73,12 @@ end
 % I  think should amount to 1767 bytes
 
 % Optional output
-varns={SeisData,HdrData};
+varns={SeisData,HdrEvt,HdrData};
 varargout=varns(1:nargout);
 
 % Close and done
 fclose(fin);
-fclose(fout);
+%fclose(fout);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function hdr=mer2hdr(fin,begmark,endmark,nrlines,nrvalid)
