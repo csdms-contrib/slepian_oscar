@@ -13,20 +13,20 @@ function varargout=mer2sac(fname,fnout,ornot)
 % OUTPUT:
 %
 % SeisData        The numbers vector, the samples of the seismograms
-% HdrEvt         The metadata, for each of the events
+% HdrEvt          The metadata, for each of the events
 % HdrData         The main header structure array
 %
 % TESTED ON MATLAB 9.0.0.341360 (R2016a)
 % 
 % Last modified by fjsimons-at-alum.mit.edu, 07/02/2018
 
-% Default plotting or not
+% Default output or not
 defval('ornot',0)
 
 % Default input filename, which MUST end in .vit
 defval('fname','/u/fjsimons/MERMAID/server/rawdata/05_596D7EB2.MER')
 
-% Open output for writing
+% Construct output filenames for writing
 fnout=fname;
 % Old extension, with the dot
 oldext='.MER';
@@ -64,8 +64,10 @@ for index=1:nev
   % Now the clock corrections and the inverse wavelet transform etc as in
   % the Python script.   
 
-  % Write out
-  % writesac(SeisData,HdrData,fnout)
+  % Write out, need to work on the subfile names
+  if ornott==1
+    % writesac(SeisData,HdrData,fnout)
+  end
 end
 
 % Maybe check that we are at the very end of the file?
