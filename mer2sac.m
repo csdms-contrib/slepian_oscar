@@ -1,7 +1,7 @@
 function varargout=mer2sac(fname,fnout,ornot)
 % [SeisData,HdrData]=MER2SAC(fname,fnout,ornot)
 %
-% Reads a MERMAID *MER file and parses the content, and writes it out.%
+% Reads a MERMAID *MER file and parses the content, and writes it out.
 %
 % INPUT:
 %
