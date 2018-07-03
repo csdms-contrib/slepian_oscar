@@ -76,7 +76,6 @@ varargout=varns(1:nargout);
 fclose(fin);
 fclose(fout);
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function hdr=mer2hdr(fin,begmark,endmark,nrlines,nrvalid)
 
