@@ -1,16 +1,17 @@
 function varargout=vit2tbl(fname,fnout)
 % jentry=VIT2TABL(fname,fnout)
 %
-% Reads a MERMAID *vit file, parses the content, and writes it to *.tbl
+% Reads a MERMAID *.vit file, parses the content, and writes it to *.tbl
 %
-% (One would start with VITIMPORT (secure copy from our receiving server)
+% (One would start with VITIMPORT secure copy from our receiving server)
 % (One would end with copying the output to our web server using VITEXPORT)
 % (One would read those files off the Google Maps API on www.earthscopeoceans.org)
 %
 % INPUT:
 %
-% fname     A full filename string (e.g. '/u/fjsimons/MERMAID/server/452.112-N-00.vit')
-% fnoutn    An output filename for the reformat [default: changed extension]
+% fname     A full filename string (e.g. '/u/fjsimons/MERMAID/serverdata/vitdata/452.020-P-08.vit')
+% fnout     An output filename for the reformat [default: same path,
+% extension changed to ]
 %
 % OUTPUT:
 %
@@ -32,12 +33,12 @@ function varargout=vit2tbl(fname,fnout)
 %
 % TESTED ON MATLAB 9.0.0.341360 (R2016a)
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 07/02/2018
+% Last modified by fjsimons-at-alum.mit.edu, 08/08/2018
 
 % Default input filename, which MUST end in .vit
-defval('fname','/u/fjsimons/MERMAID/server/452.020-P-08.vit')
+defval('fname','/u/fjsimons/MERMAID/serverdata/vitdata/452.020-P-08.vit')
 
-% Open output for writing
+% Construct output filename for writing
 fnout=fname;
 % Old extension, with the dot
 oldext='.vit';
@@ -57,14 +58,14 @@ begmark='BUOY';
 endmark='Bye';
 % EXACT number of blank lines in-between entries (NOT USED TO BE FLEXIBLE)
 nrblank=2;
-% EXPECTED number of lines per entry, reject if it is MORE
+% EXPECTED number of lines (NOT PUNITIVE)
 nrlines=10;
 
 % Keep going until the end
 lred=0;
 % Do not move past the end
 while lred~=-1
-  % Read line by line until you find a "BUOY" or hit "Bye"
+  % Read line by line until you find a BEGMARK or hit an ENDMARK
   isbeg=[];
   % Reads lines until you hit a begin marker
   while isempty(isbeg)
@@ -93,6 +94,8 @@ while lred~=-1
     % Was that a line closing a journal entry?
     isend=strfind(lred,endmark);
   end
+
+  % Here there is no culling, unlike in MER2SAC
 
   % If an entry is corrupted, it could have too many lines
   % OVERRIDE THIS AS WE MAKE FORMCONV MORE ROBUST
