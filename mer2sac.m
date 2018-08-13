@@ -1,30 +1,30 @@
 function varargout=mer2sac(fname,fnout,ornot)
 % [SeisData,HdrEvt,HdrData]=MER2SAC(fname,fnout,ornot)
 %
-% Reads a MERMAID *MER file and parses the content, and writes it out.
+% Reads a MERMAID *MER file and parses the content, and writes it out to SAC.
 %
 % INPUT:
 %
-% fname     A full filename string (e.g. '~/MERMAID/rawdata/05_596D7EB2.MER')
+% fname     A full string (e.g. '~/MERMAID/serverdata/merdata/22_5B278AF1.MER')
 % fnout     An output filename for the reformat [default: changed extension]
-% ornot     1 writes output (default)
+% ornot     1 writes output
 %           0 does not write output
 %
 % OUTPUT:
 %
-% SeisData        The numbers vector, the samples of the seismograms
-% HdrEvt          The metadata, for each of the events
-% HdrData         The main header structure array
+% SeisData        The numbers vector, the samples of the seismograms, a cell
+% HdrEvt          The metadata, for each of the events, a cell
+% HdrData         The main header entries array
 %
 % TESTED ON MATLAB 9.0.0.341360 (R2016a)
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 07/02/2018
+% Last modified by fjsimons-at-alum.mit.edu, 08/11/2018
 
 % Default output or not
 defval('ornot',0)
 
-% Default input filename, which MUST end in .vit
-defval('fname','/u/fjsimons/MERMAID/server/rawdata/05_596D7EB2.MER')
+% Default input filename, which MUST end in .MER
+defval('fname','/u/fjsimons/MERMAID/serverdata/merdata/22_5B278AF1.MER')
 
 % Construct output filenames for writing
 fnout=fname;
@@ -38,19 +38,19 @@ fnout(strfind(fname,oldext):strfind(fname,oldext)+length(oldext)-1)=newext;
 % Open input for reading
 fin=fopen(fname,'r');
 
-% Read top header data
+% Read TOP HEADER data
 HdrData=mer2hdr(fin,'<ENVIRONMENT>','</PARAMETERS>',58,30);
 
 % Back up the file all the way to the beginning
 fseek(fin,0,-1);
 
-% This is the HdrData cell index where the number of event must be kept
+% This is the HdrData cell index where the number of events must be kept
 evl=4;
 % How many events are there?
 nev=str2num(HdrData{evl}(strfind(HdrData{evl},'EVENTS=')+7:strfind(HdrData{evl},'/>')-2));
 
 for index=1:nev
-  % Read event header data
+  % Read EVENT HEADER data
   HdrEvt{index}=mer2hdr(fin,'<EVENT>','<DATA>',7,4);
 
   % This is the HdrEvt cell index where the number of samples read must be kept
@@ -62,10 +62,11 @@ for index=1:nev
   SeisData{index}=mer2dat(fin,nrd);
 
   % Now the clock corrections and the inverse wavelet transform etc as in
-  % the Python script.   
+  % the Python script.  But for this, we really should go to AUTOMAID...
 
   % Write out, need to work on the subfile names
-  if ornott==1
+  if ornot==1
+    % 
     % writesac(SeisData,HdrData,fnout)
   end
 end
@@ -73,6 +74,10 @@ end
 % Maybe check that we are at the very end of the file?
 % All that should follow is two closing tags, </DATA> and </EVENT>, which
 % I  think should amount to 1767 bytes
+
+% There may have bee none, so prepare empty output
+defval('SeisData',NaN)
+defval('HdrEvt',NaN)
 
 % Optional output
 varns={SeisData,HdrEvt,HdrData};
@@ -84,17 +89,20 @@ fclose(fin);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function hdr=mer2hdr(fin,begmark,endmark,nrlines,nrvalid)
+% Subroutine to read the header data
 
-% EXACT markers of the journal entries
+% EXACT markers of the journal entries, e.g. 
 defval('begmark','<ENVIRONMENT>');
 defval('endmark','</PARAMETERS>');
-% EXPECTED number of lines (NOT PUNITIVE)
+% EXPECTED number of lines (NOT PUNITIVE), e.g.
 defval('nrlines',58);
-% EXPECTED number of nonempty entries, will grow
+% EXPECTED number of nonempty entries, will grow/shrink, e.g.
 defval('nrvalid',30);
 
 % Initialize to a size probably good enough (but will grow)
 hdr=cellnan([nrvalid 1],1,1);
+
+% COMPARE WITH VIT2TBL %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Keep going until the end
 lred=0;
@@ -130,13 +138,18 @@ while lred~=-1
     isend=strfind(lred,endmark);
   end
 
-  % Now you have captured the header; get rid of any blanks
+  % Now you have captured the header; get rid of any blanks and NaNs
   index=0;
   for ondex=1:length(jentry)
-    if ~isempty(jentry{ondex})
+    if ~isempty(jentry{ondex}) & ~isnan(jentry{ondex})
       index=index+1;
       hdr{index}=jentry{ondex};
     end
+  end
+  % If you had fewer than expected entries, cull the final result also
+  if index<nrvalid
+    % The non-curly braces are crucial here
+    hdr=hdr(1:index);
   end
 
   % Now you make sure you do not continue
