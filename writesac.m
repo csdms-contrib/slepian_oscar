@@ -1,5 +1,5 @@
-function writesac(SeisData,HdrData,filename)
-% WRITESAC(SeisData,HdrData,filename)
+function fid=writesac(SeisData,HdrData,filename)
+% fid=WRITESAC(SeisData,HdrData,filename)
 %
 % INPUT:
 %
@@ -7,9 +7,13 @@ function writesac(SeisData,HdrData,filename)
 % HdrData       Optional header structure array, with updated information
 % filename      The name of the file that will be written
 %
+% OUTPUT:
+%
+% fid           The handle of the newly createdfile 
+%
 % See also: READSAC, MAKEHDR
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 10/16/2011
+% Last modified by fjsimons-at-alum.mit.edu, 08/11/2018
 
 % Default filename
 defval('filename',[inputname(1),'.sac']);
@@ -83,3 +87,6 @@ fwrite(fid,HdrK','char');
 fwrite(fid,SeisData,'float32');
 fclose(fid);
 
+% Optional output
+varns={fid};
+varargout=varns(1:nargout);
