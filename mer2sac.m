@@ -1,24 +1,26 @@
 function varargout=mer2sac(fname,fnout,ornot)
 % [SeisData,HdrEvt,HdrData]=MER2SAC(fname,fnout,ornot)
 %
-% Reads a MERMAID *MER file and parses the content, and writes it out to SAC.
+% Reads a MERMAID *MER file and parses the content - and ultimately
+% writes it out to SAC after clock and position correction and inverse
+% wavelet transformation (which has not been implemented yet).
 %
 % INPUT:
 %
 % fname     A full string (e.g. '~/MERMAID/serverdata/merdata/22_5B278AF1.MER')
 % fnout     An output filename for the reformat [default: changed extension]
 % ornot     1 writes output
-%           0 does not write output
+%           0 does not write output [default for now]
 %
 % OUTPUT:
 %
 % SeisData        The numbers vector, the samples of the seismograms, a cell
 % HdrEvt          The metadata, for each of the events, a cell
-% HdrData         The main header entries array
+% HdrData         The main header entries array, a simple cell
 %
 % TESTED ON MATLAB 9.0.0.341360 (R2016a)
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 08/11/2018
+% Last modified by fjsimons-at-alum.mit.edu, 08/13/2018
 
 % Default output or not
 defval('ornot',0)
@@ -49,33 +51,40 @@ evl=4;
 % How many events are there?
 nev=str2num(HdrData{evl}(strfind(HdrData{evl},'EVENTS=')+7:strfind(HdrData{evl},'/>')-2));
 
+if nev>0
+  % Prepare empty cell output, figure out a good default
+%  defval('SeisData',cellnan())
+%  defval('HdrEvt',cellnan())
+end
+
+% This is the HdrEvt cell index where the number of samples read must be kept
+evl=3;
+
 for index=1:nev
   % Read EVENT HEADER data
   HdrEvt{index}=mer2hdr(fin,'<EVENT>','<DATA>',7,4);
 
-  % This is the HdrEvt cell index where the number of samples read must be kept
-  evl=3;
-  % How many data points need to be read??
+  % How many data points need to be read for this event?
   nrd=str2num(HdrEvt{index}{evl}(strfind(HdrEvt{index}{evl},'LENGTH=')+7:strfind(HdrEvt{index}{evl},'/>')-2));
-  
-  % Read data data
+
+  % Read data data for this event - there should be bytes left over for
+  % the rest of it!
   SeisData{index}=mer2dat(fin,nrd);
 
   % Now the clock corrections and the inverse wavelet transform etc as in
-  % the Python script.  But for this, we really should go to AUTOMAID...
+  % the Python script. But for this, we really should go to AUTOMAID...
 
-  % Write out, need to work on the subfile names
+  % Write out, need to work on the subfile processing names
   if ornot==1
-    % 
     % writesac(SeisData,HdrData,fnout)
   end
 end
 
 % Maybe check that we are at the very end of the file?
-% All that should follow is two closing tags, </DATA> and </EVENT>, which
-% I  think should amount to 1767 bytes
+% All that should follow is two closing tags, </DATA> and </EVENT>, maybe
+% with some empty spaces in-between
 
-% There may have bee none, so prepare empty output
+% There may have been none, so prepare empty non-cell output
 defval('SeisData',NaN)
 defval('HdrEvt',NaN)
 
@@ -163,4 +172,5 @@ function dat=mer2dat(fin,nrd)
 % EXACT number of data to read
 defval('nrd',64);
 
+% Then read it under the right format control
 dat=fread(fin,nrd,'int32');
