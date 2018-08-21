@@ -3,15 +3,14 @@ function varargout=vit2tbl(fname,fnout)
 %
 % Reads a MERMAID *.vit file, parses the content, and writes it to *.tbl
 %
-% (One would start with VITIMPORT secure copy from our receiving server)
+% (One would start with SERVERCOPY sync from our receiving server)
 % (One would end with copying the output to our web server using VITEXPORT)
 % (One would read those files off the Google Maps API on www.earthscopeoceans.org)
 %
 % INPUT:
 %
 % fname     A full filename string (e.g. '/u/fjsimons/MERMAID/serverdata/vitdata/452.020-P-08.vit')
-% fnout     An output filename for the reformat [default: same path,
-% extension changed to ]
+% fnout     An output filename for the reformat [default: same path, extension changed to *.tbl]
 %
 % OUTPUT:
 %
@@ -19,7 +18,7 @@ function varargout=vit2tbl(fname,fnout)
 %
 % NOTE:
 %
-% *.vit files take the following form
+% *.vit files take the following form entries
 % 20180409-08h33mn01: >>> BUOY 01 2018-04-09T08:33:02 <<<
 % 20180409-08h33mn02: N34deg43.118mn, E135deg17.443mn
 % 20180409-08h33mn03: hdop 1.270, vdop 2.150
@@ -31,9 +30,13 @@ function varargout=vit2tbl(fname,fnout)
 % 20180409-08h34mn37: 1 file(s) uploaded
 % 20180409-08h34mn44: <<<<<<<<<<<<<<< Bye >>>>>>>>>>>>>>>
 %
+% NOTE:
+%
+% If the file is corrupted due to transmission problems, will handle gracefully
+%
 % TESTED ON MATLAB 9.0.0.341360 (R2016a)
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 08/08/2018
+% Last modified by fjsimons-at-alum.mit.edu, 08/21/2018
 
 % Default input filename, which MUST end in .vit
 defval('fname','/u/fjsimons/MERMAID/serverdata/vitdata/452.020-P-08.vit')
@@ -56,10 +59,12 @@ fout=fopen(fnout,'w+');
 % EXACT markers of the journal entries
 begmark='BUOY';
 endmark='Bye';
-% EXACT number of blank lines in-between entries (NOT USED TO BE FLEXIBLE)
+% UNUSED number of blank lines in-between entries
 nrblank=2;
 % EXPECTED number of lines (NOT PUNITIVE)
 nrlines=10;
+
+% COMPARE WITH MER2HDR INSIDE MER2SAC %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Keep going until the end
 lred=0;
@@ -67,16 +72,17 @@ lred=0;
 while lred~=-1
   % Read line by line until you find a BEGMARK or hit an ENDMARK
   isbeg=[];
+
   % Reads lines until you hit a begin marker
   while isempty(isbeg)
     lred=fgetl(fin);
-    % Terminate if you have reached the end
+    % Terminate if you have reached the end of the file
     if lred==-1; break ; end
     % Was that a line opening a journal entry?
     isbeg=strfind(lred,begmark);
   end
 
-  % Terminate if you have reached the end
+  % Terminate if you have reached the end of the file
   if lred==-1; break ; end
 
   % Now you are inside the entry, and you have a good idea
@@ -85,20 +91,27 @@ while lred~=-1
   jentry=cellnan([nrlines 1],1,1);
   % Grab the line you already had
   jentry{1}=lred; index=1;
-  % Reads lines until you hit the end marker
+  % Reads lines until you hit the end marker, or a new begin
   while isempty(isend)
-    lred=fgetl(fin);
+    % Keep the position in order to back up
+    oldpos=ftell(fin);
+    % Read another line... possibly one too many
+    lred=fgetl(fin); 
     % Put the entries in the output array
     index=index+1;
     jentry{index}=lred;
     % Was that a line closing a journal entry?
     isend=strfind(lred,endmark);
+    % But if it has hit a new beginning, need to reset
+    isnew=strfind(lred,begmark);
+    % The cannot both be true, but one needs to tell the other and back up
+    if ~isempty(isnew); isend=isnew; fseek(fin,oldpos,-1) ; end
   end
 
   % Here there is no culling, unlike in MER2SAC
 
   % If an entry is corrupted, it could have too many lines
-  % OVERRIDE THIS AS WE MAKE FORMCONV MORE ROBUST
+  % OVERRIDE SINCE FORMCONV WILL READ AS FAR AS IT CAN
   if 1==1 | [size(jentry,1)<=nrlines & index<=nrlines]
     % Format conversion 
     [stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl]=...
@@ -155,7 +168,7 @@ function [stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl]=
 % Now you have one journal entry, and are ready to parse for output
 % FIRST LINE: Time stamp
 vitdat=jentry{1}(33:51); % Check this is like: 2018-04-09T08:33:02
- % SECOND LINE: latitude and longitude
+% SECOND LINE: latitude and longitude
 vitlat=jentry{2}(21:34); % Check this is like: N34deg43.118mn
 vitlon=jentry{2}(37:51); % Check this is like: E135deg17.443mn
 			 
@@ -189,7 +202,9 @@ Pext=vitext{1};
 Prange=vitext{2};
 
 % SEVENTH LINE: 
-cmdrcd=cell2mat(textscan(jentry{7},'%*s %f'));
+try ; cmdrcd=cell2mat(textscan(jentry{7},'%*s %f')); end
+% Capture if the line was empty
+defval('cmdrcd',0)
 % EIGHT LINE: 
 try ; f2up=cell2mat(textscan(jentry{8},'%*s %f')); end
 % Capture if the line was empty
