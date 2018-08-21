@@ -97,6 +97,8 @@ while lred~=-1
     oldpos=ftell(fin);
     % Read another line... possibly one too many
     lred=fgetl(fin); 
+    % Terminate if you have reached the end of the file
+    if lred==-1; break ; end
     % Put the entries in the output array
     index=index+1;
     jentry{index}=lred;
@@ -117,9 +119,13 @@ while lred~=-1
     [stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl]=...
 	formconv(jentry);
     
-    % Write one line in the new file
-    fprintf(fout,fmtout,...
-	    stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl);
+    % Do not bother if you're in the testing phase, when Pext will be negative
+    if Pext>0
+      % Write one line in the new file, if the data are not corrupted...
+      fprintf(fout,fmtout,...
+	      stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl);
+
+    end
   end
     
   % Read the prescribed number of blanks and reset or comparison will fail
@@ -184,12 +190,12 @@ if STLO~=0 && STLA~=0
 elseif STLO==0 && STLA==0
   STLO=NaN;
   STLA=NaN;
+  % And do not even bother to read on, they might be negative
 end
+% If no hdop or vdop have been read, assign NaN to them
 defval('hdop',NaN)
 defval('vdop',NaN)
     
-% ABORT HERE IF THE DOP ARE NEGATIVE OR MINUS SIGNS PAST THE DECIMAL SIGN
-
 % FOURTH LINE: battery level and minimum voltage
 vitbat=textscan(jentry{4},'%*s %*s %f %*s %*s %f');
 Vbat=vitbat{1}; % Check this is like 15425
