@@ -36,19 +36,23 @@ function varargout=vit2tbl(fname,fnout)
 %
 % TESTED ON MATLAB 9.0.0.341360 (R2016a)
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 08/21/2018
+% Last modified by fjsimons-at-alum.mit.edu, 08/30/2018
 
 % Default input filename, which MUST end in .vit
 defval('fname','/u/fjsimons/MERMAID/serverdata/vitdata/452.020-P-08.vit')
 
-% Construct output filename for writing
-fnout=fname;
-% Old extension, with the dot
-oldext='.vit';
-% New extension, must be same length
-newext='.tbl';
-% Change extension from oldext to newext
-fnout(strfind(fname,oldext):strfind(fname,oldext)+length(oldext)-1)=newext;
+% Default output filename, in case you didn't give on
+defval('fnout',NaN)
+if isnan(fnout)
+  % Construct output filename for writing
+  fnout=fname;
+  % Old extension, with the dot
+  oldext='.vit';
+  % New extension, must be same length
+  newext='.tbl';
+  % Change extension from oldext to newext
+  fnout(strfind(fname,oldext):strfind(fname,oldext)+length(oldext)-1)=newext;
+end
 
 % Open input for reading
 fin=fopen(fname,'r');
