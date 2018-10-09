@@ -123,8 +123,8 @@ while lred~=-1
     [stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl]=...
 	formconv(jentry);
     
-    % Do not bother if you're in the testing phase, when Pext will be negative
-    if Pext>0
+    % Do not bother if you're in the testing phase, when Pext will be SUPER negative
+    if Pext>-2e6
       % Write one line in the new file, if the data are not corrupted...
       fprintf(fout,fmtout,...
 	      stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl);
