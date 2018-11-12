@@ -36,7 +36,7 @@ function varargout=vit2tbl(fname,fnout)
 %
 % TESTED ON MATLAB 9.0.0.341360 (R2016a)
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 08/30/2018
+% Last modified by fjsimons-at-alum.mit.edu, 11/11/2018
 
 % Default input filename, which MUST end in .vit
 defval('fname','/u/fjsimons/MERMAID/serverdata/vitdata/452.020-P-08.vit')
@@ -186,7 +186,8 @@ vitlon=jentry{2}(37:51); % Check this is like: E135deg17.443mn
 [stdt,STLA,STLO]=vit2loc(vitdat,vitlat,vitlon);
 
 % ABORT HERE IF THE COORDINATES ARE 00, DOP PROBLEMS DOWN THE LINE
-if STLO~=0 && STLA~=0
+% ADDED PROVISION FOR WHEN CONVERSION PRODUCED AN EMPTY 
+if ~isempty(STLO*STLA) && STLO~=0 && STLA~=0
   % THIRD LINE: horizontal and vertical dilution of precision
   vitdop=textscan(jentry{3},'%*s %*s %f %*s %*s %f');
   hdop=vitdop{1}; % Check this is like: 1.27
