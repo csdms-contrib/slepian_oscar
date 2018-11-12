@@ -186,16 +186,19 @@ vitlon=jentry{2}(37:51); % Check this is like: E135deg17.443mn
 [stdt,STLA,STLO]=vit2loc(vitdat,vitlat,vitlon);
 
 % ABORT HERE IF THE COORDINATES ARE 00, DOP PROBLEMS DOWN THE LINE
-% ADDED PROVISION FOR WHEN CONVERSION PRODUCED AN EMPTY 
+% ADDED PROVISIONS FOR WHEN CONVERSION PRODUCED AN EMPTY 
 if ~isempty(STLO*STLA) && STLO~=0 && STLA~=0
   % THIRD LINE: horizontal and vertical dilution of precision
   vitdop=textscan(jentry{3},'%*s %*s %f %*s %*s %f');
   hdop=vitdop{1}; % Check this is like: 1.27
   vdop=vitdop{2}; % Check this is like: 2.15
-elseif STLO==0 && STLA==0
+elseif [~isempty(STLO) && STLO==0] && [~isempty(STLA) && STLA==0]
   STLO=NaN;
   STLA=NaN;
-  % And do not even bother to read on, they might be negative
+  % And do not even bother to read on, the dop might be negative
+else
+  STLO=NaN;
+  STLA=NaN;
 end
 % If no hdop or vdop have been read, assign NaN to them
 defval('hdop',NaN)
