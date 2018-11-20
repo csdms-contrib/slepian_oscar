@@ -36,18 +36,25 @@ function varargout=vit2tbl(fname,fnout)
 %
 % TESTED ON MATLAB 9.0.0.341360 (R2016a)
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 11/11/2018
+% Last modified by fjsimons-at-alum.mit.edu, 11/20/2018
 
 % Default input filename, which MUST end in .vit
 defval('fname','/u/fjsimons/MERMAID/serverdata/vitdata/452.020-P-08.vit')
+
+% Old extension, with the dot
+oldext='.vit';
+
+% Map the file name to a "working name", this requires checking, turns
+% P-08 into P008
+stname=fname(strfind(fname,oldext)-4:strfind(fname,oldext)-1);
+% Replace the dash with a number
+stname(abs(stname)==45)='0';
 
 % Default output filename, in case you didn't give on
 defval('fnout',NaN)
 if isnan(fnout)
   % Construct output filename for writing
   fnout=fname;
-  % Old extension, with the dot
-  oldext='.vit';
   % New extension, must be same length
   newext='.tbl';
   % Change extension from oldext to newext
@@ -127,7 +134,7 @@ while lred~=-1
     if Pext>-2e6
       % Write one line in the new file, if the data are not corrupted...
       fprintf(fout,fmtout,...
-	      stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl);
+	      stname,stdt,STLA,STLO,hdop,vdop,Vbat,minV,Pint,Pext,Prange,cmdrcd,f2up,fupl);
 
     end
   end
@@ -149,24 +156,30 @@ fclose(fout);
 function fmt=fmtout
 
 % All but last one get spaces
-stdt_fmt  ='%s ';
-STLA_fmt  ='%11.6f ';
-STLO_fmt  ='%11.6f ';
-hdop_fmt  ='%8.3f ';
-vdop_fmt  ='%8.3f ';
-Vbat_fmt  ='%5i ';
-minV_fmt  ='%5i ';
-Pint_fmt  ='%5i ';
-Pext_fmt  ='%12i ';
-Prange_fmt='%5i ';
-cmdrcd_fmt='%3i ';
-f2up_fmt  ='%3i ';
+stname_fmt  ='%s   ';
+%%%%%%%%%%%%%%%%%%%%%%%%
+stdt_fmt    ='%s  ';
+STLA_fmt    ='%11.6f ';
+STLO_fmt    ='%12.6f ';
+%%%%%%%%%%%%%%%%%%%%%%%%
+hdop_fmt    ='%7.3f';
+vdop_fmt    ='%7.3f   ';
+%%%%%%%%%%%%%%%%%%%%%%%%
+Vbat_fmt    ='%6i ';
+minV_fmt    ='%6i   ';
+%%%%%%%%%%%%%%%%%%%%%%%%
+Pint_fmt    ='%6i';
+Pext_fmt    ='%6i';
+Prange_fmt  ='%5i   ';
+%%%%%%%%%%%%%%%%%%%%%%%%
+cmdrcd_fmt  ='%3i ';
+f2up_fmt    ='%3i ';
 % Last one gets a closure
-fupl_fmt  ='%3i\n';
+fupl_fmt    ='%3i\n';
 
 % Combine all the formats, the current result is:
-% '%s %11.6f %11.6f %8.3f %8.3f %5i %5i %5i %12i %5i %3i %3i %3i\n'
-fmt=[stdt_fmt,STLA_fmt,STLO_fmt,hdop_fmt,vdop_fmt,Vbat_fmt,minV_fmt,Pint_fmt,...
+% '%s %s %11.6f %11.6f %8.3f %8.3f %5i %5i %5i %12i %5i %3i %3i %3i\n'
+fmt=[stname_fmt,stdt_fmt,STLA_fmt,STLO_fmt,hdop_fmt,vdop_fmt,Vbat_fmt,minV_fmt,Pint_fmt,...
 	   Pext_fmt,Prange_fmt,cmdrcd_fmt,f2up_fmt,fupl_fmt];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
