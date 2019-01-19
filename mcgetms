@@ -14,7 +14,21 @@
 #           MCMS2MAT (MATLAB script)
 #
 # Last modified by jirving-at-princeton.edu, 09/12/2017
-# Last modified by fjsimons-at-alum.mit.edu, 09/12/2017
+# Last modified by fjsimons-at-alum.mit.edu, 02/27/2018
+
+set warnin = 0
+
+if($#argv < 1)then
+  echo ' '
+  echo 'MCGETMS: At least two input argument expected:'
+  echo ' '
+  echo '----------> MCGETMS YYYY MM,    e.g. MCGETMS 2017  7'
+  echo '----------> MCGETMS YYYY MM DD, e.g. MCGETMS 2017  9 25'
+  echo ' '
+  echo 'Do not use leading 0... past 7 these are invalid octals'
+  @ warnin +=1
+  goto label999
+endif
 
 # Where is the instrument reachable? Better ping it to be sure.
 set IP = geo-mcph1-0248
@@ -50,4 +64,11 @@ else
     chmod 444 $MC/$yr/$mo/*/soh/*
 endif
 
-
+label999:
+echo ' '
+if ($warnin == 1) then
+    echo "Script MCGETMS stopped, $warnin warning message generated"
+else
+    echo "Script MCGETMS stopped, $warnin warning messages generated"
+endif
+echo ' '
