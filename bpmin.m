@@ -1,3 +1,4 @@
+
 function epb=bpmin(H,F,dB)
 % epb=BPMIN(H,F,dB)
 %
@@ -19,6 +20,7 @@ function epb=bpmin(H,F,dB)
 %
 % Last modified by fjsimons-at-alum.mit.edu, 02/28/2019
 
+% Supply defaults
 defval('dB',3)
 
 H=H+dB;
