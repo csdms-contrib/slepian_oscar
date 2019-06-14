@@ -20,27 +20,30 @@ function varargout=plotsac(SeisData,HdrData,varargin)
 %
 % READSAC, WRITESAC, MCM2SMAT
 %
-% Last modified by fjsimons-at-alum.mit.edu, 09/13/2017
+% Last modified by fjsimons-at-alum.mit.edu, 06/14/2019
 
-% Location from SAC2SAC, check with header
-lola=[-74.65475 40.34585];
+% Guyot Hall STLO and STLA, check with SAC2SAC, check with HdrData
+lola=guyotphysics(0);
 
+% Plot the trace
 ph=plot(linspace(HdrData.B,HdrData.E,HdrData.NPTS),SeisData);
-tl=title(sprintf('recorded at Princeton University Guyot Hall %s (%7.3f%s,%7.3f%s)',deblank(HdrData.KSTNM),...
-		 lola(1),176,lola(2),176));
 
+% Cosmetics and annotation
+tl=title(sprintf('recorded at Princeton University Guyot Hall %s (%10.5f%s,%10.5f%s)',deblank(HdrData.KSTNM),...
+		 lola(1),176,lola(2),176),...
+	         'FontWeight','Normal');
 yl=ylabel(sprintf('uncorrected %s component',...
 		  HdrData.KCMPNM));
 xl=xlabel(sprintf('time (s) since %4.4i (%3.3i) %2.2i:%2.2i:%2.2i.%3.3i',...
 		  HdrData.NZYEAR,HdrData.NZJDAY,...
 		  HdrData.NZHOUR,HdrData.NZMIN,HdrData.NZSEC,HdrData.NZMSEC));
 axis tight
+longticks(gca,2)
 
+% Touch up, if requested
 if ~isempty(varargin)
   setx(ph,varargin{:})
 end 
-
-longticks(gca,2)
 
 % Optional output
 varns={ph,tl,xl,yl};
