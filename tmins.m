@@ -25,7 +25,7 @@ function [tstp,tS,tP,raypP,raypS,namP,namS]=tmins(dlta,depth)
 % For the phase speed, need the inverse of the ray parameter but in km/s
 % I suppose.
 %
-% Last modified by fjsimons-at-alum.mit.edu, 07/22/2014
+% Last modified by fjsimons-at-alum.mit.edu, 06/14/2019
 
 % Supply some defaults, for testing purposes
 defval('dlta',46.45)
@@ -104,4 +104,5 @@ end
 % Return the difference, in s, between (assumed) P and S wave arrivals
 tstp=(tS-tP);
 
-
+% Clean up after yourself
+system('/bin/rm ttim1.lis');
