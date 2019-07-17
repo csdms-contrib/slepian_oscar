@@ -1,5 +1,5 @@
-function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
-% MCMS2MAT(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
+function varargout=mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
+% fnames=MCMS2MAT(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
 %
 % MeridianCompact-MiniSeed-to-MAT conversion of data files.
 % 
@@ -23,6 +23,10 @@ function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
 % pdf      Quick pdf print as we go along [default: 1 for yes]
 % of       1 Components saved in MAT file as separate variables [default] 
 %          2 Components saved in MAT files as cell entries
+%
+% OUTPUT:
+%
+% fnames   File names of the *mat files created
 %
 % USAGE:
 %
@@ -205,4 +209,11 @@ for index=1:length(HH)
     % Start the loop afresh
     clear s h
   end
+  % Save the filenames
+  mtxs{index}=mtx;
 end
+
+% Optional output
+varns={mtxs};
+varargout=varns(1:nargout);
+
