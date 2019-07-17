@@ -51,13 +51,20 @@ setenv('EPS',getenv('EPS'))
 STA='S0001';
 CHA='HH%s';
 DEV='MC-PH1_0248';
+KNETWK='PP';
+KHOLE='00';
 % Set of components we should be expecting for our miniseed files
 cmp={'X' 'Y' 'Z'};
 
 % Format of the MINISEED and MAT file names in those directories
 msfmt=sprintf('%s.%s_%s_%s.%s',STA,CHA,DEV,'%s','%s');
+
+% OLD FORMAT, SINCE FIXED
 % SAC format expected out of MSEED2SAC, had to run it to find out
 scfmt=sprintf('.%s..%s.%s.%s.%s.%s.SAC',STA,CHA,'D','%i','%i','%s');
+% NEW FORMAT
+% SAC format expected out of MSEED2SAC, had to run it to find out
+scfmt=sprintf('%s.%s.%s.%s.%s.%s.%s.%s.SAC',KNETWK,STA,KHOLE,CHA,'D','%i','%i','%s');
       
 % We may change our minds on this
 defval('of',1)
