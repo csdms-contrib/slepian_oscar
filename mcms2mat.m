@@ -56,13 +56,15 @@ KHOLE='00';
 % Set of components we should be expecting for our miniseed files
 cmp={'X' 'Y' 'Z'};
 
+% OLD FORMAT, SINCE FIXED
 % Format of the MINISEED and MAT file names in those directories
 msfmt=sprintf('%s.%s_%s_%s.%s',STA,CHA,DEV,'%s','%s');
-
-% OLD FORMAT, SINCE FIXED
 % SAC format expected out of MSEED2SAC, had to run it to find out
 scfmt=sprintf('.%s..%s.%s.%s.%s.%s.SAC',STA,CHA,'D','%i','%i','%s');
+
 % NEW FORMAT
+% Format of the MINISEED and MAT file names in those directories
+msfmt=sprintf('%s.%s.%s.%s_%s_%s.%s',KNETWK,STA,KHOLE,CHA,DEV,'%s','%s');
 % SAC format expected out of MSEED2SAC, had to run it to find out
 scfmt=sprintf('%s.%s.%s.%s.%s.%s.%s.%s.SAC',KNETWK,STA,KHOLE,CHA,'D','%i','%i','%s');
       
