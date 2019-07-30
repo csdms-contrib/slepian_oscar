@@ -40,7 +40,8 @@ set dest = WeatherData/$YYYY
 set fil2 = pton{$DDD}0.{$YY}__SBF_ASCIIIn.txt
     
 # Now convert the file from SBF binary to ASCII 
-echo $diro/$dest/$fil2
+test ! -f $diro/$dest/$fil2 \
+    && echo Creating $diro/$dest/$fil2
 # You might have made it before... don't redo it if you have
 test ! -f $diro/$dest/$fil2 \
     && /opt/Septentrio/RxTools/bin/bin2asc -t -m ASCIIIn -f $diro/$orig/$fil1 -p $diro/$dest
