@@ -106,7 +106,7 @@ label998:
 # relevant information in the authorized_keys file (for us here it is
 # /home/www/people/simons/SOM on geoweb.princeton.edu), so that the
 # pushing can be done via CRON without passwords being prompted
-rsync -e "ssh -i /u/fjsimons/.ssh/id_remote_backup2" $newfile fjsimons@geoweb.princeton.edu:
+rsync -e "ssh -i ~fjsimons/.ssh/id_remote_backup2" $newfile fjsimons@geoweb.princeton.edu:
 
 # Flow control
 label999: 
