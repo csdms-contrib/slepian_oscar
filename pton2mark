@@ -54,7 +54,7 @@ set newfile = `echo $fil2 | sed 's/SBF/ASC/g'`
 set tempfl1 =  $newfile:r.tmp1
 set tempfl2 =  $newfile:r.tmp2
 set newfile =  $newfile:r.mrk
-echo Attempting to convert $fil2 to $newfile
+echo Converting $fil2 to $newfile
 
 # Convert the time stamp by extracting the first two columns... convert to milliseconds by nixing the period... write to tempfile
 awk 'NR>2 {print}' $diro/$dest/$fil2 | sed 's/\.//g' | sed 's/[,=]/ /g' \
@@ -72,7 +72,7 @@ paste $tempfl2 $tempfl1 | awk '{printf "%s %s %s %s %s %s %s %s %s\n",$1,$2,$3,$
 /bin/rm $tempfl2 $tempfl1
 
 # Put this one file on the Web
-# If will be donibg that using rsync
+# If will be doing that using rsync
 scp $diro/$dest/$newfile fjsimons@geoweb.princeton.edu:/home/www/people/simons/PTON
 #rsync -ve "ssh -i /u/fjsimons/.ssh/id_remote_backup" $newfile   fjsimons@geoweb.princeton.edu:
 
