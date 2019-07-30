@@ -6,10 +6,11 @@
 # getvar           - Returns a named SAC header variable
 # setvar           - Updates a named SAC header variable
 # hvars            - List of SAC header-variable word positions
-# juliandate       - Calculates sequential number of the date
+# julianDate       - Julian day from MMDDYYYY
 # leapday          - Does this date fall in a leap year?
-# julianDateLocal  - Julian date of local time
+# julianDateLocal  - Julian date from TIME
 #
+# Contributions by Thomas R. Kimpton
 # Last modified by fjsimons-at-alum.mit.edu, 06/19/2017
 
 # You can just say pands.pl seismogram.SAC and it'll do it
@@ -143,6 +144,7 @@ sub julianDate
     if ($year>38){$year="19$year"}
     if ($year<38){$year="20$year"}
 
+    # Note that month starts with 0 but mday starts with 1
     return($year,$theJulianDate[$mon-1] + $mday + &leapDay($year,$mon,$mday));
 }
 1;
@@ -182,22 +184,25 @@ sub leapDay
 sub julianDateLocal
 #************************************************************************
 #****   Pass in the date, in seconds, of the day you want the       *****
-#****   julian date for.  If your localtime() returns the year day  *****
-#****   return that, otherwise figure out the julian date.          *****
+#****   Julian date for. If your LOCALTIME returns the year-day     *****
+#****   return that, otherwise figure out the Julian date.          *****
 #************************************************************************
 {           
     @theJulianDate = ( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 );
-			   	   
+    
+    # This takes the input which, for juliantoday.pl is PERL's TIME...
     my($dateInSeconds) = @_;
     my($sec, $min, $hour, $mday, $mon, $year, $wday, $yday);
 
+    # This converts the TIME into a human-understandable LOCALTIME
     ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday) =
 	localtime($dateInSeconds);
     # Note that month starts with 0 but mday starts with 1
     # and yday seems to start with 0 and year 0 is 1900.
     if (defined($yday)) {
 	return($yday+1);
-    } else {	
+    } else {
+	# FJS could replace this with a call to julianDate on a string made from mon+1 mday year
 	return($theJulianDate[$mon] + $mday + &leapDay($year+1900,$mon,$mday));
     }
 }
