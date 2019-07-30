@@ -1,23 +1,27 @@
-#!/bin/csh 
+#!/bin/csh -f
 #
-# PTON2MARK DDD YY, e.g. PTON2MARK 197 2019
+# PTON2MARK DDD YY, e.g. PTON2MARK 189 2019
 #
-# Transforms PTON weatherstation data into a format liked by Adam Wolf
-# for intercomparison with the Arable Mark device
-# https://kb.unavco.org/kb/print-840.html
+# Converts PTON weatherstation data to post it publicly on the Web.
+# Converts SBF external-sensor binaries t oASCII and then to MRK, the
+# format liked by Adam Wolf for intercomparison with the Arable Mark.
+# This needs to be done on a machine where BIN2ASC is operational.
 #
-# Last modified by fjsimons-at-alum.mit.edu, 07/16/2019
+# See https://kb.unavco.org/kb/print-840.html 
+# Uses standard Unix tools and RxTools/timeconv
+#
+# Last modified by fjsimons-at-alum.mit.edu, 07/30/2019
 
 if($#argv < 1)then
   echo ' '
   echo 'Two input arguments expected:'
-  echo '----------> Julian day, e.g. 197 (for July 16)'
+  echo '----------> Julian day, e.g. 197 (for July 16)... see juliantoday.pl'
   echo '----------> Calendar year, e.g. 2019'
   echo ' '
   goto label999
 endif
 
-# Take the Julian day and year from the input
+# Take the Julian day and two/four-digit year from the input
 set DDD = $1
 set YYYY = $2
 set YY = `echo $YYYY-2000 | bc`
@@ -25,26 +29,26 @@ set YY = `echo $YYYY-2000 | bc`
 # Find where the file is, depends on the host machine
 if ($HOST == cressida.princeton.edu) then
   set diro = /home/fjsimons/PTONcGPS
-    else if ($HOST == lemaitre) then
-  set diro = /u/fjsimons/CLASSES/FRS-Spain/SensorData/PTONcGPS
 endif
+
+# Set file name, origin and destination folder
 set fil1 = pton{$DDD}0.{$YY}_
 set orig = ExtData
 set dest = WeatherData/$YYYY
 
-# Now after file conversion you will get a whole new filename
+# After file conversion you WILL get this whole new filename
 set fil2 = pton{$DDD}0.{$YY}__SBF_ASCIIIn.txt
     
-# Convert the file from SBF binary to ASCII 
+# Now convert the file from SBF binary to ASCII 
 echo $diro/$dest/$fil2
 # You might have made it before... don't redo it if you have
 test ! -f $diro/$dest/$fil2 \
     && /opt/Septentrio/RxTools/bin/bin2asc -t -m ASCIIIn -f $diro/$orig/$fil1 -p $diro/$dest
 
 # These are the header variables that you expect in those files
-set headerline = 'Timestamp MeanWindDirection_deg MeanWindSpeed_mps AirTemp_C RelHum AirPress_bar RainAcc_mm HailAcc_mm'
+set headerline = 'Timestamp MeanWindDirection_deg MeanWindSpeed_mps AirTemp_C RelHum AirPress_bar RainAcc_mm HailAcc_hits'
 
-# Process the weather file name, change SBF to ASC and make new extension
+# Process the weather file name, change SBF to ASC and make new extension MRK
 set newfile = `echo $fil2 | sed 's/SBF/ASC/g'` 
 set tempfl1 =  $newfile:r.tmp1
 set tempfl2 =  $newfile:r.tmp2
@@ -66,7 +70,7 @@ echo $headerline >! $diro/$dest/$newfile
 paste $tempfl2 $tempfl1 | awk '{printf "%s %s %s %s %s %s %s %s %s\n",$1,$2,$3,$4,$5,$6,$7,$8,$9}'  >> $diro/$dest/$newfile
 /bin/rm $tempfl2 $tempfl1
 
-# Put this one file on the webpage for Adam Wolf and everyone else to see
+# Put this one file on the Web
 # If will be donibg that using rsync
 scp $diro/$dest/$newfile fjsimons@geoweb.princeton.edu:/home/www/people/simons/PTON
 #rsync -ve "ssh -i /u/fjsimons/.ssh/id_remote_backup" $newfile   fjsimons@geoweb.princeton.edu:
