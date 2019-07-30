@@ -36,6 +36,10 @@ set fil1 = pton{$DDD}0.{$YY}_
 set orig = ExtData
 set dest = WeatherData/$YYYY
 
+# Do not do anything if you don't have the input file
+test ! -f $diro/$orig/$fil1 \
+    echo There was no file $diro/$orig/$fil1 ; goto label999
+
 # After file conversion you WILL get this whole new filename
 set fil2 = pton{$DDD}0.{$YY}__SBF_ASCIIIn.txt
     
