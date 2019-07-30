@@ -11,7 +11,7 @@
 # julianDateLocal  - Julian date from TIME
 #
 # Contributions by Thomas R. Kimpton
-# Last modified by fjsimons-at-alum.mit.edu, 06/19/2017
+# Last modified by fjsimons-at-alum.mit.edu, 06/30/2019
 
 # You can just say pands.pl seismogram.SAC and it'll do it
 # as opposed what I now do in NEIC?.M and TMINS.M
