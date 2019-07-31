@@ -117,8 +117,18 @@ label998:
 # passwordless single-command-use SSH key for back up to a directory
 # that is specified via the remote public key by prepending the
 # relevant information in the authorized_keys file (for us here it is
-# /home/www/people/simons/SOM on geoweb.princeton.edu), so that the
+# /home/www/people/simons/PTON on geoweb.princeton.edu), so that the
 # pushing can be done via CRON without passwords being prompted
+# Note that there better not any other key preceding with overriding preference, 
+# see ssh-add -l and the authorized_keys on the remote host... in which case the 
+# file goes to the home directory. If you have the correct key and you use rrsync 
+# the line below only specifies the directory in the remote authorized_keys...
+# Maybe make sure to 
+######################ssh-add -d $home/.ssh/id_rsa_geoweb 
+# or else specify IdentitiesOnly .ssh/config but for now, we just leave it
+# Note that in figuring this out, I did split the keys on cressida and lemaitre - 
+# rrsync only does take ONE command but it could take two comma-separated clients...
+# which is how mermaid was setup... never mind, it's more epxlicit this way
 rsync -ve "ssh -i $home/.ssh/id_remote_backup2" $newfile fjsimons@geoweb.princeton.edu:
 
 # Flow control
