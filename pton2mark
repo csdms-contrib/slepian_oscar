@@ -106,7 +106,7 @@ awk 'NR>2 {print}' $fil2 | sed 's/[,=]/ /g' | sed 's/[C,D,M,P,B,M,\#]//g' \
   | awk '{printf "%s %s %s %s %s %s %s\n",$7,$9,$11,$13,$15,$17,$19}' >! $tempfl1
 # Make a final file by concatenating a header line with the time stamp and the weather string from the two temp files
 echo $headerline >! $newfile
-paste $tempfl2 $tempfl1 | awk '{printf "%s %s %4s %s %s %s %s %s %s\n",$1,$2,$3,$4,$5,$6,$7,$8,$9}'  >> $newfile
+paste $tempfl2 $tempfl1 | awk '{printf "%s %s %4s %4s %s %s %s %s %s\n",$1,$2,$3,$4,$5,$6,$7,$8,$9}'  >> $newfile
 /bin/rm $tempfl2 $tempfl1
 
 # Flow control
