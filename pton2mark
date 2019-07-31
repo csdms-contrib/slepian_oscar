@@ -14,7 +14,7 @@
 # See https://kb.unavco.org/kb/print-840.html 
 # Uses standard Unix tools and RxTools/timeconv
 #
-# Last modified by fjsimons-at-alum.mit.edu, 07/30/2019
+# Last modified by fjsimons-at-alum.mit.edu, 07/31/2019
 
 if($#argv == 1 || $#argv > 2)then
   echo ' '
@@ -101,7 +101,7 @@ awk 'NR>2 {print}' $fil2 | sed 's/\.//g' | sed 's/[,=]/ /g' \
 /bin/chmod +x $tempfl1
 $tempfl1 >! $tempfl2
 # Work on the remaining columns, which contains the weather string, which we strip of units and so on... write to tempfile
-awk 'NR>2 {print}' $fil2 | sed 's/[,=]/ /g' | sed 's/[C,D,M,P,B,M]//g' \
+awk 'NR>2 {print}' $fil2 | sed 's/[,=]/ /g' | sed 's/[C,D,M,P,B,M,\#]//g' \
   | awk '{printf "%s %s %s %s %s %s %s\n",$7,$9,$11,$13,$15,$17,$19}' >! $tempfl1
 # Make a final file by concatenating a header line with the time stamp and the weather string from the two temp files
 echo $headerline >! $newfile
