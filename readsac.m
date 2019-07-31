@@ -39,11 +39,17 @@ fid=fopen(filename,'r',osd);
 if fid==-1
   error([ 'File ',filename,' does not exist in current path ',pwd])
 end
+% Floating points
 HdrF=fread(fid,70,'float32');
+% Integers
 HdrN=fread(fid,15,'int32');
+% Enumerated
 HdrI=fread(fid,20,'int32');
+% Logical
 HdrL=fread(fid,5,'int32');
+% Alphanumeric
 HdrK=str2mat(fread(fid,[8 24],'char'))';
+% The actual data
 SeisData=fread(fid,HdrN(10),'float32');
 fclose(fid);
 
