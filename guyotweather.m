@@ -23,23 +23,25 @@ function varargout=guyotweather(jday,year,n)
 %
 % TESTED ON: 
 %
-% 9.0.0.314360 (R2016a) - need DATETIME
+% 9.0.0.314360 (R2016a) - 9.1.0.441655 (R2016b)
 %
-% Last modified by fjsimons-at-alum.mit.edu, 07/31/2019
+% Last modified by fjsimons-at-alum.mit.edu, 08/01/2019
 
 % Default values are "yesterday" using two-digit year...
 defval('jday',dat2jul-1)
 defval('year',str2num(datestr(today,11)))
 defval('n',3)
 
-if year>2000
-  year=year-2000;
-end
+% Two digits
+if year>2000; year=year-2000; end
 
 % Specify the web address
 urlbase='http://geoweb.princeton.edu/people/simons/PTON/';
 % Custom-make the last bit
 urltail=sprintf('pton%3.3i0.%2.2i__ASC_ASCIIIn.mrk',jday,year);
+
+% Four digit agains
+if year<2000; year=year+2000; end
 
 % WEBREAD or URLREAD are no different for this application
 dstring=urlread(sprintf('%s/%s',urlbase,urltail));
@@ -58,7 +60,8 @@ end
 % Read the rest later; nonexisting integers are zero but nonexisting
 % floats are NaN so make them all floats past the initial string
 fmt='%s %f %f %f %f %f %f %f';
-drest=textscan(dstring(1,hdrlen+1:end),fmt);
+[drest,pos]=textscan(dstring(1,hdrlen+1:end),fmt);
+% If pos isn't what it should be, rewind, skip, move on?
 
 % Replace the T by a space and remove the Z in the date string
 drest{1}=strrep(drest{1},'T',' ');
@@ -84,11 +87,33 @@ varargout=varns(1:nargout);
 
 % Make a plot
 if nargout==0
+  clf
+  % Take care of the weird first data point in the different UTC day, see DAT2JUL
+  jdai=ceil(datenum(data.Timestamp-['01-Jan-',datestr(data.Timestamp(1),'YYYY')]))==jday;
   % So the data.Timestamp.Timezone evaluated to UTC and we're going to
   % change that back to New York for display only
   data.Timestamp.TimeZone='America/New_York';
-  plot(data.Timestamp,data.(hdrv{n+1}))
-  datetick('x','HH:MM')
+  plot(data.Timestamp(jdai),data.(hdrv{n+1})(jdai),'k')
+  ah=gca;
+  % title(sprintf('%s (%s) UTC',jday,year))
+  t=title(datestr(data.Timestamp(min(find(jdai))),1));
+  xels=[data.Timestamp(min(find(jdai))) data.Timestamp(max(find(jdai)))+minutes(2)];
+  xlim(xels)
+  xells=xels(1):hours(4):xels(2);
+  set(ah,'xtick',xells)
+  hold on
+  % Day break
+  plot(xells([2 2]),ylim,'-','Color',grey)
+  % Average value of what's being plotted which it learns from the context
+  plot(xels,[1 1]*nanmean(ah.Children(2).YData),'-','Color',grey)
+  hold off
+  datetick('x','HH:MM','keepticks','keeplimits')
+  xlabel(sprintf('%s time',nounder(data.Timestamp.TimeZone')))
+  longticks(ah,2)
+  set(ah,'FontSize',12)
+  % Cosmetics
+  shrink(ah,1.1,1.1)
+  movev(t,0.5)
 end
 
 % DON'T FORGET TO RSYCN LEMAITRE FROM CRESSIDA SUCH THAT CRESSIDA CAN BE
