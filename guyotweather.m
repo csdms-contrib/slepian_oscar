@@ -87,7 +87,7 @@ if nargout==0
   % So the data.Timestamp.Timezone evaluated to UTC and we're going to
   % change that back to New York for display only
   data.Timestamp.TimeZone='America/New_York';
-  plot(data.Timestamp,data.(hdrv{3+1}))
+  plot(data.Timestamp,data.(hdrv{n+1}))
   datetick('x','HH:MM')
 end
 
