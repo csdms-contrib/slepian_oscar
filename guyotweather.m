@@ -1,13 +1,16 @@
-function varargout=guyotweather(jday,year)
-% [data,hdrv]=GUYOTWEATHER(jday,year)
+function varargout=guyotweather(jday,year,n)
+% [data,hdrv]=GUYOTWEATHER(jday,year,n)
 %
 % Reads a day of Guyot Weather data as collected by the Vaisala WXT530
-% weather station integrated with the Septentrio PolaRx5 receiver
+% weather station integrated with the Septentrio PolaRx5 receiver. 
+% If there is no output requested, makes a plot of the nth header
+% variable past the timestamp, i.e. the nth weather variable.
 %
 % INPUT:
 %
 % jday    Julian day (e.g., 212 is July 31 in 2019)
 % year    Gregorian year (e.g., 19 or 2019 assuming post 2000)
+% n       Index of the weather variable to plot 
 %
 % OUTPUT:
 %
@@ -27,6 +30,7 @@ function varargout=guyotweather(jday,year)
 % Default values are "yesterday" using two-digit year...
 defval('jday',dat2jul-1)
 defval('year',str2num(datestr(today,11)))
+defval('n',3)
 
 if year>2000
   year=year-2000;
@@ -77,6 +81,15 @@ data=struct(sinput{:});
 % Output, as much as needed, but no more
 varns={data,hdrv};
 varargout=varns(1:nargout);
+
+% Make a plot
+if nargout==0
+  % So the data.Timestamp.Timezone evaluated to UTC and we're going to
+  % change that back to New York for display only
+  data.Timestamp.TimeZone='America/New_York';
+  plot(data.Timestamp,data.(hdrv{3+1}))
+  datetick('x','HHM'))
+end
 
 % DON'T FORGET TO RSYCN LEMAITRE FROM CRESSIDA SUCH THAT CRESSIDA CAN BE
 % DECOMMISSIONED
