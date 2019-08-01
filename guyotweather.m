@@ -88,7 +88,7 @@ if nargout==0
   % change that back to New York for display only
   data.Timestamp.TimeZone='America/New_York';
   plot(data.Timestamp,data.(hdrv{3+1}))
-  datetick('x','HHM'))
+  datetick('x','HHM')
 end
 
 % DON'T FORGET TO RSYCN LEMAITRE FROM CRESSIDA SUCH THAT CRESSIDA CAN BE
