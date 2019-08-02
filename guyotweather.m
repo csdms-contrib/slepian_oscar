@@ -159,13 +159,14 @@ if nargout==0
   % Cosmetics
   shrink(ah,1.1,1.1)
   movev(t,range(yels)/20)
+
+  if length(nset)==1
+    figdisp([],sprintf('%3.3i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
+  elseif length(nset)==2
+    figdisp([],sprintf('%3.3i_%i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
+  end
 end
 
 % DON'T FORGET TO RSYNC LEMAITRE FROM CRESSIDA SUCH THAT CRESSIDA CAN BE
 % DECOMMISSIONED
 
-if length(nset)==1
-   figdisp([],sprintf('%3.3i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
-elseif length(nset)==2
-   figdisp([],sprintf('%3.3i_%i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
-end
