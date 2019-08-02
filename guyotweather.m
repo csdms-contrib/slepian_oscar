@@ -92,14 +92,18 @@ if nargout==0
   clf
   % Note that subplot(111) is not identical in behavior to subplot(1,1,1)
   ah=subplot(1,1,1);
-  % Take care of the weird first data point in the different UTC day, see DAT2JUL
+  % Remove the weird first data point in the preceding UTC day, see DAT2JUL
   jdai=ceil(datenum(data.Timestamp-['01-Jan-',datestr(data.Timestamp(1),'YYYY')]))==jday;
+  % Make title string in the original time zone
+  titsdate=datestr(data.Timestamp(min(find(jdai))),1);
+
   % So the data.Timestamp.Timezone evaluated to UTC and we're going to
   % change that back to New York for display only
   data.Timestamp.TimeZone='America/New_York';
-  titsdate=datestr(data.Timestamp(min(find(jdai))),1);
+
   % Independent variable
   taxis=data.Timestamp(jdai);
+
   % Dependent variable bits
   varn1=hdrv{nset(1)+1};
   varu1=nounder(varn1);
@@ -128,7 +132,8 @@ if nargout==0
     t=title(sprintf(str2,varu1,varu2,titsdate,jday));
   else
      error('Supply at most TWO index variables for the weather plot!')
-  end 
+  end
+  % Add two minutes to come to a round number on the axis
   xels=[data.Timestamp(min(find(jdai))) data.Timestamp(max(find(jdai)))+minutes(2)];
   xlim(xels)
   xells=xels(1):hours(4):xels(2);
