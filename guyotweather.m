@@ -165,7 +165,7 @@ end
 % DECOMMISSIONED
 
 if length(nset)==1
-   figdisp([],sprintf('%i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
+   figdisp([],sprintf('%3.3i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
 elseif length(nset)==2
-   figdisp([],sprintf('%i_%i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
+   figdisp([],sprintf('%3.3i_%i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
 end
