@@ -138,9 +138,16 @@ if nargout==0
   end
   % Add two minutes to come to a round number on the axis
   xels=[data.Timestamp(min(find(jdai))) data.Timestamp(max(find(jdai)))+minutes(2)];
-  xlim(xels)
   xells=xels(1):hours(4):xels(2);
-  set(ah,'xtick',xells)
+  try
+    % Latest versions
+    xlim(xels)
+    set(ah,'xtick',xells)
+  catch
+    % Earlier versions
+    xlim(datenum(xels))
+    set(ah,'xtick',datenum(xells))
+  end
   yels=ylim;
   % Day break
   hold on; plot(xells([2 2]),ylim,'-','Color',grey); hold off	
