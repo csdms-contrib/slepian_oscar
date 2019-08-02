@@ -153,7 +153,7 @@ if nargout==0
   end	
   datetick('x','HH:MM','keepticks','keeplimits')
   xlabel(sprintf('Guyot Hall (%10.5f%s,%10.5f%s) %s time',...
-lola(1),176,lola(2),176,nounder(data.Timestamp.TimeZone')))
+		 lola(1),176,lola(2),176,nounder(data.Timestamp.TimeZone')))
   longticks(ah,2)
   set(ah,'FontSize',12)
   % Cosmetics
@@ -161,7 +161,7 @@ lola(1),176,lola(2),176,nounder(data.Timestamp.TimeZone')))
   movev(t,range(yels)/20)
 end
 
-% DON'T FORGET TO RSYCN LEMAITRE FROM CRESSIDA SUCH THAT CRESSIDA CAN BE
+% DON'T FORGET TO RSYNC LEMAITRE FROM CRESSIDA SUCH THAT CRESSIDA CAN BE
 % DECOMMISSIONED
 
 if length(nset)==1
