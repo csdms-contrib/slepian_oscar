@@ -93,7 +93,7 @@ if nargout==0
   % Note that subplot(111) is not identical in behavior to subplot(1,1,1)
   ah=subplot(1,1,1);
   % Remove the weird first data point in the preceding UTC day, see DAT2JUL
-  jdai=ceil(datenum(data.Timestamp-['01-Jan-',datestr(data.Timestamp(1),'YYYY')]))==jday;
+  jdai=ceil(datenum(data.Timestamp-['01-Jan-',datestr(data.Timestamp(end),'YYYY')]))==jday;
   % Make title string in the original time zone
   titsdate=datestr(data.Timestamp(min(find(jdai))),1);
 
