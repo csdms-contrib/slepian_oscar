@@ -10,7 +10,8 @@ function varargout=guyotweather(jday,year,nset)
 %
 % jday    Julian day (e.g., 212 is July 31 in 2019) [default: yesterday]
 % year    Gregorian year (e.g., 19 or 2019 assuming post 2000)
-% nset    One or two indices of the weather plot variable [default: 3, for AirTemp_C]
+% nset    One or two indices of the weather plot variable 
+%         [default: 3:4, for AirTemp_C and AirPress_bar]
 %
 % OUTPUT:
 %
@@ -32,7 +33,7 @@ defval('jday',dat2jul-1)
 % ... and using this year's two-digit code
 defval('year',str2num(datestr(today,11)))
 % ... and plotting the temperature time series
-defval('nset',3)
+defval('nset',3:4)
 
 % Guyot Hall STLO and STLA
 lola=guyotphysics(0);
@@ -139,6 +140,8 @@ if nargout==0
   % Add two minutes to come to a round number on the axis
   xels=[data.Timestamp(min(find(jdai))) data.Timestamp(max(find(jdai)))+minutes(2)];
   xells=xels(1):hours(4):xels(2);
+
+  yels=ylim;
   try
     % Latest versions
     xlim(xels)
@@ -148,7 +151,6 @@ if nargout==0
     xlim(datenum(xels))
     set(ah,'xtick',datenum(xells))
   end
-  yels=ylim;
   % Day break
   hold on; plot(xells([2 2]),ylim,'-','Color',grey); hold off	
   ylim(yels)
