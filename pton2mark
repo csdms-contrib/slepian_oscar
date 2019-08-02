@@ -102,12 +102,18 @@ awk 'NR>2 {print}' $fil2 | sed 's/\.//g' | sed 's/[,=]/ /g' \
 /bin/chmod +x $tempfl1
 $tempfl1 >! $tempfl2
 # Work on the remaining columns, which contains the weather string, which we strip of units and so on... write to tempfile
-# The hashes are weird - possibly a write error, hopefully not a change of unit? Anyay, we get rid of it also.x
-awk 'NR>2 {print}' $fil2 | sed 's/[,=]/ /g' | sed 's/[C,D,M,P,B,M,\#]//g' \
+# The hashes are weird - possibly a write error, hopefully not a change of unit? Anyay, we get rid of it also.
+awk 'NR>2 {print}' $fil2 \
+  | sed 's/Sync\/address error/Dm=NaND,Sm=NaNM,Ta=NaNC,Ua=NaNP,Pa=NaNB,Rc=NaNM,Hc=NaNM/g' \
+  | sed 's/Unknown cmd error/Dm=NaND,Sm=NaNM,Ta=NaNC,Ua=NaNP,Pa=NaNB,Rc=NaNM,Hc=NaNM/g' \
+  | sed 's/[,=]/ /g' \
+  | sed 's/[C,M,B,\#]//g' \
+  | sed 's/\BP//g' \
+  | sed 's/\BD//g' \
   | awk '{printf "%s %s %s %s %s %s %s\n",$7,$9,$11,$13,$15,$17,$19}' >! $tempfl1
 # Make a final file by concatenating a header line with the time stamp and the weather string from the two temp files
 echo $headerline >! $newfile
-paste $tempfl2 $tempfl1 | awk '{printf "%s %s %4s %5s %s %s %s %s %s\n",$1,$2,$3,$4,$5,$6,$7,$8,$9}'  >> $newfile
+paste $tempfl2 $tempfl1 | awk '{printf "%s %s %4s %5s %4s %6s %4s %4s\n",$1,$2,$3,$4,$5,$6,$7,$8}' >> $newfile
 /bin/rm $tempfl2 $tempfl1
 
 # Flow control
