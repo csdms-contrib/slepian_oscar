@@ -8,7 +8,7 @@ function varargout=guyotweather(jday,year,n)
 %
 % INPUT:
 %
-% jday    Julian day (e.g., 212 is July 31 in 2019)
+% jday    Julian day (e.g., 212 is July 31 in 2019) [default: yesterday]
 % year    Gregorian year (e.g., 19 or 2019 assuming post 2000)
 % n       Index of the weather variable to plot 
 %
@@ -25,14 +25,16 @@ function varargout=guyotweather(jday,year,n)
 %
 % 9.0.0.314360 (R2016a) - 9.1.0.441655 (R2016b)
 %
-% Last modified by fjsimons-at-alum.mit.edu, 08/01/2019
+% Last modified by fjsimons-at-alum.mit.edu, 08/02/2019
 
-% Default values are "yesterday" using two-digit year...
+% Default values are "yesterday" ...
 defval('jday',dat2jul-1)
+% ... and using this year's two-digit code
 defval('year',str2num(datestr(today,11)))
+% ... and plotting the temperature time series
 defval('n',3)
 
-% Two digits
+% Two digits if the input wasn't
 if year>2000; year=year-2000; end
 
 % Specify the web address
@@ -40,7 +42,7 @@ urlbase='http://geoweb.princeton.edu/people/simons/PTON/';
 % Custom-make the last bit
 urltail=sprintf('pton%3.3i0.%2.2i__ASC_ASCIIIn.mrk',jday,year);
 
-% Four digit agains
+% Four digit again for good measure 
 if year<2000; year=year+2000; end
 
 % WEBREAD or URLREAD are no different for this application
@@ -95,7 +97,8 @@ if nargout==0
   data.Timestamp.TimeZone='America/New_York';
   plot(data.Timestamp(jdai),data.(hdrv{n+1})(jdai),'k')
   ah=gca;
-  % title(sprintf('%s (%s) UTC',jday,year))
+  t1=title(sprintf('%s (%s) UTC',jday,year));
+keyboard
   t=title(sprintf('%s %s',nounder(hdrv{n+1}),...
       datestr(data.Timestamp(min(find(jdai))),1)));
   xels=[data.Timestamp(min(find(jdai))) data.Timestamp(max(find(jdai)))+minutes(2)];
@@ -118,6 +121,8 @@ if nargout==0
   shrink(ah,1.1,1.1)
   movev(t,range(yels)/20)
 end
+
+keyboard
 
 % DON'T FORGET TO RSYCN LEMAITRE FROM CRESSIDA SUCH THAT CRESSIDA CAN BE
 % DECOMMISSIONED
