@@ -141,16 +141,8 @@ if nargout==0
   xels=[data.Timestamp(min(find(jdai))) data.Timestamp(max(find(jdai)))+minutes(2)];
   xells=xels(1):hours(4):xels(2);
 
+  % The order matters!
   yels=ylim;
-  try
-    % Latest versions
-    xlim(xels)
-    set(ah,'xtick',xells)
-  catch
-    % Earlier versions
-    xlim(datenum(xels))
-    set(ah,'xtick',datenum(xells))
-  end
   % Day break
   hold on; plot(xells([2 2]),ylim,'-','Color',grey); hold off	
   ylim(yels)
@@ -160,6 +152,16 @@ if nargout==0
     yyaxis right
     hold on ; plot(xels,[1 1]*nanmean(var2),'--','Color',col2) ; hold off
   end	
+
+  try
+    % Latest versions
+    xlim(xels)
+    set(ah,'xtick',xells)
+  catch
+    % Earlier versions
+    xlim(datenum(xels))
+    set(ah,'xtick',datenum(xells))
+  end
   datetick('x','HH:MM','keepticks','keeplimits')
   xlabel(sprintf('Guyot Hall (%10.5f%s,%10.5f%s) %s time',...
 		 lola(1),176,lola(2),176,nounder(data.Timestamp.TimeZone')))
