@@ -34,6 +34,9 @@ defval('year',str2num(datestr(today,11)))
 % ... and plotting the temperature time series
 defval('nset',3)
 
+% Guyot Hall STLO and STLA
+lola=guyotphysics(0);
+
 % Two digits if the input wasn't
 if year>2000; year=year-2000; end
 
@@ -145,11 +148,12 @@ if nargout==0
   % Average value of what's being plotted which it learns from the context
   hold on ; plot(xels,[1 1]*nanmean(var1),'--','Color',col1); hold off
   if length(nset)==2
-  yyaxis right
-  hold on ; plot(xels,[1 1]*nanmean(var2),'--','Color',col2) ; hold off
-end	
+    yyaxis right
+    hold on ; plot(xels,[1 1]*nanmean(var2),'--','Color',col2) ; hold off
+  end	
   datetick('x','HH:MM','keepticks','keeplimits')
-  xlabel(sprintf('%s time',nounder(data.Timestamp.TimeZone')))
+  xlabel(sprintf('Guyot Hall (%10.5f%s,%10.5f%s) %s time',...
+lola(1),176,lola(2),176,nounder(data.Timestamp.TimeZone')))
   longticks(ah,2)
   set(ah,'FontSize',12)
   % Cosmetics
