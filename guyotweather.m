@@ -1,5 +1,5 @@
-function varargout=guyotweather(jday,year,n)
-% [data,hdrv]=GUYOTWEATHER(jday,year,n)
+function varargout=guyotweather(jday,year,nset)
+% [data,hdrv]=GUYOTWEATHER(jday,year,nset)
 %
 % Reads a day of Guyot Weather data as collected by the Vaisala WXT530
 % weather station integrated with the Septentrio PolaRx5 receiver. 
@@ -10,7 +10,7 @@ function varargout=guyotweather(jday,year,n)
 %
 % jday    Julian day (e.g., 212 is July 31 in 2019) [default: yesterday]
 % year    Gregorian year (e.g., 19 or 2019 assuming post 2000)
-% n       Index of the weather variable to plot 
+% nset    One or two indices of the weather plot variable [default: 3, for AirTemp_C]
 %
 % OUTPUT:
 %
@@ -32,7 +32,7 @@ defval('jday',dat2jul-1)
 % ... and using this year's two-digit code
 defval('year',str2num(datestr(today,11)))
 % ... and plotting the temperature time series
-defval('n',3)
+defval('nset',3)
 
 % Two digits if the input wasn't
 if year>2000; year=year-2000; end
@@ -90,29 +90,64 @@ varargout=varns(1:nargout);
 % Make a plot
 if nargout==0
   clf
-  % Take care of the weird first data point in the different UTC day, see DAT2JUL
+  % Note that subplot(111) is not identical in behavior to subplot(1,1,1)
+  ah=subplot(1,1,1);
+  % Remove the weird first data point in the preceding UTC day, see DAT2JUL
   jdai=ceil(datenum(data.Timestamp-['01-Jan-',datestr(data.Timestamp(1),'YYYY')]))==jday;
+  % Make title string in the original time zone
+  titsdate=datestr(data.Timestamp(min(find(jdai))),1);
+
   % So the data.Timestamp.Timezone evaluated to UTC and we're going to
   % change that back to New York for display only
   data.Timestamp.TimeZone='America/New_York';
-  plot(data.Timestamp(jdai),data.(hdrv{n+1})(jdai),'k')
-  ah=gca;
-  t1=title(sprintf('%s (%s) UTC',jday,year));
-keyboard
-  t=title(sprintf('%s %s',nounder(hdrv{n+1}),...
-      datestr(data.Timestamp(min(find(jdai))),1)));
+
+  % Independent variable
+  taxis=data.Timestamp(jdai);
+
+  % Dependent variable bits
+  varn1=hdrv{nset(1)+1};
+  varu1=nounder(varn1);
+  var1=data.(varn1)(jdai);
+  col1='k';
+  str1='%s %s (UTC day %i)';
+
+  if length(nset)==1
+    plot(taxis,var1,col1)
+    t=title(sprintf(str1,varu1,titsdate,jday));
+    ylabel(varu1);
+  elseif length(nset)==2
+    % Dependent variable bits
+    varn2=hdrv{nset(2)+1};
+    var2=data.(varn2)(jdai);
+    varu2=nounder(varn2);
+    col2='b';
+    str2='%s / %s %s (UTC day %i)';
+
+    plot(taxis,var1,col1)
+    ylabel(varu1);
+    yyaxis right
+    plot(taxis,var2,col2)
+    ylabel(varu2);
+    yyaxis left
+    t=title(sprintf(str2,varu1,varu2,titsdate,jday));
+  else
+     error('Supply at most TWO index variables for the weather plot!')
+  end
+  % Add two minutes to come to a round number on the axis
   xels=[data.Timestamp(min(find(jdai))) data.Timestamp(max(find(jdai)))+minutes(2)];
   xlim(xels)
   xells=xels(1):hours(4):xels(2);
   set(ah,'xtick',xells)
   yels=ylim;
-  hold on
   % Day break
-  plot(xells([2 2]),ylim,'-','Color',grey)
+  hold on; plot(xells([2 2]),ylim,'-','Color',grey); hold off	
   ylim(yels)
   % Average value of what's being plotted which it learns from the context
-  plot(xels,[1 1]*nanmean(ah.Children(2).YData),'-','Color',grey)
-  hold off
+  hold on ; plot(xels,[1 1]*nanmean(var1),'--','Color',col1); hold off
+  if length(nset)==2
+  yyaxis right
+  hold on ; plot(xels,[1 1]*nanmean(var2),'--','Color',col2) ; hold off
+end	
   datetick('x','HH:MM','keepticks','keeplimits')
   xlabel(sprintf('%s time',nounder(data.Timestamp.TimeZone')))
   longticks(ah,2)
@@ -122,8 +157,11 @@ keyboard
   movev(t,range(yels)/20)
 end
 
-keyboard
-
 % DON'T FORGET TO RSYCN LEMAITRE FROM CRESSIDA SUCH THAT CRESSIDA CAN BE
 % DECOMMISSIONED
 
+if length(nset)==1
+   figdisp([],sprintf('%i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
+elseif length(nset)==2
+   figdisp([],sprintf('%i_%i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
+end
