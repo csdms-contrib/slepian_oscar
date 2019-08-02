@@ -96,14 +96,17 @@ if nargout==0
   plot(data.Timestamp(jdai),data.(hdrv{n+1})(jdai),'k')
   ah=gca;
   % title(sprintf('%s (%s) UTC',jday,year))
-  t=title(datestr(data.Timestamp(min(find(jdai))),1));
+  t=title(sprintf('%s %s',nounder(hdrv{n+1}),...
+      datestr(data.Timestamp(min(find(jdai))),1)));
   xels=[data.Timestamp(min(find(jdai))) data.Timestamp(max(find(jdai)))+minutes(2)];
   xlim(xels)
   xells=xels(1):hours(4):xels(2);
   set(ah,'xtick',xells)
+  yels=ylim;
   hold on
   % Day break
   plot(xells([2 2]),ylim,'-','Color',grey)
+  ylim(yels)
   % Average value of what's being plotted which it learns from the context
   plot(xels,[1 1]*nanmean(ah.Children(2).YData),'-','Color',grey)
   hold off
@@ -113,7 +116,7 @@ if nargout==0
   set(ah,'FontSize',12)
   % Cosmetics
   shrink(ah,1.1,1.1)
-  movev(t,0.5)
+  movev(t,range(yels)/20)
 end
 
 % DON'T FORGET TO RSYCN LEMAITRE FROM CRESSIDA SUCH THAT CRESSIDA CAN BE
