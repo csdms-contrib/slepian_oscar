@@ -45,12 +45,12 @@ function varargout=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
 %
 % Last modified by efwelch@princeton.edu, 06/25/2010
 % Correction supplied by Xiaojun Chen (Yale), 04/14/2014
-% Last modified by fjsimons-at-alum.mit.edu, 06/29/2017
+% Last modified by fjsimons-at-alum.mit.edu, 09/17/2019
 
 % Check to see if it's a demo case
 if isempty(strfind(fname,'demo'))
   % Assign default catalog filename
-  defval('fname','jan76_dec13.ndk')
+  defval('fname','jan76_dec17.ndk')
   % You will need to make sure $IFILES returns something, or else change
   defval('dirn',fullfile(getenv('IFILES'),'CMT'))
   % Assign default catalog search parameters
