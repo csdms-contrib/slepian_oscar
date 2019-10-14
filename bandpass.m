@@ -19,7 +19,14 @@ function [xf,co,npol,npas,tipe,HABS2,F,EPB]=...
 %
 % OUTPUT:
 %
-% xf      The filtered signal
+% xf        The filtered signal
+% co        The applied corner frequencies in a single vector
+% npol      The number of poles
+% npas      The number of passes
+% tipe      The filter name
+% HABS2     The squared magnitude response (uses FREQZ)
+% F         The frequency axis to plot the magnitude response
+% EPB       The frequency of the 3 dB-corner of the magnitude response
 %
 % NOTE: 
 %
@@ -30,7 +37,7 @@ function [xf,co,npol,npas,tipe,HABS2,F,EPB]=...
 % Returns the npas frequency response and the effective pass band for
 % one or two passes (3 dB level)
 %
-% You'll see that plot(F,decibel(HABS2)) (this is what freqz plots)
+% You'll see that plot(F,decibel(HABS2)) (this is what FREQZ plots)
 % shows how' you concentrate between cohi and colo at the 
 % 3 dB-level
 %
@@ -71,10 +78,13 @@ if nargout>5
   HABS2=abs(H).^2;
 end
 
+% Apply the filter one way
 xf=filter(B,A,detrend(x(:),trending));
 
+% If a second pass is requested, apply it backward
 if npas==2
   xf=flipud(filter(B,A,detrend(flipud(xf(:)),trending)));  
+  % If this happened, the gain is doubled
   if nargout>5
     HABS2=HABS2.^2;
   end
@@ -86,4 +96,5 @@ if nargout>5
   warning on
 end
 
+% Return the corner frequencies in a single vector 
 co=[colo cohi];
