@@ -14,12 +14,16 @@ function [xf,co,npol,npas,tipe,HABS2,F,EPB]=...
 % cohi      The higher corner frequency [Hz]
 % npol      The number of poles [default: 2]
 % npas      The number of passes [default: 1]
-% tipe      The filter name
+% tipe      The filter name [default: 'butter']
 % trending  'linear' or 'constant' [default: 'linear']
 %
 % OUTPUT:
 %
 % xf      The filtered signal
+%
+% NOTE: 
+%
+% Since writing this function, MATLAB came up with its own BANDPASS
 %
 % Compare in SAC bp butter co 0.05 5 n 2 p 1
 %
@@ -30,7 +34,7 @@ function [xf,co,npol,npas,tipe,HABS2,F,EPB]=...
 % shows how' you concentrate between cohi and colo at the 
 % 3 dB-level
 %
-% Last modified by fjsimons-at-alum.mit.edu, 10/12/2010
+% Last modified by fjsimons-at-alum.mit.edu, 10/14/2019
 
 defval('npol',2)
 defval('npas',1)
