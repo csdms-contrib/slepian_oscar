@@ -12,6 +12,13 @@ function varargout=guyotweather(jday,year,nset)
 % year    Gregorian year (e.g., 19 or 2019 assuming post 2000)
 % nset    One or two indices of the weather plot variable 
 %         [default: 3:4, for AirTemp_C and AirPress_bar]
+%         1 'MeanWindDirection_deg'
+%         2 'MeanWindSpeed_mps'
+%         3 'AirTemp_C'
+%         4 'RelHum' 
+%         5 'AirPress_bar'
+%         6 'RainAcc_mm'
+%         7 'HailAcc_hits'
 %
 % OUTPUT:
 %
@@ -26,7 +33,7 @@ function varargout=guyotweather(jday,year,nset)
 %
 % 9.0.0.314360 (R2016a) - 9.1.0.441655 (R2016b)
 %
-% Last modified by fjsimons-at-alum.mit.edu, 08/02/2019
+% Last modified by fjsimons-at-alum.mit.edu, 12/14/2019
 
 % Default values are "yesterday" ...
 defval('jday',dat2jul-1)
@@ -67,7 +74,7 @@ end
 % floats are NaN so make them all floats past the initial string
 fmt='%s %f %f %f %f %f %f %f';
 [drest,pos]=textscan(dstring(1,hdrlen+1:end),fmt);
-% If pos isn't what it should be, rewind, skip, move on?
+% If pos isn't what it should be, rewind, skip, move on? FSCANF?
 
 % Replace the T by a space and remove the Z in the date string
 drest{1}=strrep(drest{1},'T',' ');
@@ -91,7 +98,7 @@ data=struct(sinput{:});
 varns={data,hdrv};
 varargout=varns(1:nargout);
 
-% Make a plot
+% Make a plot only if there is no output requested
 if nargout==0
   clf
   % Note that subplot(111) is not identical in behavior to subplot(1,1,1)
