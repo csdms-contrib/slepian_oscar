@@ -14,7 +14,9 @@
 # See https://kb.unavco.org/kb/print-840.html 
 # Uses standard Unix tools and RxTools/timeconv
 #
-# Last modified by fjsimons-at-alum.mit.edu, 08/02/2019
+# Check the "Note" on L56 to make sure you're in the right place
+#
+# Last modified by fjsimons-at-alum.mit.edu, 12/14/2019
 
 if($#argv == 1 || $#argv > 2)then
   echo ' '
@@ -119,6 +121,8 @@ paste $tempfl2 $tempfl1 | awk '{printf "%s %s %4s %5s %4s %6s %4s %4s\n",$1,$2,$
 # Flow control
 label998: 
 
+# Make the PDF plot
+
 # Put this one file on the Web
 # scp $newfile fjsimons@geoweb.princeton.edu:/home/www/people/simons/PTON
 # Rather see to it that those get pushed on to the server via a
@@ -131,9 +135,9 @@ label998:
 # see ssh-add -l and the authorized_keys on the remote host... in which case the 
 # file goes to the home directory. If you have the correct key and you use rrsync 
 # the line below only specifies the directory in the remote authorized_keys...
-# Maybe make sure to 
-######################ssh-add -d $home/.ssh/id_rsa_geoweb 
-# or else specify IdentitiesOnly .ssh/config but for now, we just leave it
+# Maybe make sure to do
+# ssh-add -d $home/.ssh/id_rsa_geoweb 
+# or else specify IdentitiesOnly in .ssh/config but for now, we just leave it.
 # Note that in figuring this out, I did split the keys on cressida and lemaitre - 
 # rrsync only does take ONE command but it could take two comma-separated clients...
 # which is how mermaid was setup... never mind, it's more epxlicit this way
