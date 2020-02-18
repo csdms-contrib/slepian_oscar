@@ -21,8 +21,6 @@ function epb=bpmin(H,F,dB)
 %
 % Last modified by fjsimons-at-alum.mit.edu, 02/18/2020
 
-keyboard
-
 % Supply defaults
 defval('dB',3)
 
@@ -34,7 +32,10 @@ Hm=find(H==max(H));
 % Both are now monotonic functions
 % I used to go from 1 but then it hits -Inf so now I go from 2
 F1=interp1(H(2:Hm),F(2:Hm),0);
-F2=interp1(H(Hm+1:end),F(Hm+1:end),0);
+% I used to  go from Hm+1 but then finite-precision sometimes ruins it
+% so take our chances that this will remove the issue
+F2=interp1(H(Hm+length(F)/20:end),F(Hm+length(F)/20:end),0);
+
 
 % The two requested points
 epb=[F1 F2];
