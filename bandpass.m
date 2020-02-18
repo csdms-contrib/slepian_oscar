@@ -1,6 +1,6 @@
 function [xf,co,npol,npas,tipe,HABS2,F,EPB]=...
     bandpass(x,Fs,colo,cohi,npol,npas,tipe,trending)
-% [xf,HABS2,F,EPB]=BANDPASS(x,Fs,colo,cohi,npol,npas,tipe,trending)
+% [xf,co,npol,npas,tipe,HABS2,F,EPB]=BANDPASS(x,Fs,colo,cohi,npol,npas,tipe,trending)
 %
 % Filters signal 'x' with filter 'tipe' and corner
 % frequencies 'cohi' and 'cohi' in Hz with 'npol' the 
@@ -90,7 +90,7 @@ if npas==2
   end
 end
 
-if nargout>5
+if nargout>7
   warning off
   EPB=bpmin(decibel(HABS2),F,3);
   warning on
