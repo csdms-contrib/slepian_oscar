@@ -1,6 +1,6 @@
 #!/bin/tcsh -f
 #
-# Converts a miniseed file (obtained from MCGET) to a properly named
+# Converts a miniseed file (obtained from MCGETMS) to a properly named
 # SAC file via the intermediary of MSEED2SAC, [historically: still moved
 # mv .S0001..HHX.D.2017.073.170000.SAC PP.S0001.00.HHX.D.2017.073.170000.SAC]
 # Currently, the KNETWK and KHOLE have already been set, going forward.
@@ -13,8 +13,10 @@
 # past the ??000 hour, these were due to small timing errors, and we
 # got rid of those, while keeping a log. GPS fixed 06/20/2017.]
 #
-#  Last modified by jirving-at-princeton.edu on 03/30/2018
-#  Last modified by fjsimons-at-alum.mit.edu on 03/30/2018
+# Last modified by jirving-at-princeton.edu on 03/30/2018
+# Last modified by fjsimons-at-alum.mit.edu on 02/21/2020
+
+# See also IFEMPTYREMOVE
 
 # Fix permissions, if you'd done any before, will refuse to redo it
 
@@ -25,20 +27,20 @@ set KHOLE  = 00
 # Into the directory structure
 set years = `ls -d 20??`
 # SPECIFIC YEAR ########################################
-set years = 2017
+set years = 2018
 
 # Go in, come out!
 foreach year ($years[*])
     cd $year
     set monts = `ls -d ??`
     # SPECIFIC MONTH ########################################
-    set monts = 12
+    set monts = 05
 
     foreach mont ($monts[*])
 	cd $mont
 	set days = `ls -d ??`
 	# SPECIFIC DAY ########################################
-#	set days = 30
+	set days = 27
 	
 	foreach day ($days[*])
             cd $day
