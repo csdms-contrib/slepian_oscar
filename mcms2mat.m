@@ -10,9 +10,9 @@ function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
 % Unpacks using MSEED2SAC Version 2.0, a program available from 
 % https://seiscode.iris.washington.edu/projects/mseed2sac
 %
-% [Performs instrument correction using SAC available from etc...]
+% Performs instrument correction using available RESP files.
 %
-% Makes some plots, and saves as MAT files.
+% Makes some plots, and saves the data as MAT files.
 %
 % INPUT:
 %
@@ -154,13 +154,10 @@ for index=1:length(HH)
 
 	% Instrument response deconvolution? Header update in that case?
 	% [INSTRUMENT CORRECTION to "none" is "displacement"]
-	f1= 0.1;
-	f2= 0.2;
-	f3=10.00;
-	f4=20.00;
+	freqlimits=[0.1 0.2 10.00 20.00];
 	tcom=sprintf(...
 	    'transfer from evalresp fname %s to none freqlimits %g %g %g %g',...
-	    respfile,f1,f2,f3,f4);
+	    respfile,freqlimits(1),freqlimits(2),freqlimits(3),freqlimits(4));
 	
 	system(sprintf(...
 	    'echo "r %s ; rtr ; rmean ; whiten ; taper type ; %s ; w h.sac ; q" | /usr/local/sac/bin/sac',...
@@ -169,10 +166,15 @@ for index=1:length(HH)
 	% Substitute the temporary variable name
 	system(sprintf('rm -f %s',sax));
 	sax='h.sac';
+
+	% Need to update the header! Also need to update readsac
+      else
+	freqlimits=nan(1,4);
       end
 	 
       % If plotting, get ready
       if qp==1; axes(ah(ondex)); end
+
       % Redefine sax again then READSAC and collect components
       [s{ondex},h{ondex},t{ondex},p{ondex}]=readsac(sax,qp);
       % If plotting, finish up with underscores in the title as needed
@@ -240,17 +242,17 @@ for index=1:length(HH)
        % Their headers
        hx=h{1}; hy=h{2}; hz=h{3};
        % ...easier to subsequently direct-LOAD in, component by component 
-       save(mtx,'sx','sy','sz','hx','hy','hz')
+       save(mtx,'sx','sy','sz','hx','hy','hz','freqlimits')
      case 2
       % Any components we have, save them TOGETHER in a single MAT file
-      save(mtx,'s','h')
+      save(mtx,'s','h','freqlimits')
     end
     % Start the loop afresh
     clear s h
   end
 end
 
-% SAC TRANSFER
+% NOTES ON SAC TRANSFER
 %
 % FREQLIMITS f1 f2 f3 f4 : All seismometers have zero response at zero
 % frequency. When deconvolving and not convolving with another response
@@ -268,7 +270,7 @@ end
 % ringing in the output time series, a suggested rule-of-thumb is f1 ,=
 % f2/2 and f4 >= 2*f3.
 %
-% This is considered reasonable by Qinya Liu
+% NOTES FROM Qinya Liu
 % caec056 version of
 % https://github.com/liuqinya/specfem3d_globe/blob/master/utils/seis_process/process_data.pl
 % freqlimits
