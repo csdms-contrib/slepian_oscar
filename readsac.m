@@ -30,7 +30,7 @@ function varargout=readsac(filename,plotornot,osd)
 %
 % WRITESAC, PLOTSAC
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 08/20/2018
+% Last modified by fjsimons-at-alum.mit.edu, 02/22/2020
 
 defval('plotornot',0)
 defval('osd',osdep)
@@ -72,6 +72,7 @@ HdrData=struct(...
   'EVLA',HdrF(36),...
   'EVLO',HdrF(37),...
   'GCARC',HdrF(54),...
+  'IDEP',HdrI(2),...
   'IFTYPE',HdrI(1),...
   'KCMPNM',HdrK(21,HdrK(21,:)>64),...
   'KINST',HdrK(24,HdrK(24,:)>64),...
@@ -101,6 +102,25 @@ HdrData=struct(...
   'USER0',HdrF(41),...
   'USER1',HdrF(42),...
   'USER2',HdrF(43));
+
+
+% Need a table with the enumerated header variables from 
+% https://ds.iris.edu/files/sac-manual/manual/file_format.html
+% So far we have IFTYPE and IDEP covered, but there are many more
+% [IVOLTS] would be 50 but I didn't get that far
+IVARS={'UNKNOWN',... % [FJS STUCK IN THIS EXTRA ROW TO USE MAX BELOW]
+       'TIME SERIES FILE',...  % [ITIME]
+       'Spectral file---real and imaginary',... % [IRLIM]
+       'Spectral file---amplitude and phase',... % [IAMPH]
+       'General X versus Y data',... % [IXY]
+       'UNKNOWN',... % [IUNKN]
+       'DISPLACEMENT (NM)',...  % [IDISP]
+       'VELOCITY (NM/SEC)',... % [IVEL]
+       'ACCELERATION (NM/SEC/SEC)',... % [IACC]
+      };
+% Substitute the name for the code
+HdrData.IFTYPE=IVARS{max(HdrData.IFTYPE+1,1)};
+HdrData.IDEP=IVARS{max(HdrData.IDEP+1,1)};
 
 % For the time sequence
 tims=linspace(HdrData.B,HdrData.E,HdrData.NPTS);
