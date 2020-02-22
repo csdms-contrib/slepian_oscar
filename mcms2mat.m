@@ -26,11 +26,8 @@ function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
 % pdf      Quick pdf print as we go along [default: 1 for yes]
 % of       1 Components saved in MAT file as separate variables [default] 
 %          2 Components saved in MAT files as cell entries
-% method   Method type for further processing
-%            'pipe' Formulating a command and piping it into SAC
-%            'macro' Writing a macro and piping that into SAC [not functional]
-%            'ingest' Open SAC and ingest commands into it [not functional]
-%            'compile' Some other form of a compiled command [not functional]
+% icor     1 Corrects for instrument response
+%          0 Doesn't correct for instrument response
 %
 % USAGE:
 %
@@ -51,13 +48,13 @@ function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
 % Last modified by fjsimons-at-alum.mit.edu, 02/20/2020
 
 % FIXED STUFF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-defval('method','pipe')
 
 % Default data directory with the YYYY/MM/DD directories, set your own 'MC'
 setenv('MC',getenv('MC'))
 dirx=getenv('MC');
 
 % Where are the response files kept?
+defval('icor',1)
 dirr='/u/fjsimons/IFILES/RESPONSES/PP/';
 
 % Default directory where the EPS files will go, best to set your own 'EPS'
@@ -152,38 +149,28 @@ for index=1:length(HH)
 	if strcmp(lower(reply),'n'); continue; end
       end
 
-      % Instrument response deconvolution? Header update in that case?
-      % [INSTRUMENT CORRECTION to "none" is "displacement"]
-      f1= 0.02;
-      f2= 0.04;
-      f3=10.00;
-      f4=20.00;
-      tcom=sprintf(...
-	  'transfer from evalresp fname %s to none freqlimits %g %g %g %g',...
-	  respfile,f1,f2,f3,f4);
+      if icor==1
+	% Make it smaller by cutting?
 
-      switch method
-       case 'pipe'
+	% Instrument response deconvolution? Header update in that case?
+	% [INSTRUMENT CORRECTION to "none" is "displacement"]
+	f1= 0.1;
+	f2= 0.2;
+	f3=10.00;
+	f4=20.00;
+	tcom=sprintf(...
+	    'transfer from evalresp fname %s to none freqlimits %g %g %g %g',...
+	    respfile,f1,f2,f3,f4);
+	
 	system(sprintf(...
-	    'echo "r %s ; rtr ; rmean ; whiten ; taper ; %s ; w h.sac ; q" | /usr/local/sac/bin/sac',...
+	    'echo "r %s ; rtr ; rmean ; whiten ; taper type ; %s ; w h.sac ; q" | /usr/local/sac/bin/sac',...
 	    sax,tcom));
-	 
-	 % case 'macro'
-	 %   fid=fopen('somemacro','w+');
-	 %% write a macro
-	 %	fprintf(fid,'r %s \n cut \n w h.sac \n q',sax);
-	 %% Tell SAC to do the macro
-	 %	 system(sprintf('echo "m %s" | /usr/local/sac/bin/sac','somemacro'));
-	 % case 'ingest'
-	 %   sac <<EOF
-	 %   ? r .*.SAC
-	 %   ? q
-	 %   ? EOF
-	 % case 'compiled'
-    end
 
-      keyboard
-      
+	% Substitute the temporary variable name
+	system(sprintf('rm -f %s',sax));
+	sax='h.sac';
+      end
+	 
       % If plotting, get ready
       if qp==1; axes(ah(ondex)); end
       % Redefine sax again then READSAC and collect components
@@ -198,7 +185,21 @@ for index=1:length(HH)
 	end
 	set(t{ondex},'string',mss);
 	p{ondex}(3)=ylabel(cmp{ondex});
+	
+	% For the blasting...
+	xls=[1800 1815]; xlim(xls)
+	
+	if verLessThan('matlab','9.0.0')
+	else
+	  % After R2016a the behavior changed
+	  tlpos=t{ondex}.Position; 
+	  % Need to recenter the title after xls change
+	  t{ondex}.Position=tlpos+[-tlpos(1)+mean(xls) 0 0];
+	  t{ondex}.FontWeight='normal';
+	  t{ondex}.FontSize=8;
+	end
       end
+
       % Remove the temporary SAC files
       system(sprintf('rm -f %s',sax));
       % Preserve the ability to make the plot
@@ -209,6 +210,7 @@ for index=1:length(HH)
       nix=0;
     end
   end
+
   % If plotting clean up; will need provision if only one component found
   if qp*nix==1
     delete(kindeks(cat(1,p{1:2}),2)); 
@@ -227,11 +229,12 @@ for index=1:length(HH)
       system(sprintf('mv -f %s %s',fullfile(getenv('EPS'),pdfname),dirx));
     end
   end
+
   % If you've been having success
   if exist('s')==1 && exist('h')==1
     switch of
       case 1
-       % Any components we have, save them SEPARATELY in a MAT file
+       % Any components we have, save them SEPARATELY in a single MAT file
        % The seismograms
        sx=s{1}; sy=s{2}; sz=s{3};
        % Their headers
@@ -239,7 +242,7 @@ for index=1:length(HH)
        % ...easier to subsequently direct-LOAD in, component by component 
        save(mtx,'sx','sy','sz','hx','hy','hz')
      case 2
-      % Any components we have, save them TOGETHER in a MAT file
+      % Any components we have, save them TOGETHER in a single MAT file
       save(mtx,'s','h')
     end
     % Start the loop afresh
