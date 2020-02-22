@@ -1,14 +1,17 @@
-function varargout=mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
-% fnames=MCMS2MAT(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
+function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
+% MCMS2MAT(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
 %
 % MeridianCompact-MiniSeed-to-MAT conversion of data files.
 % 
 % Queries a directory structure organized as $MC/YYYY/MM/DD/
 % within which, e.g. S0001.HHY_MC-PH1_0248_20160627_040000.miniseed 
 % data files as written by the Nanometrics instrument MC-PH1_0248. 
+%
 % Unpacks using MSEED2SAC Version 2.0, a program available from 
 % https://seiscode.iris.washington.edu/projects/mseed2sac
+%
 % [Performs instrument correction using SAC available from etc...]
+%
 % Makes some plots, and saves as MAT files.
 %
 % INPUT:
@@ -23,10 +26,11 @@ function varargout=mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
 % pdf      Quick pdf print as we go along [default: 1 for yes]
 % of       1 Components saved in MAT file as separate variables [default] 
 %          2 Components saved in MAT files as cell entries
-%
-% OUTPUT:
-%
-% fnames   File names of the *mat files created
+% method   Method type for further processing
+%            'pipe' Formulating a command and piping it into SAC
+%            'macro' Writing a macro and piping that into SAC [not functional]
+%            'ingest' Open SAC and ingest commands into it [not functional]
+%            'compile' Some other form of a compiled command [not functional]
 %
 % USAGE:
 %
@@ -34,43 +38,45 @@ function varargout=mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
 % or leave the minutes and seconds, or even hours, out of it altogether
 % and it will apply to all available files, assuming hourly chunks.
 %
+% EXAMPLE:
+%
+% mcms2mat(2020,02,18)
+%
 % SEE ALSO:
 %
-% MCGET (a tcsh shell script)
+% MCGETMS, MCMS2SAC (a tcsh shell script)
 %
 % Tested on 8.3.0.532 (R2014a) and 9.0.0.341360 (R2016a)
-% Last modified by fjsimons-at-alum.mit.edu, 07/17/2019
-% Last modified by abrummen-at-princeton.edu, 07/01/2016
+% Last modified by abrummen-at-princeton.edu, 07/14/2016
+% Last modified by fjsimons-at-alum.mit.edu, 02/20/2020
 
 % FIXED STUFF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+defval('method','pipe')
 
 % Default data directory with the YYYY/MM/DD directories, set your own 'MC'
 setenv('MC',getenv('MC'))
 dirx=getenv('MC');
 
+% Where are the response files kept?
+dirr='/u/fjsimons/IFILES/RESPONSES/PP/';
+
 % Default directory where the EPS files will go, best to set your own 'EPS'
 setenv('EPS',getenv('EPS'))
 
 % Hard things such as our station, channel, device name etc
+NTW='PP';
 STA='S0001';
+HOL='00';
 CHA='HH%s';
 DEV='MC-PH1_0248';
-KNETWK='PP';
-KHOLE='00';
 % Set of components we should be expecting for our miniseed files
 cmp={'X' 'Y' 'Z'};
 
-% OLD FORMAT, SINCE FIXED
 % Format of the MINISEED and MAT file names in those directories
-msfmt=sprintf('%s.%s_%s_%s.%s',STA,CHA,DEV,'%s','%s');
+msfmt=sprintf('%s.%s.%s.%s_%s_%s.%s',NTW,STA,HOL,CHA,DEV,'%s','%s');
+rffmt=sprintf('%s.%s.%s.%s.%s',      NTW,STA,HOL,CHA,    '%s');
 % SAC format expected out of MSEED2SAC, had to run it to find out
-scfmt=sprintf('.%s..%s.%s.%s.%s.%s.SAC',STA,CHA,'D','%i','%i','%s');
-
-% NEW FORMAT
-% Format of the MINISEED and MAT file names in those directories
-msfmt=sprintf('%s.%s.%s.%s_%s_%s.%s',KNETWK,STA,KHOLE,CHA,DEV,'%s','%s');
-% SAC format expected out of MSEED2SAC, had to run it to find out
-scfmt=sprintf('%s.%s.%s.%s.%s.%s.%s.%s.SAC',KNETWK,STA,KHOLE,CHA,'D','%i','%i','%s');
+scfmt=sprintf('%s.%s.%s.%s.%s.%s.%s.%s.SAC',NTW,STA,HOL,CHA,'D','%i','%3.3i','%s');
       
 % We may change our minds on this
 defval('of',1)
@@ -78,9 +84,9 @@ defval('of',1)
 % INPUT STUFF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
 % Defaults for the dates for which we have a data directory... today!
-defval('yyyy',datestr(date,'yyyy'))
-defval('mm',datestr(date,'mm'))
-defval('dd',datestr(date,'dd'))
+defval('yyyy',str2num(datestr(date,'yyyy')))
+defval('mm',str2num(datestr(date,'mm')))
+defval('dd',str2num(datestr(date,'dd')))
 % Set of hours we should be expecting for our miniseed files [all!]
 defval('HH',0:23)
 % Minutes and seconds that we expect these to start at [zero!]
@@ -123,6 +129,8 @@ for index=1:length(HH)
   for ondex=1:length(cmp)
     % Make the MINISEED FILENAME with the precise time in it now also
     msx=fullfile(dirx,sprintf(msfmt,cmp{ondex},dst1,'miniseed'));
+    % Response file
+    respfile=fullfile(dirr,sprintf(rffmt,cmp{ondex},'resp'))
     % Full figure name... but notice the trouble with periods in
     % the filenames, which is very annoying and gets fixed down below
     pdfname=sprintf('%spdf',pref(suf(msx,'/'),'miniseed'));
@@ -143,10 +151,38 @@ for index=1:length(HH)
 	reply=input(sprintf('%s found, continue with that [Y/N] or skip? ',sax),'s');
 	if strcmp(lower(reply),'n'); continue; end
       end
-      % Instrument response deconvolution? Header update in that case;
-      % filename update also above, to do!
-      
-      % [INSTRUMENT CORRECTION]
+
+      % Instrument response deconvolution? Header update in that case?
+      % [INSTRUMENT CORRECTION to "none" is "displacement"]
+      f1= 0.02;
+      f2= 0.04;
+      f3=10.00;
+      f4=20.00;
+      tcom=sprintf(...
+	  'transfer from evalresp fname %s to none freqlimits %g %g %g %g',...
+	  respfile,f1,f2,f3,f4);
+
+      switch method
+       case 'pipe'
+	system(sprintf(...
+	    'echo "r %s ; rtr ; rmean ; whiten ; taper ; %s ; w h.sac ; q" | /usr/local/sac/bin/sac',...
+	    sax,tcom));
+	 
+	 % case 'macro'
+	 %   fid=fopen('somemacro','w+');
+	 %% write a macro
+	 %	fprintf(fid,'r %s \n cut \n w h.sac \n q',sax);
+	 %% Tell SAC to do the macro
+	 %	 system(sprintf('echo "m %s" | /usr/local/sac/bin/sac','somemacro'));
+	 % case 'ingest'
+	 %   sac <<EOF
+	 %   ? r .*.SAC
+	 %   ? q
+	 %   ? EOF
+	 % case 'compiled'
+    end
+
+      keyboard
       
       % If plotting, get ready
       if qp==1; axes(ah(ondex)); end
@@ -209,11 +245,29 @@ for index=1:length(HH)
     % Start the loop afresh
     clear s h
   end
-  % Save the filenames
-  mtxs{index}=mtx;
 end
 
-% Optional output
-varns={mtxs};
-varargout=varns(1:nargout);
-
+% SAC TRANSFER
+%
+% FREQLIMITS f1 f2 f3 f4 : All seismometers have zero response at zero
+% frequency. When deconvolving and not convolving with another response
+% (e.g. "TO NONE"), it is therefore necessary to modify the response at
+% very low frequencies. At high frequencies, the signal-to-noise ratio
+% is often low, so it may be desirable to dampen the
+% response. FREQLIMITS serves this purpose within SAC. FREQLIMITS has
+% both a low-pass and a high-pass taper. It is necessary that f1 < f2 <
+% f3 < f4. The taper is unity between f2 and f3 and zero below f1 and
+% above f4. Frequencies f1 and f2 specify the high-pass filter at low
+% frequencies, while frequencies f3 and f4 specify the low-pass filter
+% at high frequencies. Both f3 and f4 should be less than the Nyquist
+% frequency: 0.5/DELTA. The filters applied between f1 and f2 and
+% between f3 and f4 are quarter cycles of a cosine wave. To avoid
+% ringing in the output time series, a suggested rule-of-thumb is f1 ,=
+% f2/2 and f4 >= 2*f3.
+%
+% This is considered reasonable by Qinya Liu
+% caec056 version of
+% https://github.com/liuqinya/specfem3d_globe/blob/master/utils/seis_process/process_data.pl
+% freqlimits
+% $f1=$f2*0.8;
+% $f4=$f3*1.2;
