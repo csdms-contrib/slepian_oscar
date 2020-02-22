@@ -186,6 +186,10 @@ for index=1:length(HH)
 	  mss=nounder(suf(msx,'/'),'\_');
 	end
 	set(t{ondex},'string',mss);
+	% Short version
+	if strfind(h{ondex}.IDEP,'DISPLACEMENT')~=0
+	  h{ondex}.IDEP='disp (nm)';
+	end
 	p{ondex}(3)=ylabel(sprintf('%s %s',cmp{ondex},h{ondex}.IDEP));
 	
 	% For the blasting...
