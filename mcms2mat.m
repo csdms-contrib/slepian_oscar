@@ -45,7 +45,7 @@ function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
 %
 % Tested on 8.3.0.532 (R2014a) and 9.0.0.341360 (R2016a)
 % Last modified by abrummen-at-princeton.edu, 07/14/2016
-% Last modified by fjsimons-at-alum.mit.edu, 02/20/2020
+% Last modified by fjsimons-at-alum.mit.edu, 02/22/2020
 
 % FIXED STUFF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
@@ -186,7 +186,7 @@ for index=1:length(HH)
 	  mss=nounder(suf(msx,'/'),'\_');
 	end
 	set(t{ondex},'string',mss);
-	p{ondex}(3)=ylabel(cmp{ondex});
+	p{ondex}(3)=ylabel(sprintf('%s %s',cmp{ondex},h{ondex}.IDEP));
 	
 	% For the blasting...
 	xls=[1800 1815]; xlim(xls)
