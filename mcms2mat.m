@@ -1,5 +1,5 @@
-function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
-% MCMS2MAT(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
+function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of,xls)
+% MCMS2MAT(yyyy,mm,dd,HH,MM,SS,qp,pdf,of,xls)
 %
 % MeridianCompact-MiniSeed-to-MAT conversion of data files.
 % 
@@ -26,6 +26,7 @@ function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
 % pdf      Quick pdf print as we go along [default: 1 for yes]
 % of       1 Components saved in MAT file as separate variables [default] 
 %          2 Components saved in MAT files as cell entries
+% xls      X-axis limits for the plot [defaulted]
 % icor     1 Corrects for instrument response
 %          0 Doesn't correct for instrument response
 %
@@ -37,7 +38,8 @@ function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of)
 %
 % EXAMPLE:
 %
-% mcms2mat(2020,02,18)
+% mcms2mat(2020,02,18,16,[],[],1,1,[],[1800 1815])
+% mcms2mat(2020,02,21,16,[],[],1,1,[],[2555 2570])
 %
 % SEE ALSO:
 %
@@ -193,7 +195,8 @@ for index=1:length(HH)
 	p{ondex}(3)=ylabel(sprintf('%s %s',cmp{ondex},h{ondex}.IDEP));
 	
 	% For the blasting...
-	xls=[1800 1815]; xlim(xls)
+	defval('xls',[1800 1815])
+	xlim(xls)
 	
 	if verLessThan('matlab','9.0.0')
 	else
@@ -228,6 +231,7 @@ for index=1:length(HH)
       axes(ah(ondex))
       movev(t{ondex},range(get(ah(ondex),'ylim'))/20)
     end
+    % Now it gets the PDF name of the last component loaded... not ideal
     % Actually print to file? At least give a print suggestion! Force PDF
     atmp=figdisp(pdfname,[],[],~~pdf*2);
     % Better move that plot to the working directory, fix extension
