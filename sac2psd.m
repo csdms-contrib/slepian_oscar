@@ -56,8 +56,10 @@ for index=1:length(ss)
 end
 
 % Maybe you still want to override these choices here (nonzero!)
-%minF=1e-2; maxF=30.1;
-%minS=100; maxS=1e15;
+minF=1e-3;
+maxF=30.1;
+minS=maxS/1e12;
+%maxS=1e15;
 
 % Close all figures for a really fresh start
 % close all
@@ -135,5 +137,4 @@ if nfft==length(s);
 else
   S=NaN;
 end
-
 
