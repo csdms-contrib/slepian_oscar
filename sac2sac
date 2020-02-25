@@ -1,9 +1,10 @@
 #!/bin/tcsh -f
 #
-# Update SAC headers
+# Update SAC headers for the $MC instrument, for the old behavior,
+# since remediated, in MCMS2SAC.
 #
-#  Last modified by jirving-at-princeton.edu on 06/20/2017
-#  Last modified by fjsimons-at-alum.mit.edu on 06/20/2017
+#  Last modified by jirving-at-princeton.edu on 03/30/2018
+#  Last modified by fjsimons-at-alum.mit.edu on 03/30/2018
 
 # Our fixes to the SAC headers!
 
@@ -21,12 +22,12 @@ foreach year ($years[*])
             cd $day
 	    set files = `ls *.SAC`
 	    foreach file ($files[*])
-		setvar.pl $file  KNETWK  PP
-		setvar.pl $file  KHOLE   00
-		setvar.pl $file  KINST   MC120PH2
-		setvar.pl $file  STLO    -74.65475
-		setvar.pl $file  STLA     40.34585
-		setvar.pl $file  STEL     6.0
+		setvar.pl $file  KNETWK PP
+		setvar.pl $file  KHOLE  00
+		setvar.pl $file  KINST  MC120PH2
+		setvar.pl $file  STLO   -74.65475
+		setvar.pl $file  STLA    40.34585
+		setvar.pl $file  STEL    6.0
             end
             cd ..
         end
