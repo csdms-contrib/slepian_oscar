@@ -1,5 +1,7 @@
 function varargout=plotsac(SeisData,HdrData,varargin)
-% [ph,xl,yl]=PLOTSAC(SeisData,HdrData,'Property','Value')
+% [ph,tl,xl,yl]=PLOTSAC(SeisData,HdrData,'Property','Value')
+%
+% Plots SAC data and puts a Guyotcentric title on it
 %
 % INPUT
 %
@@ -20,7 +22,7 @@ function varargout=plotsac(SeisData,HdrData,varargin)
 %
 % READSAC, WRITESAC, MCM2SMAT
 %
-% Last modified by fjsimons-at-alum.mit.edu, 06/14/2019
+% Last modified by fjsimons-at-alum.mit.edu, 02/24/2020
 
 % Guyot Hall STLO and STLA, check with SAC2SAC, check with HdrData
 lola=guyotphysics(0);
@@ -29,12 +31,13 @@ lola=guyotphysics(0);
 ph=plot(linspace(HdrData.B,HdrData.E,HdrData.NPTS),SeisData);
 
 % Cosmetics and annotation
-tl=title(sprintf('recorded at Princeton University Guyot Hall %s (%10.5f%s,%10.5f%s)',deblank(HdrData.KSTNM),...
+tl=title(sprintf('recorded at Princeton University Guyot Hall %s (%10.5f%s,%10.5f%s)',...
+                 deblank(HdrData.KSTNM),...
 		 lola(1),176,lola(2),176),...
 	         'FontWeight','Normal');
 yl=ylabel(sprintf('uncorrected %s component',...
 		  HdrData.KCMPNM));
-xl=xlabel(sprintf('time (s) since %4.4i (%3.3i) %2.2i:%2.2i:%2.2i.%3.3i',...
+xl=xlabel(sprintf('time (s) since %4.4i (%3.3i) %2.2i:%2.2i:%2.2i.%3.3i GMT',...
 		  HdrData.NZYEAR,HdrData.NZJDAY,...
 		  HdrData.NZHOUR,HdrData.NZMIN,HdrData.NZSEC,HdrData.NZMSEC));
 axis tight
@@ -48,4 +51,3 @@ end
 % Optional output
 varns={ph,tl,xl,yl};
 varargout=varns(1:nargout);
-
