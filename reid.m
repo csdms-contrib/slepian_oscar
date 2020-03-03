@@ -32,9 +32,14 @@ function varargout=reid(mag,MlMb,Del,f,phi,alphar,betar,alphaw,rhow,P0)
 %
 % SEE ALSO: WOODANDERSON, GUTENBERGRICHTER 
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 07/07/2008
-% After Reid, GJRAS 1973, correcting a typo on their page 367, and
+% Last modified by fjsimons-at-alum.mit.edu, 03/03/20201
+% 
+% REFERENCES: 
+%
+% Reid, GJRAS 1973, correcting a typo on their page 367, and
 % noticing other errors.
+% Simons et al., JGR 2009, doi:10.1029/2008JB006088, used for equation
+% references below
 
 defval('MlMb',0)
 defval('Del',10/fralmanac('DegDis')*1000)
@@ -111,6 +116,7 @@ if dispo==1
 end
 
 % Pressure amplification of the amplitude of the incoming pulse
+% (Simons et al. equation 1)
 P=rhow*alphaw*omega./cos(theta);
 
 % And this is pressure in Pa=10^{-5} bars=10^{-4} dbar=10^{-2} mbar= 10 microbar
@@ -158,4 +164,3 @@ varargout=varns(1:nargout);
 % ZHAO. 
 
 %pause
-
