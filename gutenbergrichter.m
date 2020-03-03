@@ -20,7 +20,12 @@ function A=gutenbergrichter(Mb,Del,T)
 %
 % See also: REID, WOODANDERSON
 %
-% Last modified by fjsimons-at-alum.mit.edu, 06/24/2008
+% Last modified by fjsimons-at-alum.mit.edu, 03/03/2020
+%
+% REFERENCES: 
+%
+% Simons et al., JGR 2009, doi:10.1029/2008JB006088, used for equation
+% reference below
 
 defval('T',1)
 
@@ -59,4 +64,5 @@ end
 display(sprintf('Using correction factor Q of %3.1f',Q))
 
 % See NMSOP
+% % Simons et al. 2009, equation 2
 A=10^(Mb-Q)*T;
