@@ -1,11 +1,14 @@
 #!/bin/tcsh -f
 #
-# Converts a miniseed file (obtained from MCGETMS) to a properly named
-# SAC file via the intermediary of MSEED2SAC.
+# Converts miniSEED files (obtained from MCGETMS) inside a directory
+# to properly named SAC files via the intermediary of MSEED2SAC.
+# Hand-edit for file selection. No instrument conversion is done here,
+# we do that in MCMS2MAT.m which therefore supersedes this code here.
 #
 # [Historical note 1: 
 # Currently, the KNETWK and KHOLE have been set, but we used to have to move
-# .S0001..HHX.D.2017.073.170000.SAC to PP.S0001.00.HHX.D.2017.073.170000.SAC
+# .S0001..HHX.D.2017.073.170000.SAC or XX.S0001..HHX.D.2017.073.170000.SAC 
+# to PP.S0001.00.HHX.D.2017.073.170000.SAC
 # Only exception where this needed to be done by hand is 2017/06/19
 # when the conversion between old and new file name convention
 # happened right at the 18th hour.]
@@ -19,9 +22,9 @@
 # looked at. 
 #
 # Last modified by jirving-at-princeton.edu on 03/30/2018
-# Last modified by fjsimons-at-alum.mit.edu on 02/21/2020
+# Last modified by fjsimons-at-alum.mit.edu on 04/23/2020
 
-# See also IFEMPTYREMOVE, SAC2SAC, MCMS2SAC.M
+# See also IFEMPTYREMOVE, MCSAC2SAC, MCMS2MAT.M
 
 # Fix permissions, if you'd done any before, will refuse to redo it
 
@@ -87,4 +90,4 @@ foreach year ($years[*])
 end
 
 # For the OLD FILES, we followed up with a bunch of SETVAR.PL for
-# KINSTM and KNETWK, see SAC2SAC.
+# KINSTM and KNETWK, see MCSAC2SAC.
