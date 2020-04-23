@@ -20,7 +20,6 @@
 # Last modified by fjsimons-at-alum.mit.edu, 04/23/2020
 
 set warnin = 0
-
 if($#argv < 1)then
   echo ' '
   echo 'MCGETMS: At least two input argument expected:'
