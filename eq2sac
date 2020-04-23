@@ -49,7 +49,7 @@ foreach year ($years[*])
     echo In $year I have $#msdates MiniSEED dates, from $msdates[1] to $msdates[$#msdates]
 
     # Now run through all of those individual date strings
-     foreach msdate ($msdates[22])
+     foreach msdate ($msdates[*])
 	# Make youself an IRIS query from these dates; also look into awk/split
         set month = `echo $msdate | cut -c5-6`
         set day   = `echo $msdate | cut -c7-8`
