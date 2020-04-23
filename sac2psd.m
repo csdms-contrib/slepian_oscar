@@ -1,7 +1,8 @@
 function sac2psd(diro,num)
 % SAC2PSD(diro,num)
 %
-% Calculate a power spectral density estimate for SAC seismograms
+% Calculate a power spectral density estimate for SAC seismograms kept
+% inside a directory structure.
 %
 % INPUT
 %
@@ -110,7 +111,7 @@ for index=1:length(ss)
   set(ax,'xdir','rev','xlim',sort(1./xlims))
   longticks(ax,2)
 
-  % Fiddle wit the name to create the PDF
+  % Fiddle with the name to create the PDF
   tn(find(abs(tn==46)))='-';
   % Annotate and print the plot
   print('-dpdf',fullfile(dirp,sprintf('%s',tn)))
