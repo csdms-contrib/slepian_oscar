@@ -1,5 +1,6 @@
 #!/bin/tcsh -f
-# Downloads a MONTH or a DAY of MINISEED data from the MC-PH1_0248 seismometer
+# Downloads a whole MONTH or a specifc MONTHD/DAY of MINISEED data
+# from a networked Nanometrics seismometer (our MC-PH1_0248...). 
 #
 # MCGETMS YYYY MM, e.g.
 # MCGETMS 2017  7
@@ -14,7 +15,7 @@
 #           MCMS2MAT (MATLAB script)
 #
 # Last modified by jirving-at-princeton.edu, 09/12/2017
-# Last modified by fjsimons-at-alum.mit.edu, 02/27/2018
+# Last modified by fjsimons-at-alum.mit.edu, 04/23/2020
 
 set warnin = 0
 
@@ -47,6 +48,7 @@ set mo = `printf "%2.2i" $2`
 test ! -d $MC/$yr/$mo && mkdir $MC/$yr/$mo
 
 if ($# >2) then
+    # Downloading a specific day of a specific month
     set dy = `printf "%2.2i" $3`
     echo Recursively downloading $IP\:/media/removable0/$yr/$mo/$dy to $MC/$yr/$mo/$dy
     scp -rp $flag $USER@$IP\:/media/removable0/$yr/$mo/$dy $MC/$yr/$mo
@@ -56,8 +58,10 @@ if ($# >2) then
     chmod 555 $MC/$yr/$mo/$dy/soh
     chmod 444 $MC/$yr/$mo/$dy/soh/*
 else 
+    # Downloading a whole month
     echo Recursively downloading $IP\:/media/removable0/$yr/$mo to $MC/$yr/$mo
     scp -rp $flag $USER@$IP\:/media/removable0/$yr/$mo $MC/$yr
+
     # Set the permissions to not very permissive
     chmod 444 $MC/$yr/$mo/*/*
     chmod 555 $MC/$yr/$mo/*/soh
