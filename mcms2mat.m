@@ -1,10 +1,11 @@
 function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of,xls)
 % MCMS2MAT(yyyy,mm,dd,HH,MM,SS,qp,pdf,of,xls)
 %
-% MeridianCompact-MiniSeed-to-MAT conversion of data files.
+% MeridianCompact-miniSEED-to-MAT conversion of data files.
 % 
 % Queries a directory structure organized as $MC/YYYY/MM/DD/
-% within which, e.g. S0001.HHY_MC-PH1_0248_20160627_040000.miniseed 
+% within which, e.g. S0001.HHY_MC-PH1_0248_20170127_040000.miniseed 
+% or recently  PP.S0001.00.HHZ_MC-PH1_0248_20170627_030000.miniseed 
 % data files as written by the Nanometrics instrument MC-PH1_0248. 
 %
 % Unpacks using MSEED2SAC Version 2.0, a program available from 
@@ -47,7 +48,7 @@ function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of,xls)
 %
 % Tested on 8.3.0.532 (R2014a) and 9.0.0.341360 (R2016a)
 % Last modified by abrummen-at-princeton.edu, 07/14/2016
-% Last modified by fjsimons-at-alum.mit.edu, 02/22/2020
+% Last modified by fjsimons-at-alum.mit.edu, 04/23/2020
 
 % FIXED STUFF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
@@ -68,10 +69,10 @@ STA='S0001';
 HOL='00';
 CHA='HH%s';
 DEV='MC-PH1_0248';
-% Set of components we should be expecting for our miniseed files
+% Set of components we should be expecting for our miniSEED files
 cmp={'X' 'Y' 'Z'};
 
-% Format of the MINISEED and MAT file names in those directories
+% Format of the miniSEED and MAT file names in those directories
 msfmt=sprintf('%s.%s.%s.%s_%s_%s.%s',NTW,STA,HOL,CHA,DEV,'%s','%s');
 rffmt=sprintf('%s.%s.%s.%s.%s',      NTW,STA,HOL,CHA,    '%s');
 % SAC format expected out of MSEED2SAC, had to run it to find out
@@ -86,7 +87,7 @@ defval('of',1)
 defval('yyyy',str2num(datestr(date,'yyyy')))
 defval('mm',str2num(datestr(date,'mm')))
 defval('dd',str2num(datestr(date,'dd')))
-% Set of hours we should be expecting for our miniseed files [all!]
+% Set of hours we should be expecting for our miniSEED files [all!]
 defval('HH',0:23)
 % Minutes and seconds that we expect these to start at [zero!]
 defval('MM',0)
@@ -126,14 +127,14 @@ for index=1:length(HH)
   end
   % For all components available
   for ondex=1:length(cmp)
-    % Make the MINISEED FILENAME with the precise time in it now also
+    % Make the miniSEED FILENAME with the precise time in it now also
     msx=fullfile(dirx,sprintf(msfmt,cmp{ondex},dst1,'miniseed'));
     % Response file
     respfile=fullfile(dirr,sprintf(rffmt,cmp{ondex},'resp'))
     % Full figure name... but notice the trouble with periods in
     % the filenames, which is very annoying and gets fixed down below
     pdfname=sprintf('%spdf',pref(suf(msx,'/'),'miniseed'));
-    % Better test that the MINISEED exists as a filename
+    % Better test that the miniSEED exists as a filename
     if exist(msx,'file')==2
       % How about we convert this to SAC even temporarily
       system(sprintf('mseed2sac %s',msx));
