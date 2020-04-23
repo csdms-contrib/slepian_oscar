@@ -1,0 +1,167 @@
+#!/bin/tcsh
+#
+# For all the hours for which we have at least one (up to three for
+# each component) miniseed file on file, [1] queries the IRIS data
+# base for earthquakes on record within that hour, [2] finds the
+# approximate epicentral distance (two versions) and arrival time of
+# the first-quoted TauP travel time for all those earthquakes, and
+# writes the results to a table. Later, [3] convert the miniSEED file
+# to whatever SAC files come out of running MSEED2SAC, and then [4]
+# segment the SAC files to one shorter segment containing the waveform
+# of that earthquake, enabling the inspection of whether the
+# earthquake has actually been recorded.
+#
+# Last modified by ytamama-at-princeton.edu on 4/22/2020
+# Last modified by fjsimons-at-alum.mit.edu on 4/22/2020
+
+# Define the overarching directories
+set toplev = /data2/seismometer/MeridianCompact-PH1-0248
+# Set the years you want to focus on - manually, why not
+set years = ( 2017 2018 2019 )
+# Set the location of Guyot Hall
+set stalat =  40.34585
+set stalon = -74.65475 
+
+# Define the immutable parameters of the IRIS earthquake web services server
+set server = http://service.iris.edu
+set quakes = fdsnws/event/1
+set format = text
+#--------------------------------------------------------------------------------------------
+set distaz = irisws/distaz/1
+set ttimes = irisws/traveltime/1
+# Target specific phases? e.g., phases=P
+set option = "mintimeonly=true&noheader=true"
+#--------------------------------------------------------------------------------------------
+
+# Remember where you were, then go to $toplev, at the end return
+set wasere = `pwd`
+/usr/bin/cd $toplev
+
+# Get the datestrings of the available records by looking for miniseed files
+foreach year ($years[*])
+    # Global output file with the earthquake information per year
+    set outfile = eq_$year
+
+    # This will not distinguish between any of the components - any or all are good
+    set msdates = `ls $year/*/*/*miniseed | sed 's/MC-PH1\_0248\_/ /' | \
+                    awk '{print $2}' | sed 's/.miniseed//' | sed 's/\_//' | sort | uniq`  
+    # Print yourself an uplifting message
+    echo In $year I have $#msdates MiniSEED dates, from $msdates[1] to $msdates[$#msdates]
+
+    # Now run through all of those individual date strings
+     foreach msdate ($msdates[*])
+	# Make youself an IRIS query from these dates; also look into awk/split
+        set month = `echo $msdate | cut -c5-6`
+        set day   = `echo $msdate | cut -c7-8`
+        set hour  = `echo $msdate | cut -c9-10`
+	# Whether decimals are required or even allowed will be a matter of experimentation
+	set startt = $year-$month-$day"T"$hour":00:00"
+	set endtim = $year-$month-$day"T"$hour":59:59"
+	# Watch out for possible overzealous expansion due to the ? mark - an argument against csh...
+	set noglob ##################################################################################
+           # Literally make the query; if you printed it you'd be able to enter it in a Web browser
+	   set evtquery = "$server/$quakes/query?format=$format&starttime=$startt&endtime=$endtim"
+	   # echo Preparing $evtquery
+	   # Now specify how to make this query;  in this case, by using wget to a temporary output file
+  	   set actquery = "wget -q $evtquery -O qresult"
+	   # Now actually carry out the query
+	   echo `$actquery`
+	# Back to normal expansion behavior
+        unset noglob ################################################################################
+
+	# Now parse the result to make a growing table with only numerical values
+        # EventID, DateStr , Latitude Longitude Depth/km Magnitude
+	# The date string has dashes, which we cannot confuse with
+        # minuses so we must proceed via the following intermediary
+	set eqdats = `awk 'NR>1' qresult | sed 's/|/ /g' | awk '{print $2}' | sed 's/[-,:,T]//g'`
+
+	#--------------------------------------------------------------------------------------------
+	# Also - get the earthquake latitude, longitude, depth separately, in threes...
+	set eqlald = `awk 'NR>1' qresult | sed 's/|/ /g' | awk '{print $3,$4,$5}'`
+	set eqnums = `echo "$#eqlald / 3" | bc`
+	# Create some empty arrays for the end
+	set dist1 = `seq 1 $eqnums`
+	set dist2 = `seq 1 $eqnums`
+	set first = `seq 1 $eqnums`
+
+	# Use the IRIS Web services for epicentral distance and travel times also!
+	foreach eq (`seq 1 $eqnums`)
+	   @ ind1 = ( $eq - 1 ) * 3 + 1
+	   @ ind2 = ( $eq - 1 ) * 3 + 2
+	   @ ind3 = ( $eq - 1 ) * 3 + 3
+
+	   set eqlat = $eqlald[$ind1] 
+	   set eqlon = $eqlald[$ind2]
+	   set eqdep = $eqlald[$ind3]
+
+	   set noglob ##################################################################################
+	     # Get the real proper ellipsoidal epicentral distance
+	     set gcdquery = "$server/$distaz/query?&stalat=$stalat&stalon=$stalon&evtlat=$eqlat&evtlon=$eqlon"
+	     # echo Preparing $gcdquery
+  	     set actquery = "wget -q $gcdquery -O dresult"
+	     echo `$actquery`
+	     # Get the spherical epicentral distance and the iasp91 travel time... note that you can even get a picture!
+	     # and you could get different models also
+	     set ttsquery = "$server/$ttimes/query?&staloc=[$stalat,$stalon]&evloc=[$eqlat,$eqlon]&evdepth=$eqdep&$option"
+	     #  echo Preparing $ttsquery
+  	     set actquery = "wget -q $ttsquery -O tresult"
+	     echo `$actquery`
+           unset noglob ################################################################################
+
+	   # Now parse those results, not the epicentral distances are different
+	   set matchi = distance
+	   set gcdst1 = `awk '/<'$matchi'>/' dresult | sed 's/<'$matchi'>/ /' | sed 's/<\/'$matchi'>/ /'`
+	   # Only every get the first returned phase
+	   set gcdst2 = `awk 'NR == 1 {print $1}' tresult`
+	   set firsta = `awk 'NR == 1 {print $4}' tresult`
+           # Failsafe, make them nonsensical (NaN reverts to 0 in the print)
+           if ( $#gcdst1 == 0 ) set gcdst1 = -1
+           if ( $#gcdst2 == 0 ) set gcdst2 = -1
+           if ( $#firsta == 0 ) set firsta = -1
+
+	   # If I want to be able to delete this whole block (like it
+	   # was, originally, I need to fill arrays with those
+	   # individual pieces). But if I wanted to avoid the
+	   # complexity of the thing right outside the next block, I
+	   # would have made everything a loop over the eartquakes also
+           set dist1[$eq] = $gcdst1
+           set dist2[$eq] = $gcdst2
+           set first[$eq] = $firsta
+           # Remove the intermediate outputs for this earthquake
+	   rm -rf dresult tresult
+        end # loop over the earthquakes
+        #--------------------------------------------------------------------------------------------
+
+	# Now need to properly interleave... this took me a while to
+        # Google... passing and addressing outside shell array is
+        # hard, best to declare a shell-expanded variable to awk and
+        # then split it and spit it out again...
+	awk 'NR>1' qresult | sed 's/|/ /g' | \
+             awk  -v a="$eqdats" -v b="$dist1" -v c="$dist2" -v d="$first" \
+                   '{split(a,aa," ") ; \
+                     split(b,bb," ") ; \
+                     split(c,cc," ") ; \
+                     split(d,dd," ") ; \
+                     printf "%8i %s %10.6f %12.6f %8.3f %8.3f %8.3f %8.3f %8.3f\n", \
+                              $1,aa[NR],$3,$4,$5,$12,bb[NR],cc[NR],dd[NR]}' \
+                >>! $outfile
+
+	# Remove the intermediate output for this miniSEED hour
+	rm -rf qresult
+    end # loop over the miniSEED hours
+end # loop over the years
+
+# Now you have earthquakes that occurred in every available hour, a
+# good target to look for their arrivals in the available data set.
+
+# You could subselect for the largest and the closest earthquakes
+
+# Work from the table generated, by writing another TCSH script
+# inspired by MS2MC that calls MSEED2SAC for every event, and which
+# would then itself call SAC to segment sections into SAC files, and
+# then go back to MATLAB to plot all of those SAC files for study
+
+# Return to where you were
+/usr/bin/cd $wasere
+
+
