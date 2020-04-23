@@ -1,15 +1,17 @@
 #!/bin/tcsh -f
-# Downloads a whole MONTH or a specifc MONTHD/DAY of MINISEED data
-# from a networked Nanometrics seismometer (our MC-PH1_0248...). 
+# Downloads a whole MONTH or a specifc MONTH/DAY of miniSEED data from
+# a networked Nanometrics seismometer (our MC-PH1_0248...)  storing
+# them (as hourly files, however named) inside a directory YYYY/MM/DD.
 #
-# MCGETMS YYYY MM, e.g.
-# MCGETMS 2017  7
+# USAGE: 
+#    MCGETMS YYYY MM, e.g.
+#     MCGETMS 2017  7
 #
-# MCGETMS YYYY MM DD, e.g.
-# MCGETMS 2017  9 25, etc
+#     MCGETMS YYYY MM DD, e.g.
+#     MCGETMS 2017  9 25, etc
 #
-# Notes: Use -x to see what exactly gets expanded
-#        Do not use leading 0... past 7 these are invalid octals
+# NOTES: Use -x to see what exactly gets expanded!
+#        Do not use leading 0... past 7 these are invalid octals!
 #
 # See also: MCMS2SAC (shell script)
 #           MCMS2MAT (MATLAB script)
