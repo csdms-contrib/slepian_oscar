@@ -1,7 +1,7 @@
 #!/bin/tcsh -f
 #
 # Update SAC headers for the $MC instrument, for the old behavior,
-# since remediated, in MCMS2SAC.
+# since remediated, in MCMS2SAC. 
 #
 #  Last modified by jirving-at-princeton.edu on 03/30/2018
 #  Last modified by fjsimons-at-alum.mit.edu on 03/30/2018
