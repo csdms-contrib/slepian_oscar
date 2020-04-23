@@ -1,14 +1,22 @@
 #!/bin/tcsh
 #
 # For all the hours for which we have at least one (up to three for
-# each component) miniseed file on file, [1] queries the IRIS data
+# each component) miniSEED file on file, [1] queries the IRIS data
 # base for earthquakes on record within that hour, [2] finds the
 # approximate epicentral distance (two versions) and arrival time of
 # the first-quoted TauP travel time for all those earthquakes, and
-# writes the results to a table. Later, [3] convert the miniSEED file
-# to whatever SAC files come out of running MSEED2SAC, and then [4]
-# segment the SAC files to one shorter segment containing the waveform
-# of that earthquake, enabling the inspection of whether the
+# writes the results to a table. This code takes a LONG time to run. I
+# thought about acting on a fastert-to-make table using a dedicated
+# GCDIST and PARRIVAL or TMINS etc either from FORTRAN or within
+# MATLAB but then the best thing seemed to ALSO query IRIS for their
+# great-circle distances, and travel-time calculations, for
+# consistency.  Should do a test on some random subset that that's
+# kosher but I for now trust IRIS most of all.
+#
+# Later, [3] should use MCMS2SAC or MCMS2MAT.m to convert the miniSEED
+# files to (instrument-corrected) seismograms (as SAC or MAT), and
+# then [4] use the table made here to segment those to one shorter
+# segment per earthquake, enabling the inspection of whether the
 # earthquake has actually been recorded.
 #
 # Last modified by ytamama-at-princeton.edu on 4/22/2020
