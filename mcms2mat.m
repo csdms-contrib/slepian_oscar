@@ -69,6 +69,7 @@ STA='S0001';
 HOL='00';
 CHA='HH%s';
 DEV='MC-PH1_0248';
+INS='MC120PH';
 % Set of components we should be expecting for our miniSEED files
 cmp={'X' 'Y' 'Z'};
 
@@ -77,7 +78,8 @@ msfmt=sprintf('%s.%s.%s.%s_%s_%s.%s',NTW,STA,HOL,CHA,DEV,'%s','%s');
 rffmt=sprintf('%s.%s.%s.%s.%s',      NTW,STA,HOL,CHA,    '%s');
 % SAC format expected out of MSEED2SAC, had to run it to find out
 scfmt=sprintf('%s.%s.%s.%s.%s.%s.%s.%s.SAC',NTW,STA,HOL,CHA,'D','%i','%3.3i','%s');
-      
+% One could put in the "old" format (... see MCMS2SAC) and failsafe below
+  
 % We may change our minds on this
 defval('of',1)
     
