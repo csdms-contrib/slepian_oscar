@@ -1,5 +1,5 @@
-function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of,xls)
-% MCMS2MAT(yyyy,mm,dd,HH,MM,SS,qp,pdf,of,xls)
+function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of,xls,icor)
+% MCMS2MAT(yyyy,mm,dd,HH,MM,SS,qp,pdf,of,xls,icor)
 %
 % MeridianCompact-miniSEED-to-MAT conversion of data files.
 % 
