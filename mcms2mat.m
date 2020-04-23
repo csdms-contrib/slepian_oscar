@@ -157,7 +157,7 @@ for index=1:length(HH)
       if icor==1
 	% Make it smaller by cutting?
 
-	% Instrument response deconvolution? Header update in that case?
+	% Instrument response deconvolution?
 	% [INSTRUMENT CORRECTION to "none" is "displacement"]
 	freqlimits=[0.1 0.2 10.00 20.00];
 	tcom=sprintf(...
@@ -171,8 +171,6 @@ for index=1:length(HH)
 	% Substitute the temporary variable name
 	system(sprintf('rm -f %s',sax));
 	sax='h.sac';
-
-	% Need to update the header! Also need to update readsac
       else
 	freqlimits=nan(1,4);
       end
