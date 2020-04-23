@@ -1,22 +1,27 @@
 #!/bin/tcsh -f
 #
 # Converts a miniseed file (obtained from MCGETMS) to a properly named
-# SAC file via the intermediary of MSEED2SAC, [historically: still moved
-# mv .S0001..HHX.D.2017.073.170000.SAC PP.S0001.00.HHX.D.2017.073.170000.SAC]
-# Currently, the KNETWK and KHOLE have already been set, going forward.
+# SAC file via the intermediary of MSEED2SAC.
 #
+# [Historical note 1: 
+# Currently, the KNETWK and KHOLE have been set, but we used to have to move
+# .S0001..HHX.D.2017.073.170000.SAC to PP.S0001.00.HHX.D.2017.073.170000.SAC
 # Only exception where this needed to be done by hand is 2017/06/19
 # when the conversion between old and new file name convention
-# happened right at the 18th hour. 
+# happened right at the 18th hour.]
 #
-# [Historical note: if MSEED2SAC returns more than one file, dated at
-# past the ??000 hour, these were due to small timing errors, and we
-# got rid of those, while keeping a log. GPS fixed 06/20/2017.]
+# [Historical note 2:
+# As of 06/20/2017, we get a mostly stable GPS timing feed, but we
+# used to get  MSEED2SAC returning more than one file, dated at
+# past the ??000 hour, due to timing errors. We got rid of those
+# mistimed short files, while keeping a log of what not successfully
+# converted. In the archived data, these will persist but all has been
+# looked at. 
 #
 # Last modified by jirving-at-princeton.edu on 03/30/2018
 # Last modified by fjsimons-at-alum.mit.edu on 02/21/2020
 
-# See also IFEMPTYREMOVE
+# See also IFEMPTYREMOVE, SAC2SAC, MCMS2SAC.M
 
 # Fix permissions, if you'd done any before, will refuse to redo it
 
@@ -27,20 +32,20 @@ set KHOLE  = 00
 # Into the directory structure
 set years = `ls -d 20??`
 # SPECIFIC YEAR ########################################
-set years = 2018
+set years = 2020
 
 # Go in, come out!
 foreach year ($years[*])
     cd $year
     set monts = `ls -d ??`
     # SPECIFIC MONTH ########################################
-    set monts = 05
+    set monts = 02
 
     foreach mont ($monts[*])
 	cd $mont
 	set days = `ls -d ??`
 	# SPECIFIC DAY ########################################
-	set days = 27
+	set days = 18
 	
 	foreach day ($days[*])
             cd $day
@@ -81,5 +86,5 @@ foreach year ($years[*])
     cd ..
 end
 
-# For the OLD FILES
-# Then do a bunch of setvar.pl for KINSTM, see SAC2SAC
+# For the OLD FILES, we followed up with a bunch of SETVAR.PL for
+# KINSTM and KNETWK, see SAC2SAC.
