@@ -20,7 +20,7 @@
 # earthquake has actually been recorded.
 #
 # Last modified by ytamama-at-princeton.edu on 4/22/2020
-# Last modified by fjsimons-at-alum.mit.edu on 4/22/2020
+# Last modified by fjsimons-at-alum.mit.edu on 4/26/2020
 
 # Define the overarching directories
 set toplev = /data2/seismometer/MeridianCompact-PH1-0248
@@ -144,13 +144,15 @@ foreach year ($years[*])
         # Google... passing and addressing outside shell array is
         # hard, best to declare a shell-expanded variable to awk and
         # then split it and spit it out again...
+	# Note that the penultimate query returns five decimal digits; %8.3f rounded so I changed it to %9.5f
+	# Note that the last query returns only two decimal digits; %8.3f tacked on a zero so I changed to %8.2f
 	awk 'NR>1' qresult | sed 's/|/ /g' | \
              awk  -v a="$eqdats" -v b="$dist1" -v c="$dist2" -v d="$first" \
                    '{split(a,aa," ") ; \
                      split(b,bb," ") ; \
                      split(c,cc," ") ; \
                      split(d,dd," ") ; \
-                     printf "%8i %s %10.6f %12.6f %8.3f %8.3f %8.3f %8.3f %8.3f\n", \
+                     printf "%8i %s %10.6f %12.6f %8.3f %8.3f %9.5f %8.2f %8.2f\n", \
                               $1,aa[NR],$3,$4,$5,$12,bb[NR],cc[NR],dd[NR]}' \
                 >>! $outfile
 
@@ -171,5 +173,4 @@ end # loop over the years
 
 # Return to where you were
 /usr/bin/cd $wasere
-
 
