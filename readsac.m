@@ -103,7 +103,6 @@ HdrData=struct(...
   'USER1',HdrF(42),...
   'USER2',HdrF(43));
 
-
 % Need a table with the enumerated header variables from 
 % https://ds.iris.edu/files/sac-manual/manual/file_format.html
 % So far we have IFTYPE and IDEP covered, but there are many more
