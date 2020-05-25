@@ -1,8 +1,5 @@
-function varargout=readsac(filename,plotornot,osd)
-% [SeisData,HdrData,tnu,pobj,tims]=READSAC(filename)
-% [SeisData,HdrData,tnu,pobj,tims]=READSAC(filename,1)
-% [SeisData,HdrData,tnu,pobj,tims]=READSAC(filename,1,'l')
-% [SeisData,HdrData,tnu,pobj,tims]=READSAC(filename,1,'b')
+function varargout=readsac(filename,plotornot,osd,resol)
+% [SeisData,HdrData,tnu,pobj,tims]=READSAC(filename,plotornot,osd,resol)
 %
 % READSAC(...)
 %
@@ -15,6 +12,8 @@ function varargout=readsac(filename,plotornot,osd)
 %                 0 Does not make a plot [default]
 % osd             'b' for data saved on Solaris read into Linux
 %                 'l' for data saved on Linux read into Linux
+% resol           1 Resolves the integer catergorical variables
+%                 0 Does not [default]
 %
 % OUTPUT:
 %
@@ -30,10 +29,11 @@ function varargout=readsac(filename,plotornot,osd)
 %
 % WRITESAC, PLOTSAC
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 02/22/2020
+% Last modified by fjsimons-at-alum.mit.edu, 05/25/2020
 
 defval('plotornot',0)
 defval('osd',osdep)
+defval('resol',0)
 
 fid=fopen(filename,'r',osd);
 if fid==-1
@@ -107,7 +107,9 @@ HdrData=struct(...
 % https://ds.iris.edu/files/sac-manual/manual/file_format.html
 % So far we have IFTYPE and IDEP covered, but there are many more
 % [IVOLTS] would be 50 but I didn't get that far
-IVARS={'UNKNOWN',... % [FJS STUCK IN THIS EXTRA ROW TO USE MAX BELOW]
+% [FJS STUCK IN THE EXTRA TOP ROW TO USE MAX BELOW IN
+% CASE THE VALUE IS -12345 i.e. the not-set one]
+IVARS={'UNKNOWN',... 
        'TIME SERIES FILE',...  % [ITIME]
        'Spectral file---real and imaginary',... % [IRLIM]
        'Spectral file---amplitude and phase',... % [IAMPH]
@@ -118,8 +120,10 @@ IVARS={'UNKNOWN',... % [FJS STUCK IN THIS EXTRA ROW TO USE MAX BELOW]
        'ACCELERATION (NM/SEC/SEC)',... % [IACC]
       };
 % Substitute the name for the code
-HdrData.IFTYPE=IVARS{max(HdrData.IFTYPE+1,1)};
-HdrData.IDEP=IVARS{max(HdrData.IDEP+1,1)};
+if resol==1
+  HdrData.IFTYPE=IVARS{max(HdrData.IFTYPE+1,1)};
+  HdrData.IDEP=IVARS{max(HdrData.IDEP+1,1)};
+end
 
 % For the time sequence
 tims=linspace(HdrData.B,HdrData.E,HdrData.NPTS);
