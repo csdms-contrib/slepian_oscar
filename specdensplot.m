@@ -22,7 +22,7 @@ function varargout=specdensplot(x,nfft,Fs,lwin,olap,sfax,unt)
 %          4 the spectral density, i.e. the first set of 10 points
 % xl       The handle to the x-label
 % yl       The handle to the y-label
-% F        The frequencies being plotted
+% F        The frequencies being plotted (first TEN with crosses!)
 % SD       The power spectral density being plotted
 % Ulog     The upper uncertainty range being plotted
 % Llog     The lower uncertainty range being plotted
@@ -31,7 +31,7 @@ function varargout=specdensplot(x,nfft,Fs,lwin,olap,sfax,unt)
 % 
 % SIGNALS, SIGNALS2, TIMDOMPLOT, TIMSPECPLOT
 %
-% Last modified by fjsimons-at-alum.mit.edu, 08/02/2012
+% Last modified by fjsimons-at-alum.mit.edu, 12/18/2013
 
 defval('lwin',256)
 defval('nfft',lwin)
@@ -48,6 +48,9 @@ p(3)=semilogx(F,sfax*log10(Llog));
 p(1)=semilogx(F,sfax*log10(SD)); 
 p(4)=semilogx(F(1:10),sfax*log10(SD(1:10)),'+'); hold off
 xlim([F(1) F(end)]);
+
+% What is a good y-axis? Not if you change it later! E.g. BENDER2
+ylim(xpand([min(sfax*log10(Llog(2:end))) max(sfax*log10(Ulog(2:end)))],5))
 
 % Note that F(0) isn't really zero but rather something like the data
 % length itself - SD(1) is not shown but sort of a logical extension of
@@ -70,3 +73,4 @@ set(gca,'Xtick',poslab(poslab>=mima(1) & poslab<=mima(2)));
 % Provide output of what's being plotted exactly
 vars={p,xl,yl,F,sfax*log10(SD),sfax*log10(Ulog),sfax*log10(Llog)};
 varargout=vars(1:nargout);
+
