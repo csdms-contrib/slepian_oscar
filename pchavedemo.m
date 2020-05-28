@@ -116,10 +116,12 @@ elseif isstr(X) & X=='demo5'
   axis tight; grid on; fig2print(gcf,'landscape')
   xl(2)=xlabel('Chi^2(2) Quantile'); yl(2)=ylabel('Robust Order Statistic');
   shrink(ah,1,2); axes(ah(1)); 
-  try l=legend(sprintf('%6.1f Hz',F(rf(1))),sprintf('%6.1f Hz',F(rf(2))),...
-	   sprintf('%6.1f Hz',F(rf(3))),"NorthWest");
-  catch l=legend(sprintf('%6.1f Hz',F(rf(1))),sprintf('%6.1f Hz',F(rf(2))),...
-	   sprintf('%6.1f Hz',F(rf(3))),2);
+  try 
+    l=legend(sprintf('%6.1f Hz',F(rf(1))),sprintf('%6.1f Hz',F(rf(2))),...
+	     sprintf('%6.1f Hz',F(rf(3))),"NorthWest");
+  catch 
+    l=legend(sprintf('%6.1f Hz',F(rf(1))),sprintf('%6.1f Hz',F(rf(2))),...
+	     sprintf('%6.1f Hz',F(rf(3))),2);
   end
   st=supertit(ah,...
 	      ['Quantile-Quantile Quality Control of (Non-)Robust Reweighting']);
