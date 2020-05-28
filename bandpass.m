@@ -71,9 +71,12 @@ if diff(Wn)<0.01
   ['to the original sampling rate. (SAC manual)']))
 end
 
+% Computes the filter being used
 [B,A]=feval(tipe,npol,Wn);
 
 if nargout>5
+  % Computes the complex frequency response of the filter, use without
+  % output for a "bode" plot
   [H,F]=freqz(B,A,512,Fs);
   HABS2=abs(H).^2;
 end
