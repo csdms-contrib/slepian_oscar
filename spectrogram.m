@@ -6,12 +6,13 @@ function [Ba2,F,T,Bl10]=spectrogram(x,nfft,Fs,wlen,olap);
 %
 % INPUT:
 %
-% x        Signal to be analyzed
-% nfft     Number of frequencies calculated
-% Fs       Sampling frequency (Hz) used only for output scaling
+% x        Real-valued signal to be analyzed
+% nfft     Number of frequencies calculated (default: 256)
+% Fs       Sampling frequency (Hz) used only for output scaling (default: 1)
 % wlen     Length of windowed segment, in samples, which must be
 %          smaller than or equal to 'nfft' and larger than 'olap'
-% olap     Overlap of data segments, in samples
+%          (default: 256)
+% olap     Overlap of data segments, in samples (default: 70)
 %
 % OUTPUT: 
 %
@@ -19,18 +20,26 @@ function [Ba2,F,T,Bl10]=spectrogram(x,nfft,Fs,wlen,olap);
 %          time-localized spectral density of the signal. (UNITS^2/HZ)
 %          Time increases linearly across the columns of Ba2, from left to
 %          right. Frequency increases linearly down the rows, starting
-%          at 0. B is a real matrix with k columns, where
+%          at 0. Ba2 is a real matrix with k columns, where
 %          k = floor((length(x)-olap)/(wlen-olap)), and a number of rows
 %          equal to nfft/2+1 if 'x' is real and 'nfft' even, 
 %          and (nfft+1)/2 for 'x' is real and 'nfft' odd.
-%          Note that our Ba2 is abs(fft(x).^2).
+%          Note that our Ba2 is abs(fft(x).^2)/Fs.
 % F        Frequency axis (Hz)
-% T        Time axis (s)
+% T        Time axis (s), starting from zero
 % Bl10     10*log10(Ba2)
 %
 % See also PCHAVE
 %
-% Last modified by fjsimons-at-alum.mit.edu, Feb 12th, 2004.
+% EXAMPLE:
+%
+% Plot the results with, e.g.: 
+%
+% IMAGESC(h1.B+wlen/Fs/2+T,F,Bl10);
+%
+% BUT WATCH THE TIME IN CASE THE SIGNAL DOES NOT START AT ZERO!
+%
+% Last modified by fjsimons-at-alum.mit.edu, 09/25/2007
 
 defval('wlen',256)
 defval('olap',70)
@@ -38,10 +47,11 @@ defval('nfft',256)
 defval('Fs',1)
 
 if nfft>wlen
-  disp(sprintf('NFFT of %i is larger than window length of %i',nfft,wlen))
+  disp(sprintf('SPECTROGRAM: NFFT of %i is larger than window length of %i',...
+	       nfft,wlen))
 end
 if nfft<wlen
-  error('NFFT is smaller than window length; increased resolution is possible')
+  error('SPECTROGRAM: NFFT is smaller than window length; increase resolution?')
 end
 if olap>=wlen,
   error('Overlap must be strictly smaller than window length')
@@ -79,7 +89,8 @@ xsd=detrend(...
     x(repmat(rows(:),1,nwin)+...
       repmat(cols,wlen,1)));
 xsdw=xsd.*repmat(dwin,1,nwin);
-xsdb=xsd/sqrt(wlen);
+% This in case it's a boxcar window!
+% xsdb=xsd/sqrt(wlen);
 
 % Calculate POWER SPECTRAL DENSITY (power per frequency)
 Ba2=abs(fft(xsdw,nfft,1)).^2;
@@ -89,7 +100,7 @@ Ba2=Ba2/Fs;
 
 % Collect frequency information and select output
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Calculate frequency vector for real signals
+% Calculate frequency vector for REAL signals
 % and get rid of periodicity in spectrum
 if rem(nfft,2);
   selekt = [1:(nfft+1)/2];
@@ -98,7 +109,7 @@ else
 end
 F=(selekt-1)'*Fs/nfft;
 
-% Calculate time axis
+% Calculate time axis; cols is the sample number
 T=cols(:)/Fs;
 
 % Need to scale frequencies except 0 and Nyquist by a factor of two
