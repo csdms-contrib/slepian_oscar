@@ -1,22 +1,26 @@
 function [p,xl,yl,bm,Bl10,F,T]=timspecplot(x,h,nfft,Fs,wlen,wolap,beg)
-% Plots the data in vector x in the time-frequency domain.
+% [p,xl,yl,bm,Bl10,F,T]=TIMSPECPLOT(x,h,nfft,Fs,wlen,wolap,beg)
+%
+% Plots spectrogram of data using the SPECTROGRAM algorithm
 %
 % INPUT:
 % 
-% x        Signal
-% h        Header
+% x        Signal - the actual data, e.g. from readsac
+% h        Header - the variables, e.g. from readsac
 % nfft     Number of FFT points
 % Fs       Sampling frequency
 % wlen     Window length
 % wolap    Window overlap
-% beg      Signal beginning
+% beg      Signal beginning - actually, can get this from h
 %
-% Used by SIGNALS and SIGNALS2; using SPECTROGRAM, see also
+% Used by SIGNALS and SIGNALS2, see also
 % TIMDOMPLOT, SPECDENSPLOT
 %
 % Last modified by fjsimons-at-alum.mit.edu, 25.11.2004
 
+% This is the calculation; the rest is plotting
 [Ba2,F,T,Bl10]=spectrogram(x,nfft,Fs,wlen,ceil(wolap*wlen));
+
 % Conform to PCHAVE, SPECTRAL DENSITY, NOT POWER
 p=imagesc(beg+wlen/Fs/2+T,F,Bl10);
 axis xy; colormap(jet)    
