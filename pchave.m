@@ -55,8 +55,7 @@ function varargout=pchave(X,lwin,olap,nfft,Fs,dval,winfun,winopt,clev)
 %  pages =	 "633--648"
 % }
 %
-% Last modified by fjsimons-at-alum.mit.edu, 12/18/2013
-
+% Last modified by fjsimons-at-alum.mit.edu, 01/04/2019
 
 % The program, not the demo (see at the end)
 if ~isstr(X)
@@ -73,6 +72,8 @@ if ~iscell(X)
   clear X
   X{1}=y;  
 end
+
+nfft
 
 if nfft>lwin
   warning('PCHAVE: NFFT is larger than window length')
@@ -121,18 +122,21 @@ for index=1:length(X)
   
   % Make matrix out of suitably repeated windowed segments 
   % of the data 'xsdw' is x segmented THEN detrended THEN 
-  % windowed with normalized window
-   xsd=detrend(...
+  % windowed with normalized window; not quite BLOCKTILE or BLOCKMEAN but 
+  % of course it's what PAULI makes that does go inside BLOCKMEAN
+  xsd=detrend(...
       x(repmat([1:lwin]',1,nwin)+...
 	repmat([0:(nwin-1)]*(lwin-olap),lwin,1)));
   xsdw=xsd.*repmat(dwin,1,nwin);
   % Check segmented THEN detrended THEN windowed 
   % with normalized boxcar window  
   xsdb=xsd/sqrt(lwin);
+
   % Fill power matrix up progressively - initialization would speed this up
   Pw=[Pw (abs(fft(xsdw,nfft,1)).^2)];
   % For this cell section, compare with the boxcar version
   Pb=abs(fft(xsdb,nfft,1)).^2;
+
   % You can verify Percival and Walden (Eq. 134):
   % $\var\{x\}=\int_{-f_N}^{f_N}S(f)\,df$ by checking var(x) against
   % sum(mean(Pb,2))*(Fs/nfft) which equals mean(mean(Pb,2))*Fs
