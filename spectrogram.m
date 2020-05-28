@@ -1,8 +1,8 @@
-function [Ba2,F,T,Bl10]=spectrogram(x,nfft,Fs,wlen,olap);
-% [Ba2,F,T,Bl10]=spectrogram(x,nfft,Fs,wlen,olap);
+function [Ba2,F,T,Bl10]=spectrogram(x,nfft,Fs,wlen,olap,unt)
+% [Ba2,F,T,Bl10]=spectrogram(x,nfft,Fs,wlen,olap,unt)
 %
 % Computation of TIME-DEPENDENT SPECTRAL DENSITY (UNIT^2/HZ)
-% by Welch's overlapping segment analysis with a Hanning window.
+% by overlapping segment analysis with a Hanning window.
 %
 % INPUT:
 %
@@ -13,11 +13,12 @@ function [Ba2,F,T,Bl10]=spectrogram(x,nfft,Fs,wlen,olap);
 %          smaller than or equal to 'nfft' and larger than 'olap'
 %          (default: 256)
 % olap     Overlap of data segments, in samples (default: 70)
+% unt      String with the unit name [default: s]
 %
 % OUTPUT: 
 %
 % Ba2      Each column of Ba2 contains an estimate of the short-term, 
-%          time-localized spectral density of the signal. (UNITS^2/HZ)
+%          time-localized spectral density of the signal. (UNITS^2/(1/unt))
 %          Time increases linearly across the columns of Ba2, from left to
 %          right. Frequency increases linearly down the rows, starting
 %          at 0. Ba2 is a real matrix with k columns, where
@@ -25,26 +26,25 @@ function [Ba2,F,T,Bl10]=spectrogram(x,nfft,Fs,wlen,olap);
 %          equal to nfft/2+1 if 'x' is real and 'nfft' even, 
 %          and (nfft+1)/2 for 'x' is real and 'nfft' odd.
 %          Note that our Ba2 is abs(fft(x).^2)/Fs.
-% F        Frequency axis (Hz)
-% T        Time axis (s), starting from zero
+% F        Frequency axis (1/unt, which is Hz by default)
+% T        Time axis (unt), starting from zero
 % Bl10     10*log10(Ba2)
 %
-% See also PCHAVE
+% See also PCHAVE, TIMSPECPLOT, SPECTROGRAM2
 %
 % EXAMPLE:
 %
 % Plot the results with, e.g.: 
 %
-% IMAGESC(h1.B+wlen/Fs/2+T,F,Bl10);
+% IMAGESC(h1.B+wlen/Fs/2+T,F,Bl10); where h1.B is the begin time 
 %
-% BUT WATCH THE TIME IN CASE THE SIGNAL DOES NOT START AT ZERO!
-%
-% Last modified by fjsimons-at-alum.mit.edu, 09/25/2007
+% Last modified by fjsimons-at-alum.mit.edu, 10/22/2012
 
 defval('wlen',256)
 defval('olap',70)
 defval('nfft',256)
 defval('Fs',1)
+defval('unt','s')
 
 if nfft>wlen
   disp(sprintf('SPECTROGRAM: NFFT of %i is larger than window length of %i',...
@@ -57,9 +57,9 @@ if olap>=wlen,
   error('Overlap must be strictly smaller than window length')
 end
 
-disp(sprintf('Window size for spectrogram:    %8.1f s',wlen/Fs))
+disp(sprintf('Window size for SPECTROGRAM:    %g %s',wlen/Fs,unt))
 
-% WELCH OVERLAPPING SEGMENT ANALYSIS
+% OVERLAPPING SEGMENT ANALYSIS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute Hanning window
 dwin=fhanning(wlen);
@@ -102,11 +102,7 @@ Ba2=Ba2/Fs;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Calculate frequency vector for REAL signals
 % and get rid of periodicity in spectrum
-if rem(nfft,2);
-  selekt = [1:(nfft+1)/2];
-else
-  selekt = [1:nfft/2+1]; 
-end
+selekt=[1:floor(nfft/2)+1];
 F=(selekt-1)'*Fs/nfft;
 
 % Calculate time axis; cols is the sample number
