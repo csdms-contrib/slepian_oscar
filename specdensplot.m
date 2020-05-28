@@ -1,16 +1,16 @@
-function [p,xl,yl,F]=specdensplot(x,nfft,Fs,lwin,olap,sfax)
-% [p,xl,yl,F]=SPECDENSPLOT(x,nfft,Fs,lwin,olap,sfax)
+function varargout=specdensplot(x,nfft,Fs,lwin,olap,sfax)
+% [p,xl,yl,F,SD,Ulog,Llog]=SPECDENSPLOT(x,nfft,Fs,lwin,olap,sfax)
 %
-% Plots spectral density of data using the PCHAVE algorithm
+% Plots spectral density of data calculated using the PCHAVE algorithm.
 %
 % INPUT:
 % 
 % x        Signal
-% nfft     Number of FFT points
+% nfft     Number of FFT points [default: length(x)]
 % Fs       Sampling frequency
-% lwin     Window length
-% wolap    Window overlap
-% sfax     Scaling factor [default: 10]
+% lwin     Window length [default: 256]
+% olap     Window overlap [default: 70]
+% sfax     Y-axis scaling factor [default: 10]
 %
 % OUTPUT:
 %
@@ -22,12 +22,17 @@ function [p,xl,yl,F]=specdensplot(x,nfft,Fs,lwin,olap,sfax)
 % xl       The handle to the x-label
 % yl       The handle to the y-label
 % F        The frequencies being plotted
+% SD       The power spectral density being plotted
+% Ulog     The upper uncertainty range being plotted
+% Llog     The lower uncertainty range being plotted
 %
-% Used by SIGNALS and SIGNALS2
-% See also TIMDOMPLOT, TIMSPECPLOT
+% SEE ALSO:
+% 
+% SIGNALS, SIGNALS2, TIMDOMPLOT, TIMSPECPLOT
 %
-% Last modified by fjsimons-at-alum.mit.edu, 10/03/2007
+% Last modified by fjsimons-at-alum.mit.edu, 04/23/2009
 
+defval('nfft',length(x))
 defval('sfax',10)
 defval('lwin',256)
 defval('olap',70)
@@ -47,10 +52,15 @@ xlim([F(1) F(end)]);
 % the plot, nothing funny should happen...
 
 % Note that \Delta F is the first frequency to actually show up in the plot
-xl=xlabel(sprintf('%s ; %i s window','Frequency (Hz)',ceil(lwin/Fs)));
+xl=xlabel(sprintf('%s ; %i s window','frequency (Hz)',ceil(lwin/Fs)));
 yl=ylabel(sprintf('%s %5.2f',...
-		     'Spectral Density (Energy/Hz) ; \Delta\itf=',...
+		     'spectral density (energy/Hz) ; \Delta\itf=',...
 		     Fs/nfft));
 mima=[F(2) F(end)];
 poslab=10.^[-3:3];
 set(gca,'Xtick',poslab(poslab>=mima(1) & poslab<=mima(2)));
+
+% Provide output of what's being plotted exactly
+vars={p,xl,yl,F,sfax*log10(SD),sfax*log10(Ulog),sfax*log10(Llog)};
+varargout=vars(1:nargout);
+
