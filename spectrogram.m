@@ -1,36 +1,36 @@
-function [B,F,T]=spectrogram(x,nfft,Fs,wlen,olap);
-% [B,F,T]=spectrogram(x,nfft,Fs,wlen,olap);
+function [Ba2,F,T,Bl10]=spectrogram(x,nfft,Fs,wlen,olap);
+% [Ba2,F,T,Bl10]=spectrogram(x,nfft,Fs,wlen,olap);
 %
 % Computation of TIME-DEPENDENT SPECTRAL DENSITY (UNIT^2/HZ)
 % by Welch's overlapping segment analysis with a Hanning window.
 %
 % INPUT:
 %
-% 'x'        Signal to be analyzed
-% 'nfft'     Number of frequencies calculated
-% 'Fs'       Sampling frequency (Hz) used only for output scaling
-% 'wlen'     Length of windowed segment, in samples, which must be
-%            smaller than or equal to 'nfft' and larger than 'olap'
-% 'olap'     Overlap of data segments, in samples
+% x        Signal to be analyzed
+% nfft     Number of frequencies calculated
+% Fs       Sampling frequency (Hz) used only for output scaling
+% wlen     Length of windowed segment, in samples, which must be
+%          smaller than or equal to 'nfft' and larger than 'olap'
+% olap     Overlap of data segments, in samples
 %
 % OUTPUT: 
 %
-% 'B'        Each column of B contains an estimate of the short-term, 
-%            time-localized spectral density of the signal. (Units^2/Hz)
-%            Time increases linearly across the columns of B, from left to
-%            right. Frequency increases linearly down the rows, starting
-%            at 0. B is a real matrix with k columns, where
-%            k = floor((length(x)-olap)/(wlen-olap)), and a number of rows
-%            equal to nfft/2+1 if 'x' is real and 'nfft' even, 
-%            and (nfft+1)/2 for 'x' is real and 'nfft' odd.
-%            You'll want to investigate 10*log10(B).
-%            Note that our B is abs(B.^2) of Matlab's usual convention.
-% 'F'        Frequency axis (Hz)
-% 'T'        Time axis (s)
+% Ba2      Each column of Ba2 contains an estimate of the short-term, 
+%          time-localized spectral density of the signal. (UNITS^2/HZ)
+%          Time increases linearly across the columns of Ba2, from left to
+%          right. Frequency increases linearly down the rows, starting
+%          at 0. B is a real matrix with k columns, where
+%          k = floor((length(x)-olap)/(wlen-olap)), and a number of rows
+%          equal to nfft/2+1 if 'x' is real and 'nfft' even, 
+%          and (nfft+1)/2 for 'x' is real and 'nfft' odd.
+%          Note that our Ba2 is abs(fft(x).^2).
+% F        Frequency axis (Hz)
+% T        Time axis (s)
+% Bl10     10*log10(Ba2)
 %
 % See also PCHAVE
 %
-% Last modified by fjsimons@alum.mit.edu, March 21th, 2003.
+% Last modified by fjsimons-at-alum.mit.edu, Feb 12th, 2004.
 
 defval('wlen',256)
 defval('olap',70)
@@ -38,14 +38,16 @@ defval('nfft',256)
 defval('Fs',1)
 
 if nfft>wlen
-  disp('NFFT is larger than window length')
+  disp(sprintf('NFFT of %i is larger than window length of %i',nfft,wlen))
 end
 if nfft<wlen
-  error('NFFT is smaller than window length')
+  error('NFFT is smaller than window length; increased resolution is possible')
 end
 if olap>=wlen,
   error('Overlap must be strictly smaller than window length')
 end
+
+disp(sprintf('Window size for spectrogram:    %8.1f s',wlen/Fs))
 
 % WELCH OVERLAPPING SEGMENT ANALYSIS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -80,10 +82,10 @@ xsdw=xsd.*repmat(dwin,1,nwin);
 xsdb=xsd/sqrt(wlen);
 
 % Calculate POWER SPECTRAL DENSITY (power per frequency)
-B=abs(fft(xsdw,nfft,1)).^2;
+Ba2=abs(fft(xsdw,nfft,1)).^2;
 % Next thing is the SPECTRAL DENSITY (energy per frequency) thus
 % in UNITS^2/HZ or UNITS^2*SECOND
-B=B/Fs;
+Ba2=Ba2/Fs;
 
 % Collect frequency information and select output
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -102,6 +104,7 @@ T=cols(:)/Fs;
 % Need to scale frequencies except 0 and Nyquist by a factor of two
 % if you only take half of the spectrum (for real signals)
 % Compute one-sided spectrum (Bendat and Piersol Eq. 5.33 and page 424.)
-B=B(selekt,:);
-B=[B(1,:); 2*B(2:end-1,:); B(end,:)]; 
+Ba2=Ba2(selekt,:);
+Ba2=[Ba2(1,:); 2*Ba2(2:end-1,:); Ba2(end,:)]; 
+Bl10=10*log10(Ba2);
 
