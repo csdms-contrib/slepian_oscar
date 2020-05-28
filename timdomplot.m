@@ -1,38 +1,52 @@
-function [x,h,Fs,p,xl,yl,tl,pt01]=timdomplot(filenam1,dec,fname,varargin)
-% [x,h,Fs,p,xl,yl,tl,pt01]=TIMDOMPLOT(filenam1,dec,fname,opts)
+function [x,h,Fs,p,xl,yl,tl,pt01,xf]=timdomplot(filenam1,dec,fname,varargin)
+% [x,h,Fs,p,xl,yl,tl,pt01,xf]=TIMDOMPLOT(filenam1,dec,fname,opts)
 %
 % Plots the data contained in the filename in the time domain 
 %
 % INPUT:
 %
-% filenam1  The file name to be read
+% filenam1  The file name to be read by READSAC
 % dec       0 Reads in filename and plots raw data
-%           1 Reads in filenams and plots raw data
+%           1 Reads in filename and plots raw data
 %           2 Reads in filename and plots filtered data
-% fname    Filter name: 'lowpass', 'highpass', 'bandpass'
-% opts     A comma-separated list of filter options:
-%            Corner frequency (Hz)
-%            Number of poles
-%            Number of passes
-%            Filter name (e.g. 'butter')
+% fname     Filter name: 'lowpass', 'highpass', 'bandpass'
+% opts      A comma-separated list of filter options:
+%             Corner frequency (Hz)
+%             Number of poles
+%             Number of passes
+%             Filter name (e.g. 'butter')
+% 
+% OUTPUT:
+%
+% x         The record being plotted (the original version)
+% h         Record header
+% Fs        Sampling frequency of the signal
+% p         Handle to the plotted line
+% xl        Handle to the xlabel
+% yl        Handle to the ylabel
+% tl        Handle to the title
+% pt01      Handle to the plotted dashed lines
+% xf        The filtered record, if indeed it was filtered
 %
 % Used by SIGNALS and SIGNALS2; using LOWPASS 
 % see also TIMSPECPLOT, SPECDENSPLOT
 %
-% Last modified by fjsimons-at-alum.mit.edu, 4.12.2004
+% Last modified by fjsimons-at-alum.mit.edu, 07/24/2014
 
 defval('dec',0)
-
+  
+% If the filter arguments are empty but a filter is wanted anyway
 if nargin==2 | isempty(varargin) | isempty([varargin{:}])
   defval('fname','lowpass')
-%  varargin=[{0.05} {2} {2} {'butter'}]; % For EVENTS
-  varargin=[{1} {2} {2} {'butter'}];  % For SIGNALPLOTS
+% varargin=[{0.05} {2} {2} {'butter'}]; % For EVENTS
+% varargin=[{1} {2} {2} {'butter'}];  % For SIGNALPLOTS
 end
 
 switch dec
  case {0,1}
   [x,h,tl,p]=readsac(filenam1,1,'l');
   yl=ylabel('Amplitude');
+  xf=NaN;
  case 2
   [x,h,tl,p(1)]=readsac(filenam1,0,'l');
   % Perform the required filtering
@@ -41,7 +55,7 @@ switch dec
   else
     [xf,co,npo,npa,fnm]=feval(fname,x,1/h.DELTA,varargin{:});
   end
-  % Plot the filtered data
+  % Plot the filtered data - remember this also centers around zero
   p(1)=plot(linspace(h.B,h.E,h.NPTS),xf);
   tl=title(tl);
   axis tight
@@ -64,5 +78,8 @@ if h.T0~=-12345 & h.T1~=-12345
   set(xl,'string',sprintf('%s ; %i s selected',...
 		      'Time (s)',ceil(h.T1-h.T0)));
   hold off
+else 
+  pt01=NaN;
 end
+
 
