@@ -10,12 +10,18 @@ function varargout=parseval(NFFT)
 % [1]  p(1)=fft(y) returns p(1)=sum(y)
 % [2]  no window at all amounts to a unity window, see p 208
 %
-% See also BRACEWELL
+% See also BRACEWELL, SWREGIONS2D
+%
+% Last modified by fjsimons-at-alum.mit.edu, 04/23/2009
+
+defval('NFFT',2^8)
 
 for index=1:length(NFFT)
   y=rand(NFFT(index),1);
-  t=var(y);
-  s=mean(abs(fft((y-mean(y))/sqrt(length(y)))).^2);
+  %t=var(y);
+  t=norm(y-mean(y));
+  %s=mean(abs(fft((y-mean(y))/sqrt(length(y)))).^2);
+  s=norm(fft(y-mean(y))/sqrt(length(y)));
   tms(index)=abs(t-s)/t;
   if length(NFFT)==1 | nargout==0
     disp(sprintf(...
@@ -24,9 +30,8 @@ for index=1:length(NFFT)
   end
 end
 
-if nargout==1
-  varargout{1}=tms;
-end
-
+% Prepare output
+vars={tms};
+varargout=vars(1:nargout);
 
 
