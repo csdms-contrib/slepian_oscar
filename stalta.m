@@ -31,7 +31,7 @@ function varargout=stalta(sig,DT,BE,STA,LTA,TR,DTR,PEM,PET,PNL,ATL)
 % tim2    Time axis for 'stav'
 % tim3    Time axis for 'ltav'
 % trigs   Vector with triggering points, in samples
-% drtigs  Vector with detriggering points, in samples
+% dtrigs  Vector with detriggering points, in samples
 %
 % EXAMPLE:
 %
