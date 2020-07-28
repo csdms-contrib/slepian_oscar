@@ -2,18 +2,19 @@ function varargout=surfacewin(tminmax,dt,x,u1u2,son,sful)
 % [Wtx,t,x]=SURFACEWIN(tminmax,dt,x,u1u2,son,sful)
 %
 % Makes a "surface-wave" selective time-window set, simply: returns a
-% "time-distance" mask of ones and zeros bounded by two "group" speeds. 
+% "time-distance" mask of ones and zeros bounded by two "group" speeds.
+% Minimum sample lengths apply as to what constitues a "valid" window.
 %
 % INPUT:
 %
 % tminmax    Minimum/maximum time (default: [0 100])
 % dt         Time step [default: 1]
-% x          Space coordinates
-% u1u2       Group velocity bounds in whatever space/units time apply
-% son        1 "surface waves" are on
+% x          Space coordinates [default: 0:100]
+% u1u2       Group velocity bounds in whatever space/units time apply [defaulted]
+% son        1 "surface waves" are on [default]
 %            0 "surface waves" are off
 % sful       0 returns a full matrix of the right full size
-%            1 returns a sparse matrix of the right full size
+%            1 returns a sparse matrix of the right full size [default]
 %            2 returns a full matrix of the minimal size
 %            3 returns a sparse matrix of the minimal size
 %
@@ -26,28 +27,34 @@ function varargout=surfacewin(tminmax,dt,x,u1u2,son,sful)
 % EXAMPLES:
 %
 % surfacewin('demo1')
-% spy(surfacewin([],[],[0:10 40:60 80:100],[ 2 8],[],1))
+% spy(surfacewin([],[],[0:10 40:60 80:100],[2 8],[],1))
 %
 % TESTED ON:
 %
 % 8.3.0.532 (R2014a) and 9.0.0.341360 (R2016a)
 %  
-% Last modified by fjsimons-at-alum.mit.edu, 05/29/2020
+% Last modified by fjsimons-at-alum.mit.edu, 07/28/2020
 
 % Specify defaults
 defval('tminmax',[0 100])
 
-if ~strcmp(tminmax,'demo1')
+if ~isstr(tminmax)
   defval('dt',1)
   defval('x',0:100)
   defval('u1u2',[4 6])
-  defval('son',1)
+  defval('son',0)
   defval('sful',1)
 
   % Group velocities will be sorted
   % if u1>u2; [u2,u1]=deal(u1,u2); end
   u1=min(u1u2);
   u2=max(u1u2);
+  
+  % If only one velocity given, treats it like the slower one and adds
+  % infinty as the faster one
+  if u1==u2
+    u2=Inf;
+  end
 
   % Delimit the time samples inside the speed cone
   Wfst= ceil([x/u2-tminmax(1)]/dt)+1;
@@ -64,7 +71,7 @@ if ~strcmp(tminmax,'demo1')
   Wfst=Wfst(xof:min(length(Wfst),length(x)));
   Wslo=Wslo(xof:min(length(Wslo),length(x)));
 
-  % You should never drop below two samples here except below the
+  % You should never drop below TWO samples here except below the
   % diagonal if truncated
   checkit=(Wslo-Wfst)<2;
   if any(checkit)
@@ -100,7 +107,7 @@ if ~strcmp(tminmax,'demo1')
   else
     t=[];
   end
-else
+elseif strcmp(tminmax,'demo1')
   % Just some random values
   if (-1)^randi(2)-1
     u1u2=sort(randi(10,1,2));
@@ -155,7 +162,7 @@ else
   ylim(minmax(yel)+[-1 1]*range(yel)/50)
   
   % Also make a nice picture
-  figdisp([],'demo1',[],2)
+%  figdisp([],'demo1',[],2)
 end
   
 % Allocate outputs
