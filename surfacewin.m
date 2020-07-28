@@ -11,8 +11,9 @@ function varargout=surfacewin(tminmax,dt,x,u1u2,son,sful)
 % dt         Time step [default: 1]
 % x          Space coordinates [default: 0:100]
 % u1u2       Group velocity bounds in whatever space/units time apply [defaulted]
-% son        1 "surface waves" are on [default]
-%            0 "surface waves" are off
+%            and note that 0 and Inf are allowed for one-sided windows
+% son        1 "surface waves" are on
+%            0 "surface waves" are off [default]
 % sful       0 returns a full matrix of the right full size
 %            1 returns a sparse matrix of the right full size [default]
 %            2 returns a full matrix of the minimal size
@@ -50,20 +51,19 @@ if ~isstr(tminmax)
   u1=min(u1u2);
   u2=max(u1u2);
   
-  % If only one velocity given, treats it like the slower one and adds
-  % infinty as the faster one
-  if u1==u2
-    u2=Inf;
-  end
-
   % Delimit the time samples inside the speed cone
   Wfst= ceil([x/u2-tminmax(1)]/dt)+1;
   Wslo=floor([x/u1-tminmax(1)]/dt)+1;
 
-  % This really only makes sense if the separation is at least two dt, so
-  % you can enumerate a two-sample window, and you want to only start at
-  % the point where you never drop below that threshold should you hit nodes
-  xof=min(max(find((Wslo-Wfst)<2)+1),length(x));
+  % This really only makes sense if the SEPARATION is at least  WO dt, so
+  % you can enumerate a TWO-SAMPLE window, and you want to only start at
+  % the point where you never drop BELOW that threshold should you hit nodes
+  xof=max(find((Wslo-Wfst)<2)+1);
+  if ~isempty(xof)
+    xof=min(xof,length(x));
+  else
+    xof=1;
+  end
 
   Wfst=min(Wfst,range(tminmax)/dt+1);
   Wslo=min(Wslo,range(tminmax)/dt+1);  
@@ -99,6 +99,12 @@ if ~isstr(tminmax)
     end
   else
     Wtx=0;
+  end
+
+    % If only one velocity given, treats it like the slower one and adds
+  % infinty as the faster one
+  if isinf(u2) && son==0
+    Wtx(1,2:end)=0;
   end
 
   if nargout>1
