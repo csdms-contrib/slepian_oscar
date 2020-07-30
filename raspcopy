@@ -1,0 +1,24 @@
+#!/bin/tcsh
+
+set year = `date  | awk '{print $6}'`
+set jday = `juliantoday.pl | awk '{print $5}'`
+set user = myshake
+set server = rshake3346
+set diro = /opt/data/archive
+set stnm = R36A4
+set netw = AM/$stnm/EHZ.D
+set root = AM.$stnm.00.EHZ.D
+
+set jday = 207
+
+set fname = ${root}.${year}.${jday}
+
+# Gets the data
+scp ${user}@${server}:${diro}/${year}/${netw}/${fname} .
+# Converts the data
+mseed2sac $fname
+# Pushes the data out
+scp $fname.??????.SAC fjsimons@geoweb.princeton.edu:/home/www/people/simons/RSP
+
+
+
