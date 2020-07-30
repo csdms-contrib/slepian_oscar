@@ -12,7 +12,7 @@ function varargout=readsac(filename,plotornot,osd,resol)
 %                 0 Does not make a plot [default]
 % osd             'b' for data saved on Solaris read into Linux
 %                 'l' for data saved on Linux read into Linux
-% resol           1 Resolves the integer catergorical variables
+% resol           1 Resolves the integer categorical variables
 %                 0 Does not [default]
 %
 % OUTPUT:
@@ -29,7 +29,7 @@ function varargout=readsac(filename,plotornot,osd,resol)
 %
 % WRITESAC, PLOTSAC
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 05/25/2020
+% Last modified by fjsimons-at-alum.mit.edu, 07/29/2020
 
 defval('plotornot',0)
 defval('osd',osdep)
