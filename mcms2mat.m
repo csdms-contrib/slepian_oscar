@@ -48,7 +48,7 @@ function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of,xls,icor)
 %
 % Tested on 8.3.0.532 (R2014a) and 9.0.0.341360 (R2016a)
 % Last modified by abrummen-at-princeton.edu, 07/14/2016
-% Last modified by fjsimons-at-alum.mit.edu, 04/23/2020
+% Last modified by fjsimons-at-alum.mit.edu, 07/29/2020
 
 % FIXED STUFF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
@@ -161,11 +161,11 @@ for index=1:length(HH)
 	% [INSTRUMENT CORRECTION to "none" is "displacement"]
 	freqlimits=[0.1 0.2 10.00 20.00];
 	tcom=sprintf(...
-	    'transfer from evalresp fname %s to none freqlimits %g %g %g %g',...
+	    'transfer from evalresp fname %s to none freqlimits %g %g %g %g prewhitening on',...
 	    respfile,freqlimits(1),freqlimits(2),freqlimits(3),freqlimits(4));
 	
 	system(sprintf(...
-	    'echo "r %s ; rtr ; rmean ; whiten ; taper type ; %s ; w h.sac ; q" | /usr/local/sac/bin/sac',...
+	    'echo "r %s ; rtr ; rmean ; taper type ; %s ; w h.sac ; q" | /usr/local/sac/bin/sac',...
 	    sax,tcom));
 
 	% Substitute the temporary variable name
