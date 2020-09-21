@@ -16,7 +16,7 @@
 #
 # Check the "Note" on L56 to make sure you're in the right place
 #
-# Last modified by fjsimons-at-alum.mit.edu, 04/20/2020
+# Last modified by fjsimons-at-alum.mit.edu, 09/21/2020
 
 if($#argv == 1 || $#argv > 2)then
   echo ' '
@@ -105,6 +105,7 @@ awk 'NR>2 {print}' $fil2 | sed 's/\.//g' | sed 's/[,=]/ /g' \
 $tempfl1 >! $tempfl2
 # Work on the remaining columns, which contains the weather string, which we strip of units and so on... write to tempfile
 # The hashes are weird - possibly a write error, hopefully not a change of unit? Anyay, we get rid of it also.
+# There is a failure mode where the command is not 65, e.g. day 164 2020 which so far I fixed by hand
 awk 'NR>2 {print}' $fil2 \
   | sed 's/Sync\/address error/Dm=NaND,Sm=NaNM,Ta=NaNC,Ua=NaNP,Pa=NaNB,Rc=NaNM,Hc=NaNM/g' \
   | sed 's/Unknown cmd error/Dm=NaND,Sm=NaNM,Ta=NaNC,Ua=NaNP,Pa=NaNB,Rc=NaNM,Hc=NaNM/g' \
