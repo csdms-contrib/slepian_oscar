@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# Rewrites a named SAC header variable.
+# Rewrites a named SAC header variable
 #
 # INPUT:
 #
