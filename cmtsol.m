@@ -41,10 +41,10 @@ function varargout=cmtsol(cmtcode,fname)
 % CMT=cmtsol('demo5') ----  Offshore Maule, Chile    2010/02/27
 %
 % Last modified by efwelch@princeton.edu 07/20/2010 
-% Last modified by fjsimons-at-alum.mit.edu, 06/29/2017
+% Last modified by fjsimons-at-alum.mit.edu, 09/17/2019
 
 defval('cmtcode','demo1')
-defval('fname',fullfile(getenv('IFILES'),'CMT','jan76_dec13.ndk'));
+defval('fname',fullfile(getenv('IFILES'),'CMT','jan76_dec17.ndk'));
 
 if isempty(strmatch('demo',cmtcode))
   if ~strcmp(cmtcode,'all')
@@ -123,6 +123,7 @@ varargout=vars(1:nargout);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function S=makestruct(C,in)
+% See also: as in DEFSTRUCT or GUYOTWEATHER
 S=struct('DateTime',C{1}(in,:),...
 	 'EventName',C{2}{in},...
 	 'MomentType',C{3}{in},...
