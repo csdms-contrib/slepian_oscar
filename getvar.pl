@@ -6,6 +6,8 @@
 # [1] SAC file name
 # [2] SAC header variable name, e.g.
 #       GCARC
+#
+# Last modified by fjsimons-at-alum.mit.edu, 10/13/2020
 
 use saclib;
 
