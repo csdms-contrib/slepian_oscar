@@ -3,7 +3,7 @@
 # SMGET CMTCODE, e.g.
 # SMGET C201606261117A
 #
-# Downloads a bunch of simulations from the ShakeMovie website
+# Downloads simulations from the ShakeMovie website
 #
 # Last modified by fjsimons-at-alum.mit.edu, 07/26/2017
 
