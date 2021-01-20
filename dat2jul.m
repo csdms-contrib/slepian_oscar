@@ -23,7 +23,7 @@ function julday=dat2jul(month,day,year)
 %defval('month',str2num(datestr(today, 5)))
 defval('month',str2num(datestr(now, 5)))
 %defval('day',  str2num(datestr(today, 7)))
-defval('month',str2num(datestr(now, 7)))
+defval('day',str2num(datestr(now, 7)))
 %defval('year', str2num(datestr(today,10)))
 defval('year', str2num(datestr(now,10)))
 
