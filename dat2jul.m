@@ -25,7 +25,7 @@ defval('month',str2num(datestr(now, 5)))
 %defval('day',  str2num(datestr(today, 7)))
 defval('month',str2num(datestr(now, 7)))
 %defval('year', str2num(datestr(today,10)))
-defval('year', str2num(datestr(today,10)))
+defval('year', str2num(datestr(now,10)))
 
 % Do the calculation!
 julday=datenum(year,month,day)-datenum(['01-Jan-',num2str(year)])+1;
