@@ -32,12 +32,17 @@ function varargout=guyotweather(jday,year,nset)
 %
 % 9.0.0.314360 (R2016a) - 9.1.0.441655 (R2016b)
 %
-% Last modified by fjsimons-at-alum.mit.edu, 06/29/2020
+% COMPILE WITH:
+%
+% mcc guyotweather
+%
+% Last modified by fjsimons-at-alum.mit.edu, 01/21/2021
 
 % Default values are "yesterday" ...
 defval('jday',dat2jul-1)
 % ... and using this year's two-digit code
-defval('year',str2num(datestr(today,11)))
+%defval('year',str2num(datestr(today,11)))
+defval('year',str2num(datestr(now,11)))
 % ... and plotting the temperature time series
 defval('nset',[5 3 4 6])
 
@@ -45,7 +50,7 @@ defval('nset',[5 3 4 6])
 if year>2000; year=year-2000; end
 
 % Specify the web address
-urlbase='http://geoweb.princeton.edu/people/simons/PTON/';
+urlbase='http://geoweb.princeton.edu/people/simons/PTON';
 % Custom-make the last bit
 urltail=sprintf('pton%3.3i0.%2.2i__ASC_ASCIIIn.mrk',jday,year);
 
@@ -132,8 +137,9 @@ if nargout==0
   % Add two minutes to come to a round number on the axis
   xels=[data.Timestamp(min(find(jdai))) data.Timestamp(max(find(jdai)))+minutes(2)];
   xells=xels(1):hours(4):xels(2);
-  xlabs=sprintf('Guyot Hall (%10.5f%s,%10.5f%s) %s time [HH:mm]',...
-		lola(1),176,lola(2),176,nounder(data.Timestamp.TimeZone'));
+  xlabs=sprintf('Guyot Hall (%10.5f%s,%10.5f%s) %s time [HH:mm]\n%s',...
+		lola(1),176,lola(2),176,nounder(data.Timestamp.TimeZone'),...
+						sprintf('%s/%s',urlbase,urltail));
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   axes(ah(1))
@@ -217,7 +223,7 @@ if nargout==0
   longticks(ah,2)
   set(ah,'FontSize',11)
   set(xl,'FontSize',11)
-
+  
   if length(nset)==1
     figdisp([],sprintf('%3.3i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
   elseif length(nset)==2
@@ -228,7 +234,6 @@ if nargout==0
     figdisp([],sprintf('%3.3i_%i_%i_%i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
   end
 end
-
 
 % Cleanup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [vari,varu]=getvars(indi,jdai,data,hdrv)
