@@ -1,23 +1,24 @@
 function varargout=polecircle(lonlatp,xyzR,th,method,rref,xver)
-% varargout=POLECIRCLE(lonlatp,xyzR,th,method,rref,xver)
+% [x,y,z,xp,yp,zp]=POLECIRCLE(lonlatp,xyzR,th,method,rref,xver)
 %
 % Finds (and plots) the Cartesian coordinates of the great circle slicing a
 % three-dimensional sphere of a certain radius centered at a certain point,
 % when viewed from a certain point on the unit sphere centered at the origin
 % of the coordinate system. This amounts to finding the coordinates of a
 % circle, the circumference of a disk, positioned with respect to a certain
-% viewing pole. When plotted and viewed looking from the outside out down
+% viewing POLE. When plotted and viewed looking from the outside out down
 % along the pole, the graph indeed produces a circle. The view pole and the
 % connecting vectors are also shown.
 %
 % INPUT:
 %
 % lonlatp      Coordinates of the viewing pole on the unit sphere [degrees]
-% xyzR         Coordinates of the sphere that is the target of our viewing
-% th           angles defining the segment that shall be drawn [degrees]
+% xyzR         Coordinates of the sphere that is the viewed target object
+%              specified as [x0 y0 z0 R] for origin and radius, respectively
+% th           Angles defining the segment that shall be drawn [degrees]
 %              in the original xy plane counterclockwise from +x, i.e.
-%              counterclockwise counting from six o'clock on the circle;
-%              the default is 100 points on an entire circle
+%              counterclockwise counting from six o'clock on the circle
+%              [default: 100 points on an entire circle]
 % method       1 One easy way to perform the procedure
 %              2 Another, more complicated way that also works
 %                If 'method' is negative, do not produce a plot
@@ -37,7 +38,7 @@ function varargout=polecircle(lonlatp,xyzR,th,method,rref,xver)
 %
 % Tested on 8.3.0.532 (R2014a) and 9.0.0.341360 (R2016a)
 %
-% Last modified by fjsimons-at-alum.mit.edu, 07/26/2017
+% Last modified by fjsimons-at-alum.mit.edu, 05/05/2021
 
 % Random inputs for all variables
 defval('lonlatp',[randi(360) 90-randi(180)])
@@ -118,7 +119,7 @@ if ~isstr(lonlatp)
 elseif strcmp(lonlatp,'demo1')
   % Guyot Hall in lon/lat and on the unit sphere
   lonlatp=[-74.65475 40.34585]; 
-  % View come other point from there
+  % View some other point from there
   xyzR=[0.8 0.7 0.9 0.3];
   % Step across the LONGITUDES and see what you get
   for index=0:36
@@ -130,7 +131,7 @@ elseif strcmp(lonlatp,'demo1')
 elseif strcmp(lonlatp,'demo2')
   % Guyot Hall in lon/lat and on the unit sphere
   lonlatp=[-74.65475 40.34585]; 
-  % View come other point from there
+  % View some other point from there
   xyzR=[0.8 0.7 0.9 0.3];
   % Step across the LATITUDES and see what you get
   for index=0:36
