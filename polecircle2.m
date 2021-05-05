@@ -216,7 +216,7 @@ elseif strcmp(xyzE,'demo4')
 
   % Try these
   view(-71,-4)
-
+  % This view is looking down the viewing pole
   view([x y z])
   
   % Looked at in the plane of the joining vectors
@@ -233,7 +233,7 @@ elseif strcmp(xyzE,'demo4')
 
   % Try these
   view(-71,-4)
-  
+  % This view is looking down the viewing pole
   view([x y z])
 end
 
