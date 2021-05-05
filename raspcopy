@@ -20,5 +20,3 @@ mseed2sac $fname
 # Pushes the data out
 scp $fname.??????.SAC fjsimons@geoweb.princeton.edu:/home/www/people/simons/RSP
 
-
-
