@@ -3,7 +3,7 @@ function varargout=polecircle2(xyzE,xyzR,thr,th,method,rref,xver)
 %
 % Finds (and plots) the Cartesian coordinates of great circle slicing a
 % three-dimensional sphere of a certain radius centered at a certain
-% point. This circle lies in a plane that contains the axis connecting the
+% point. This circle lies in a PLANE that contains the axis connecting the
 % two points (hence, their distance could be a suitable choice for the
 % radius of the plotted circle), rotated by an angle measured
 % counterclockwise from six o'clock when viewing a pole circle down the
@@ -12,17 +12,21 @@ function varargout=polecircle2(xyzE,xyzR,thr,th,method,rref,xver)
 % INPUT:
 %
 % xyzE        Coordinates of a special point in three dimensions
+%             specified as the three-vector [xE yE zE]
 % xyzR        Coordinates of the sphere that is the target of our viewing
-% thr         Rotation angle of the circle about the axis joiningg both points
+%             specified as [x0 y0 z0 R] for origin and radius, respectively
+% thr         Rotation angle of the circle about the axis joining the
+%             points [xE yE zE] and [x0 y0 z0]
 % th          Angles defining the segment that shall be drawn [degrees]
 %             in the original xy plane counterclockwise from +x, i.e.
-%             counterclockwise counting from six o'clock on the circle;
-%             the default is 100 points on an entire circle
-% method       1 One easy way to perform the procedure
-%              2 Another, more complicated way that also works
-%                If 'method' is negative, do not produce a plot
-% rref         Radius of the viewing sphere (default: unit sphere, radius 1)
-% xver         1 Extra verification with continental plotting!
+%             counterclockwise counting from six o'clock on the circle
+%             [default: 100 points on an entire circle]
+% method      1 One easy way to perform the procedure
+%             2 Another, more complicated way that also works
+%               If 'method' is negative, do not produce a plot
+% rref        Radius of the viewing sphere [default: unit sphere, radius 1]
+% xver        1 Extra verification with continental plotting!
+%             0 No verification by continental plotting! [default]
 % 
 % EXAMPLE:
 %
@@ -33,7 +37,7 @@ function varargout=polecircle2(xyzE,xyzR,thr,th,method,rref,xver)
 %
 % Tested on 8.3.0.532 (R2014a) and 9.0.0.341360 (R2016a)
 % 
-% Last modified by fjsimons-at-alum.mit.edu, 07/26/2017
+% Last modified by fjsimons-at-alum.mit.edu, 05/05/2021
 
 com.mathworks.services.Prefs.setBooleanPref('EditorGraphicalDebugging',false)
 
@@ -214,8 +218,6 @@ elseif strcmp(xyzE,'demo4')
   view(-71,-4)
 
   view([x y z])
-  
-  [x y z]
   
   % Looked at in the plane of the joining vectors
   xyzV=cross([x ; y; z],xyzR(1:3));
