@@ -1,7 +1,7 @@
 function varargout=line3sphere(xyz1,xyz2,xyzR,xver)
 % [xyzS,d]=LINE3SPHERE(xyz1,xyz2,xyzR,xver)
 %
-% Calculates the inersection of a line with a sphere
+% Calculates the intersection of a line with a sphere
 %
 % INPUT:
 %
@@ -15,6 +15,10 @@ function varargout=line3sphere(xyz1,xyz2,xyzR,xver)
 %
 % xyzS       Coordinates of line-sphere intersection point(s)
 % d          Distance(s) from the line origin to the intersection points(s)
+%
+% EXAMPLE:
+%
+% line3sphere([],[],[],1)
 %
 % Last modified by fjsimons-at-alum.mit.edu, 05/05/2021
 
@@ -49,31 +53,35 @@ else
   xyzS=[];
 end
 
-% Plotting
-p1=plot3(xyz1(1),xyz1(2),xyz1(3),'^'); hold on
-p2=plot3(xyz2(1),xyz2(2),xyz2(3),'v');
-pc=plot3(xyzR(1),xyzR(2),xyzR(3),'o');
-pl=plot3([xyz1(1) xyz2(1)],[xyz1(2) xyz2(2)],[xyz1(3) xyz2(3)]); 
-for index=1:size(xyzS,2)
-  % Plot the intersections, possible extensions of the line segment
-  p(index)=plot3(xyzS(1,index),xyzS(2,index),xyzS(3,index),'+');
-  % Plot the vectors joining the origin of the sphere to those two points
-  pv(index)=plot3([xyzR(1) xyzS(1,index)],[xyzR(2) xyzS(2,index)],[xyzR(3) xyzS(3,index)]);
-  % Report on the distances which should be R
-  otoS=[xyzR(1)-xyzS(1,index) xyzR(2)-xyzS(2,index) xyzR(3)-xyzS(3,index)];
-  norm(otoS)
-%  diferm(norm(otoS-xyzR(4))
+if xver==1
+  % Plotting
+  p1=plot3(xyz1(1),xyz1(2),xyz1(3),'^'); hold on
+  p2=plot3(xyz2(1),xyz2(2),xyz2(3),'v');
+  pc=plot3(xyzR(1),xyzR(2),xyzR(3),'o');
+  pl=plot3([xyz1(1) xyz2(1)],[xyz1(2) xyz2(2)],[xyz1(3) xyz2(3)]); 
+  for index=1:size(xyzS,2)
+    % Plot the intersections, possible extensions of the line segment
+    p(index)=plot3(xyzS(1,index),xyzS(2,index),xyzS(3,index),'+');
+    % Plot the vectors joining the origin of the sphere to those two points
+    pv(index)=plot3([xyzR(1) xyzS(1,index)],[xyzR(2) xyzS(2,index)],[xyzR(3) xyzS(3,index)]);
+    % Report on the distances which should be R
+    otoS=[xyzR(1)-xyzS(1,index) xyzR(2)-xyzS(2,index) xyzR(3)-xyzS(3,index)];
+    % Mute check
+    diferm(norm(otoS)-xyzR(4))
+  end
+  hold off
+
+  % If could do POLECIRCLE or POLECIRCLE2 to make some fancier plots and
+  % determine a nicer viewing angle, but never mind
+  grid on
+  xlabel('x')
+  ylabel('y')
+  zlabel('z')
+  axis equal
+  axis([-7 7 -7 7 -7 7])
+  title(sprintf('radius %4.2f | %i intersection(s)',xyzR(4),length(d)))
 end
-  xyzR(4)
-
-hold off
-
-grid on
-xlabel('x')
-ylabel('y')
-zlabel('z')
-axis equal
-
+  
 % Optional output
 varns={xyzS,d};
 varargout=varns(1:nargout);
