@@ -51,6 +51,7 @@ defval('xver',0)
 xc=xb+[xt-xb]/2;
 yc=yb+[yt-yb]/2;
 zc=zb+[zt-zb]/2;
+% These change along the axis of the cylinder unless it goes through the center
 [thc,phc]=cart2sph(xc,yc,zc);
 % Calculate the circumference of the cylinder at the top
 [th,ph]=cart2sph(xt-xc,yt-yc,zt-zc);
@@ -64,6 +65,8 @@ xtc=xtc+xc; ytc=ytc+yc; ztc=ztc+zc;
 % Need to flip since angles where measured in different direction
 xbc=flipud(xbc+xc); ybc=flipud(ybc+yc); zbc=flipud(zbc+zc);
 
+% Now I need to figure out where these "walls" intersect the sphere
+% https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
 for index=1:length(xbc)
   % Now find the intersections of the wall lines with the sphere
   xyzS{index}=line3sphere([xtc(index) ytc(index) ztc(index)],...
@@ -94,11 +97,7 @@ if xver==1 && R==1
       plot3(xyzS{index}(1,ondex),xyzS{index}(2,ondex),xyzS{index}(3,ondex),'k.')
     end
   end
-
   hold off
-
-  % Now I need to figure out where these "walls" intersect the sphere
-  % https://en.wikipedia.org/wiki/Line%E2%80%93sphere_intersection
 
   % Cosmetics
   xlabel('x')
