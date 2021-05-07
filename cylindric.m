@@ -15,11 +15,18 @@ function varargout=cylindric(r,toplola,botlola,R,xver)
 % OUTPUT:
 %
 % xyzS      A cell array with the intersection points
+% topS      A matrix with a "top" patch, whether the domain is closed or not
+% botS      A matrix with a "bottom" patch, closed or not
 % 
 % EXAMPLES:
 %
 %% A random worked example and a plot
 % cylindric([],[],[],[],1)
+%
+%% Another example
+% figure(1); [~,b,c]=cylindric([],[],[],[],1); 
+% figure(2); plot3(b(1,:),b(2,:),b(3,:),'g'); hold on
+%            plot3(c(1,:),c(2,:),c(3,:),'r'); hold off
 %
 %% A specific example and a plot example
 % xyzS=cylindric(0.1,[],[],1);
@@ -35,7 +42,7 @@ function varargout=cylindric(r,toplola,botlola,R,xver)
 %
 % POLECIRCLE, LINE3SPHERE, VIVIANI
 %
-% Last modified by fjsimons-at-alum.mit.edu, 05/05/2021
+% Last modified by fjsimons-at-alum.mit.edu, 05/06/2021
 
 % Defaults
 defval('toplola',rand(1,2).*[360 180]+[0 -90])
@@ -72,7 +79,22 @@ for index=1:length(xbc)
   xyzS{index}=line3sphere([xtc(index) ytc(index) ztc(index)],...
 			  [xbc(index) ybc(index) zbc(index)],[0 0 0 R],...
 			  0);
+  % Count the number of returned points
+  nS(index)=size(xyzS{index},2);
 end
+
+% Begin by finding any single returns and duplicating them so that you
+% can assign them to both top and bottom
+if any(nS==1)
+  % You need to make "cat" work below, and then make two columns out of
+  % it, by duplication the single points, of which I think there are at
+  % most two. Leave for later
+  keyboard
+end
+% Need a picture, but you always have the notion of a top and a bottom
+topS=reshape(kindeks(cat(1,xyzS{:}),1),3,[]);
+botS=reshape(kindeks(cat(1,xyzS{:}),2),3,[]);
+% Still all could be empty and you'd have to deal with it
 
 % Optional plotting
 if xver==1 && R==1
@@ -111,10 +133,10 @@ if xver==1 && R==1
   delete([pt pb pl])
   
   % Save the plot
-  figdisp([],sprintf('%i_%i_%i_%i_%4.2f',round(toplola),round(botlola),r),[],1)
+  figdisp([],sprintf('%i_%i_%i_%i_%4.2f',round(toplola),round(botlola),r),[],0)
 end
 
 % Optional output
-varns={xyzS};
+varns={xyzS,topS,botS};
 varargout=varns(1:nargout);
 
