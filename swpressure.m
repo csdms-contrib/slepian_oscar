@@ -24,7 +24,6 @@ function varargout=swpressure(dorp,lat,dtop)
 % SW_PRES.f by Phil Morgan, CSIRO (1993)
 % CALPRESSURE.m by Yifeng Wang, Princeton (2010)
 %
-% First version by Yifeng Wang, 03/28/2010
 % Last modified by fjsimons-at-alum.mit.edu, 05/27/2021
 
 % Default - the result should be 7500 db give or take
