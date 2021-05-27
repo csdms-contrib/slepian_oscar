@@ -1,29 +1,50 @@
-function pbar=oceanpressure(dm,lat)
-% pbar=OCEANPRESSURE(dm,lat)
+function varargout=swpressure(dorp,lat,dtop)
+% pord=SWPRESSURE(dorp,lat,dtop)
 % 
-% Calculate pressure in seawater of a global ocean
-% Saunders (1981) Practical Conversion of Pressure to Depth
+% Pressure/depth in seawater of a global ocean following
+% Saunders (1981) "Practical conversion of pressure to depth"
 % 10.1175/1520-0485(1981)011<0573:PCOPTD>2.0.CO;2
 % 
 % INPUT:
 % 
-% dm       Depth(s), in positive meters down from the surface
-% lat      Latitude, in decimal degrees
+% dorp     Depth(s), in positive meters down from the surface, OR:
+%          Pressure(s), in decibar (=1e4 Pa)
+% lat      Latitude(s), in decimal degrees
+% dtop     1 Input is depth and output is pressure [default]    
+%          2 Input is pressure and output is depth
 %
 % OUTPUT:
 %
-% pbar     Pressure, in bar 
+% pord     Pressure, in decibar (=1e4 Pa), OR:
+%          Depth(s), in positive meters down from the surface, OR:
 %
-% Written by Yifeng Wang, 03/28/2010
+% SEE ALSO:
+%
+% RDGDEM3.f by Michael Carnes Code N312, Naval Oceanographic Office
+% SW_PRES.f by Phil Morgan, CSIRO
+%
+% First version by Yifeng Wang, 03/28/2010
+% Last modified by fjsimons-at-alum.mit.edu, 05/27/2021
 
-% parameter
-DEG2RAD = pi/180;
-pres=zeros(length(depth),length(lat));
+% Default - the result should be 7500 db give or take
+defval('dorp',7321.45)
+defval('dtop',1)
+defval('lat',30)
 
-% calculation
-X=sin(abs(lat)*DEG2RAD);
-C1=5.92e-3+X.^2*5.25e-3;
-for j=1:length(depth)
-    pres(j,:)=((1-C1)-sqrt(((1-C1).^2)-(8.84e-6*depth(j))))/4.42e-6/10;
+% The Saunders parameters c1 [m/db] and c2 [m/db^2]
+c1=(5.92+5.25*sin(abs(lat)*pi/180).^2)*1e-3;
+c2=2.21*1e-6;
+
+% The equation in m and decibar is the quadratic in 2
+switch dtop
+ case 1
+  % Depth to pressure via the quadratic equation solution
+  pord=[(1-c1)-sqrt((1-c1)^2-4*c2*dorp)]/2/c2;
+ case 2
+  % Pressure to depth
+  pord=(1-c1)*dorp-c2*dorp^2;
 end
 
+% Variable output
+varns={pord};
+varargout=varns(1:nargout);
