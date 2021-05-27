@@ -18,6 +18,11 @@ function varargout=swpressure(dorp,lat,dtop)
 % pord     Pressure, in decibar (=1e4 Pa), OR:
 %          Depth(s), in positive meters down from the surface, OR:
 %
+% EXAMPLE:
+%
+% x=rand(1)*1000; lat=rand(1)*180-90;
+% diferm(swpressure(swpressure(x,lat,1),lat,2),x)
+%
 % SEE ALSO:
 %
 % RDGDEM3.f by Michael Carnes, Naval Oceanographic Office (2002)
@@ -31,6 +36,10 @@ defval('dorp',7321.45)
 defval('dtop',1)
 defval('lat',30)
 
+% Note that both inputs must be equal sized or one of them scalar
+dorp=dorp(:);
+lat=lat(:);
+
 % The Saunders parameters c1 [m/db] and c2 [m/db^2]
 c1=(5.92+5.25*sin(abs(lat)*pi/180).^2)*1e-3;
 c2=2.21*1e-6;
@@ -39,10 +48,10 @@ c2=2.21*1e-6;
 switch dtop
  case 1
   % Depth to pressure via the quadratic equation solution
-  pord=[(1-c1)-sqrt((1-c1)^2-4*c2*dorp)]/2/c2;
+  pord=[(1-c1)-sqrt((1-c1).^2-4*c2*dorp)]/2/c2;
  case 2
   % Pressure to depth
-  pord=(1-c1)*dorp-c2*dorp^2;
+  pord=(1-c1).*dorp-c2*dorp.^2;
 end
 
 % Variable output
