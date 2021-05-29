@@ -23,7 +23,7 @@ function [w,wl,wr]=shanning(n,r,sac)
 % for i=1:100; difer(shanning(i,r,1)-shanning(i,r,0),6); end
 % for i=1:100; plot(shanning(i,r,1)-shanning(i,r,0)); ylim([-1 1]*1e-7); pause ; end
 %
-% This function works for r00.5
+% This function works for r=0.5
 %
 % Last modified by fjsimons-at-alum.mit.edu, 05/26/2021
 
