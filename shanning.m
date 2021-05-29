@@ -1,5 +1,5 @@
 function [w,wl,wr]=shanning(n,r,sac)
-% [w,wl,wr]=fhanning(n,r,sac)
+% [w,wl,wr]=shanning(n,r,sac)
 %
 % Calculates Hanning windows of a certain length and a certain width
 % fraction the exact way SAC says it is doing it...
@@ -8,8 +8,8 @@ function [w,wl,wr]=shanning(n,r,sac)
 %
 % n       The required length of the window
 % r       The fraction of the window that is tapered [default 0.5]
-% sac     1 Use actual SAC
-%         0 Use MATLAB [default]
+% sac     0 Use MATLAB [default]
+%         1 Use actual SAC
 %
 % OUTPUT:
 %
@@ -25,20 +25,26 @@ function [w,wl,wr]=shanning(n,r,sac)
 %
 % This function works for r=0.5
 %
-% Last modified by fjsimons-at-alum.mit.edu, 05/26/2021
+% Last modified by fjsimons-at-alum.mit.edu, 05/27/2021
 
 defval('r',0.5)
 defval('sac',0)
 
 if sac==0
   % The length of the taper on each end
-  t=ceil(r*n);
+  t=round(r*n);
   % The left bit
   wl = .5*(1-cos(pi*([0:t-1]/t)))';
-  % Adapt for oddness by squaring the endpoint
-  wl(end)=wl(end)^[1+rem(n,2)];
-  % The right bit adapted for oddness by not taking the endpoint again
-  wr = flipud(wl(1:end-rem(n,2)));
+
+  if r==0.5
+    % Adapt for oddness by squaring the endpoint
+    wl(end)=wl(end)^[1+rem(n,2)];
+    % The right bit adapted for oddness by not taking the endpoint again
+    wr = flipud(wl(1:end-rem(n,2)));
+  else
+    keyboard
+  end
+
   % And then the full thing put together
   w=[wl ; wr];
 elseif sac==1
