@@ -21,28 +21,43 @@ function [w,wl,wr]=shanning(n,r,sac)
 % 
 % r=0.5;
 % for i=1:100; difer(shanning(i,r,1)-shanning(i,r,0),6); end
-% for i=1:100; plot(shanning(i,r,1)-shanning(i,r,0)); ylim([-1 1]*1e-7); pause ; end
+% for i=1:100; plot(shanning(i,r,1)-shanning(i,r,0)); ylim([-1 1]*1e-7); pause(0.25) ; end
 %
-% This function works for r=0.5
+% i=randi(100); r=randi(50)/100; difer(shanning(i,r,1)-shanning(i,r,0),6); r
+% i=randi(100); r=randi(50)/100; plot(shanning(i,r,1)-shanning(i,r,0)); ylim([-1 1]*1e-7); r
 %
 % Last modified by fjsimons-at-alum.mit.edu, 05/27/2021
 
 defval('r',0.5)
 defval('sac',0)
 
+if r<0 || r>0.5
+  error('r must be between 0.0 and 0.5')
+end
+
 if sac==0
-  % The length of the taper on each end
-  t=round(r*n);
+  % The length of the taper on each end; rounding could slightly differ
+  if r==0.5
+    t=round(r*n);
+  else
+    % Sometimes FLOOR needs to happen. There is weirdness. 
+    t=round(r*n);
+  end
+
   % The left bit
   wl = .5*(1-cos(pi*([0:t-1]/t)))';
 
+  % Now you know there are no insertions
   if r==0.5
     % Adapt for oddness by squaring the endpoint
     wl(end)=wl(end)^[1+rem(n,2)];
     % The right bit adapted for oddness by not taking the endpoint again
-    wr = flipud(wl(1:end-rem(n,2)));
+    wr=flipud(wl(1:end-rem(n,2)));
   else
-    keyboard
+    % Now you need to make sure you combine it to the right dimension
+    wr=flipud(wl);
+    % Always symmetric, just add the right amount of zeroes
+    wl=[wl ; ones(n-2*t,1)];
   end
 
   % And then the full thing put together
