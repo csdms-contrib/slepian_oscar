@@ -1,13 +1,15 @@
-function [w,wl,wr]=shanning(n,r)
-% [w,wl,wr]=fhanning(n,r)
+function [w,wl,wr]=shanning(n,r,sac)
+% [w,wl,wr]=fhanning(n,r,sac)
 %
 % Calculates Hanning windows of a certain length and a certain width
-% fraction the exact way SAC says it is doing it
+% fraction the exact way SAC says it is doing it...
 %
 % INPUT:
 %
 % n       The required length of the window
-% r       The fraction of the window that is tapered
+% r       The fraction of the window that is tapered [default 0.5]
+% sac     1 Use actual SAC
+%         0 Use MATLAB [default]
 %
 % OUTPUT:
 %
@@ -17,27 +19,39 @@ function [w,wl,wr]=shanning(n,r)
 %
 % EXAMPLE:
 % 
-% SAC> funcgen line 0 1 npts 20
-% SAC> taper type hanning width 0.5
-% SAC> w twenty
-% difer(readsac('twenty')-shanning(20,0.5),6)
-% SAC> funcgen line 0 1 npts 21
-% SAC> taper type hanning width 0.5
-% SAC> twentyone
-% difer(readsac('twentyone')-shanning(21,0.5),6)
+% r=0.5;
+% for i=1:100; difer(shanning(i,r,1)-shanning(i,r,0),6); end
+% for i=1:100; plot(shanning(i,r,1)-shanning(i,r,0)); ylim([-1 1]*1e-7); pause ; end
 %
-% This function does NOT work yet
+% This function works for r00.5
 %
 % Last modified by fjsimons-at-alum.mit.edu, 05/26/2021
 
-% See SAC help taper
-t=ceil(r*n);
-% The left bit
-wl = .5*(1-cos(pi*(0:t-1)'/t));
-% The right one
-wr = flipud(wl);
+defval('r',0.5)
+defval('sac',0)
 
-% And then the full thing put together
-w=[wl(1:end) ; wr(1+rem(n,2):end)];
+if sac==0
+  % The length of the taper on each end
+  t=ceil(r*n);
+  % The left bit
+  wl = .5*(1-cos(pi*([0:t-1]/t)))';
+  % Adapt for oddness by squaring the endpoint
+  wl(end)=wl(end)^[1+rem(n,2)];
+  % The right bit adapted for oddness by not taking the endpoint again
+  wr = flipud(wl(1:end-rem(n,2)));
+  % And then the full thing put together
+  w=[wl ; wr];
+elseif sac==1
+  % Make the SAC command sequence
+  tcom=sprintf(...
+      'funcgen line 0 1 npts %i ; taper type hanning width %f ; w h.sac',n,r);
+  % Execute the SAC command sequence
+  system(sprintf(...
+      'echo "%s ; q" | /usr/local/sac/bin/sac',tcom));
+  % Read the file that SAC just wrote
+  w=readsac('h.sac');
+  % And clean it up
+  system('rm -f h.sac');
+end
 
 
