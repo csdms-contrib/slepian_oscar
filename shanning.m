@@ -26,6 +26,10 @@ function [w,wl,wr]=shanning(n,r,sac)
 % i=randi(100); r=randi(50)/100; difer(shanning(i,r,1)-shanning(i,r,0),6); r
 % i=randi(100); r=randi(50)/100; plot(shanning(i,r,1)-shanning(i,r,0)); ylim([-1 1]*1e-7); r
 %
+% UNRESOLVED ISSUES:
+%
+% Sometimes when ROUND gives a mismatch - on L48, FLOOR fixes it...
+%
 % Last modified by fjsimons-at-alum.mit.edu, 05/27/2021
 
 defval('r',0.5)
