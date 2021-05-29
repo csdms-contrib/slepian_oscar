@@ -28,14 +28,15 @@ function [w,wl,wr]=shanning(n,r,sac)
 %
 % UNRESOLVED ISSUES:
 %
-% Sometimes when ROUND gives a mismatch - on L48, FLOOR fixes it...
+% Sometimes when ROUND gives a mismatch - on L48, FLOOR fixes it... on
+% short Sections... There may be a minimum
 %
 % Last modified by fjsimons-at-alum.mit.edu, 05/27/2021
 
 defval('r',0.5)
 defval('sac',0)
 
-if r<0 || r>0.5
+if r<0 || r>0.5 || r==0
   error('r must be between 0.0 and 0.5')
 end
 
@@ -44,7 +45,7 @@ if sac==0
   if r==0.5
     t=round(r*n);
   else
-    % Sometimes FLOOR needs to happen. There is weirdness. 
+    % Sometimes FLOOR needs to happen. There is weirdness with short sections.
     t=round(r*n);
   end
 
