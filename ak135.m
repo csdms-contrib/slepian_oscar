@@ -1,32 +1,34 @@
 function val=ak135(rad,fld,arg)
 % val=AK135(rad,fld,arg)
 %
-% Interpolates the AK135 Earth model without discontinuities
+% Interpolates the AK135 Earth model pretreated to smooth over
+% discontinuities, and its radial gradient
 %
 % INPUT:
 %
 % rad       Radius [m]
 % fld       1 P-velocity [m/s]
 %           2 S-velocity [m/s]
-%           3 Density [kg/m^3]
-% arg       1 field itself
-%           2 gradient
+%           3 density [kg/m^3]
+% arg       1 need the field
+%           2 need the field gradient d(fld)/d(radius)
 %
 % OUTPUT:
 %
-% val       The interpolated output value
+% val       The interpolated fields or gradients
 %
-% SI Units everywhere
+% SEE ALSO:
 %
-% Last modified by fjsimons-at-alum.mit.edu, 12/1/2013
+% IASP91, PREMISO,  EARTHMODEL, MODPREP
+%
+% Last modified by fjsimons-at-alum.mit.edu, 06/02/2021
 
-global radius psd psdgrad
+% Specify where you keep them
+defval('ddir',fullfile(getenv('IFILES'),'EARTHMODELS','MATFILES'))
+% Load specially prepared data which contain radius, psd, psdgrad
+load(fullfile(ddir,'ak135'))
 
-if ~length(psdgrad)
-  load(fullfile(getenv('IFILES'),'EARTHMODELS','MATFILES','ak135'))
-  disp('Velocity and gradient loaded')
-end
-
+% Perform the interpolation without thinking about discontinuities
 method= 'linear';
 switch arg
   case 1
