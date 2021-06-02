@@ -132,7 +132,7 @@ end
 % Plot suggestion and execution
 set(gcf,'Units','Inches','PaperPositionMode','Auto','PaperUnits','Inches',...
 	'PaperSize',indeks(get(gcf,'Position'),[3 4]));
-set(gcf,'rendere','paint')
+set(gcf,'renderer','paint')
 figdisp(fn,sprintf('%i_%i',fd,prop),[],2)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
