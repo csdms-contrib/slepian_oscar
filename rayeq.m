@@ -1,22 +1,43 @@
-function ydot=rayeq(t,Y,flag,velfun)
-% ydot=RAYEQ(t,Y,flag,velfun)
+function dYdt=rayeq(t,Y,flag,velfun)
+% dYdt=RAYEQ(t,Y,flag,velfun)
 %
-% Used by RAYPATH.
+% Specifies the coupled system of homogenous differential equations for ray
+% tracing, dYdt=0, which depend on a certain velocity model constant in time.
 %
-% Calculates the set of four differential equations Ydot=0
-% where Ydot=d[x1 x2 p1 p2]/dt so that the integrated Ydot
-% will yield two position coordinates Y[x1 and x2] and the 
-% horizontal and vertical slownesses [p1 and p2]
-% This is an expression of the ray equations as found in Bullen & Bolt.
-% The string variable 'velfun' contains the name of a function with
-% a velocity field such as cfun(x1,x2,arg), where arg=1 returns the field,
-% arg=2 the x1-derivative and arg=3 the x2-derivative at x1 and x2.
-% In this formalism, always set flag to [].
+% INPUT:
 %
-% Last modified by fjsimons-at-alum.mit.edu, 13.1.2005
+% t        Times for which the derivatives are being calculated; note
+%          that there is no time-dependence in this particular system
+% Y        The unknown functions whose time-derivatives are being specified:
+%          [x1 x2 p1 p2] with x1,x2 Cartesian coordinates and p1,p2
+%          slowness components along those two directions
+% flag     Leave this empty. See if I can remove later
+% velfun   Function that interpolates a velocity model or its spatial
+%          gradients along either of the coordinate directions, so that
+%          velfun(x1,x2,1) is the propagation speed, and, respectively,
+%          velfun(x1,x2,2) and velfun(x1,x2,3) its x1 and x2 derivatives.
+% 
+% OUTPUT:
+%
+% dYdt     d[x1 x2 p1 p2]/dt whose integration yields the unknown
+%          Cartesian coordinates and slownesses of this system
+%
+% SEE ALSO:
+%
+% RAYPATH
+%
+% Last modified by fjsimons-at-alum.mit.edu, 06/02/2021
 
-eval([ 'ydot(1,1)=(',velfun,'(Y,1)^2)*Y(3);'])
-eval([ 'ydot(2,1)=(',velfun,'(Y,1)^2)*Y(4);'])
-eval([ 'ydot(3,1)=-',velfun,'(Y,2)/',velfun,'(Y,1);'])
-eval([ 'ydot(4,1)=-',velfun,'(Y,3)/',velfun,'(Y,1);'])
+% Calculate the speed and its gradient since we need it many times
+eval(sprintf('   c=%s(Y,1);',velfun))
+% Calculate the speed and its gradient since we need it many times
+eval(sprintf('dcdx1=%s(Y,2);',velfun))
+eval(sprintf('dcdx2=%s(Y,3);',velfun))
+
+% Bullen & Bolt, 1985, p. 156, eq. (11) 
+dYdt(1,1)=c^2*Y(3);
+dYdt(2,1)=c^2*Y(4);
+dYdt(3,1)=-1/c*dcdx1;
+dYdt(4,1)=-1/c*dcdx2;
+
 
