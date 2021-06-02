@@ -1,5 +1,5 @@
-function val=iasp91(rad,fld,arg)
-% val=iasp91(rad,fld,arg)
+function val=iasp91s(rad,fld,arg)
+% val=iasp91S(rad,fld,arg)
 %
 % Interpolates the IASP91 Earth model pretreated to smooth over
 % discontinuities, and its radial gradient
@@ -19,14 +19,14 @@ function val=iasp91(rad,fld,arg)
 %
 % SEE ALSO:
 %
-% AK135, PREMISO, EARTHMODEL, MODPREP
+% AK135S, PREMISOS, EARTHMODEL, MODPREP
 %
 % Last modified by fjsimons-at-alum.mit.edu, 06/02/2021
 
 % Specify where you keep them
 defval('ddir',fullfile(getenv('IFILES'),'EARTHMODELS','MATFILES'))
 % Load specially prepared data which contain radius, psd, psdgrad
-load(fullfile(ddir,'iasp91'))
+load(fullfile(ddir,'iasp91s'))
 
 % Perform the interpolation without thinking about discontinuities
 method= 'linear';
