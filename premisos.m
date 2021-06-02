@@ -1,7 +1,7 @@
-function val=premiso(rad,fld,arg)
-% val=PREMISO(rad,fld,arg)
+function val=premisos(rad,fld,arg)
+% val=PREMISOS(rad,fld,arg)
 %
-% Interpolates the AK135 Earth model pretreated to smooth over
+% Interpolates the PREM isotropic Earth model pretreated to smooth over
 % discontinuities, and its radial gradient
 %
 % INPUT:
@@ -26,7 +26,7 @@ function val=premiso(rad,fld,arg)
 % Specify where you keep them
 defval('ddir',fullfile(getenv('IFILES'),'EARTHMODELS','MATFILES'))
 % Load specially prepared data which contain radius, psd, psdgrad
-load(fullfile(ddir,'premiso'))
+load(fullfile(ddir,'premisos'))
 
 % Perform the interpolation without thinking about discontinuities
 method= 'linear';
