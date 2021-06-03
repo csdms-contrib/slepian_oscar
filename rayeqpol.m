@@ -1,18 +1,42 @@
-function ydot=rayeqpol(t,Y,flag,velfun)
-% ydot=rayeqpol(t,Y,flag,velfun)
+function dYdt=rayeqpol(t,Y,flag,velfun)
+% dYdt=RAYEQPOL(t,Y,flag,velfun)
 %
-% Used by RAYPATHPOL.
+% Specifies the coupled system of differential equations for position and
+% take-off angle in seismic ray tracing, for a velocity model that is
+% constant in time, and specified with its radial derivative, in polar coordinates. 
 %
-% Calculates the set of four differential equations Ydot=0
-% where Ydot=d[rho theta inc]/dt in polar coordinates.
+% INPUT:
 %
-% Last used by fjsimons-at-alum.mit.edu, May 10th, 2004
+% t        Times for which the derivatives are being calculated; note
+%          that there is no time-dependence in this particular system
+% Y        The unknown function whose time-derivatives are being specified:
+%          [r theta alfa] with r,theta polar coordinates and alfa the
+%          take-off angle, anticlockwise from the vertical, in radians 
+% flag     An option flag that needs to remain empty
+% velfun   Function that interpolates velocity model or its radial
+%          gradient, so that velfun(r,[],1) is the propagation speed, and
+%          velfun(r,[],2) its r derivative. The empty variable is for P, S.
+%
+% OUTPUT:
+%
+% dYdt     d[rho theta alfa]/dt in polar coordinates and takeoff angle
+%          measured anticlockwise from the vertical
+%
+% SEE ALSO:
+%
+% RAYPATHPOL, RAYPATH, RAYEQ, GROUPRAYS
+%
+% Last modified by fjsimons-at-alum.mit.edu, 06/02/2021
 
-svel=1;% 1 for pvel, 2 for svel
+% P-velocity hardcoded here
+pors=1;
 
-eval([ 'spd=',velfun,'(Y(1),',num2str(svel),',1);'])
-eval([ 'dspd=',velfun,'(Y(1),',num2str(svel),',2);'])
+% Find the applicable speed
+eval(sprintf('c=%s(Y(1),%i,1);',velfun,pors))
+% Find the radial speed gradient
+eval(sprintf('dcdr=%s(Y(1),%i,2);',velfun,pors))
 
-ydot(1,1)=spd*cos(Y(3));
-ydot(2,1)=spd/Y(1)*sin(Y(3));
-ydot(3,1)=sin(Y(3))*(dspd-spd/Y(1));
+% Bullen & Bolt, 1985, p. XXX, eq. (YY)
+dYdt(1,1)=c*cos(Y(3));
+dYdt(2,1)=c*sin(Y(3))/Y(1);
+dYdt(3,1)=sin(Y(3))*(dcdr-c/Y(1));
