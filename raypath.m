@@ -1,43 +1,49 @@
-function [t,pos,slow]=raypath(spos,alfa,velfun)
-% [t,pos,slow]=raypath(spos,alfa,velfun)
+function [t,rxy,pxy]=raypath(qxy,alfa,velfun,t0tFtNum)
+% [t,rxy,pxy]=raypath(qxy,alfa,velfun,t0tFtNum)
 %
-% Calculates ray paths in Cartesian coordinates.
+% Calculates ray paths (position, time and slowness) in Cartesian
+% coordinates for a TWO-dimensional velocity field
 %
-% Calculates ray paths for a two-dimensional velocity field
-% specified by the string 'velfun' for a source at position
-% 'spos'=[x1 x2] and a take-off angle (with the vertical) of the ray,
-% 'alfa'. Angle in radians, sin(alfa)/c is the x1-slowness.
+% INPUT:
 %
-% Calculated are times 't', positions 'pos' and horizontal and vertical 
-% slownesses 'slow'. The horizontal slowness is the ray parameter; this
-% remains constant for a given ray.  The default integration total time is
-% 100 s in 100 equally spaced steps.  Each row in solution array 
-% Y=[pos slow] corresponds to a time returned  in column vector 't'.  
+% qxy           Source position [x1 x2], in meters
+% alfa          Take-off angle with the vertical, in radians
+%               so sin(alfa)/speed is the slowness along x1, the
+%               "horizontal" slowness, or ray parameter
+% velfun        Name of a velocity function [default: 'linmod']
+% t0tFtnum      Time specifications, in seconds, seconds, and a number
+%               for use in LINSPACE [defaulted: 0 s to 2000s in 250 steps]
+% resc          Optional scaling factor to rescale Cartesian results
 %
-% Integration of a set of four  coupled differential equations (ray
-% equations) given in the function 'rayeq' as described
-% by Bullen and Bolt, 1985, "An introduction to the theory of seismology",  
-% pp 154-157.
+% OUTPUT:
+%
+% t             Time, in meters
+% rxy           Cartesian position of the ray, in meters
+% pxy           Slowness along the x1 and x2 direction, in seconds/meter
+%
+% EXAMPLE:
+%
+% [t,rxy,pxy]=raypath([6350000 pi/2-pi/12.5],pi/4,'linmod');
+% plot(rxy(:,1),rxy(:,2)); hold on
+%
+% Last modified by fjsimons-at-alum.mit.edu, 06/02/2021
 
-% Last modified by FJS, December 13th 1998
+% The default velocity model 
 
 % Time span
-tmin=0; % Minimum time
-tmax=1200; % Maximum time
-tstep=200; % Maximum number of steps
-tint=linspace(tmin,tmax,tstep);
-disp([ 'tmin= ',num2str(tmin)])
-disp([ 'tmax= ',num2str(tmax)])
-disp([ 'tstep= ',num2str(tstep)])
-%tint=[0 100];
+defval('t0tFtNum',[0 2000 250]);
+tspan=linspace(t0tFtNum(1),t0tFtNum(2),t0tFtNum(3));
+
+% Find the speed applicable at the initial conditions
+eval(sprintf('c=%s(qxy,%i,1);',velfun,pors))
 
 % Initial conditions
-eval([ 'initials=[spos sin(alfa)/',velfun,...
-      '(spos,1)  cos(alfa)/',velfun,'(spos,1)];'])
+Y0=[qxy sin(alfa)/c cos(alfa/c)];
 
 % Integration of ray equations
-[t,Y]=ode45('rayeq',tint,initials,[],velfun);
+options=odeset('RelTol',1e-8);
+[t,Y]=ode45('rayeq',tspan,Y0,options,velfun);
 
 % Output
-pos=Y(:,1:2);
-slow=Y(:,3:4);
+rxy=Y(:,1:2);
+pxy=Y(:,3:4);
