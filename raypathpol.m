@@ -1,68 +1,73 @@
-function [t,pos,rta]=raypathpol(spos,alfa,velfun,resc)
-% [t,pos,rta]=raypathpol(spos,alfa,velfun,resc)
+function [t,rxy,rrtha]=raypathpol(qrth,alfa,velfun,t0tFtNum,rmax)
+% [t,rxy,rrtha]=raypathpol(qrth,alfa,velfun,t0tFtNum,rmax)
 %
-% Calculates ray paths in polar coordinates.
+% Calculates ray paths (position, time and angle) in polar coordinates
+% for a ONE-dimensional velocity field that varies radially only
 %
 % INPUT:
 %
-% spos      Source position [rho theta], in meters
-% alfa      Take-off angle (with the vertical) of the ray, in radians
-% velfun    Name of a velocity function [default: 'akk135']
-% resc      Scale the radius back to this value
+% qrth          Source position [r theta], in meters and radians
+% alfa          Take-off angle, anticlockwise from the vertical, in radians
+%               so r*sin(alfa)/speed is the slowness along th, the
+%               "horizontal" slowness, or spherical ray parameter
+% velfun        Name of a velocity function [default: 'ak135s']
+% t0tFtNum      Time specifications, in seconds, seconds, and a number
+%               for use in LINSPACE [defaulted: 0 s to 2000s in 500 steps]
+% rmax          Radius beyond which we consider the result null and void
+%               as the time integration may have gone on for too long
 %
 % OUTPUT:
 %
-% t         Time
-% pos       Cartesian position of the ray
-% rta       Rho, Theta and Angle
+% t             Time, in meters
+% rxy           Cartesian position of the ray, in meters
+% rrtha         Polar coordinates of the ray [r, theta, alfa]
+%               where rho is in meters, theta and angle in radians and
+%               the angle alfa is measured anticlockwise from the vertical
 %
 % EXAMPLE:
 %
-% [t,pos,rta]=raypathpol([6350000 pi/2-pi/12.5],pi/4,'ak135');
-% plot(pos(:,1),pos(:,2)); hold on
+% [t,rxy,rrtha]=raypathpol([6350000 pi/2-pi/12.5],pi/4,'ak135s');
+% plot(rxy(:,1),rxy(:,2)); hold on
+% 
+% NOTES:
 %
-% This program is very sensitive to the exact gradient and the
-% number of points calculated and the integration method. No fun.
-% Also, for rays close to the surface, the velocity specification is not
-% good enough, and so on.... Crap!
+% Very sensitive to the gradient, the number of points calculated and the
+% integration method. For rays close to the surface, the velocity
+% specification is not good enough, and so on. Use at your own peril.
 %
-% See also AUSTVEL1, AUSTVEL2, AK135, IASP91
+% SEE ALSO:
 %
-% Last modified by fjsimons-at-alum.mit.edu, 12/1/2013
+% AUSTVEL1, AUSTVEL2, AK135S, IASP91S, PREMISOS, RAYEQPOL, POLARPLOT
+%
+% Last modified by fjsimons-at-alum.mit.edu, 06/02/2021
 
-Erad=fralmanac('Radius','Earth');
-defval('resc',Erad)
-defval('velfun','ak135')
+% The default velocity model 
+defval('velfun','ak135s')
+% Do not leave the Earth
+defval('rmax',fralmanac('Radius','Earth'))
 
 % Time span
-tmin=0; % Minimum time
-tmax=2000; % Maximum time
-tstep=250; % Maximum number of steps
-tint=linspace(tmin,tmax,tstep);
+defval('t0tFtNum',[0 2000 500]);
+tspan=linspace(t0tFtNum(1),t0tFtNum(2),t0tFtNum(3));
 
-% Initial conditions
-initials=[spos(1) 0 pi-alfa];
+% Initial conditions - do the rau from the North Pole
+Y0=[qrth(1) 0 pi-alfa];
 
 % Integration of ray equations
-more off
 options=odeset('RelTol',1e-8);
-[t,Y]=ode45('rayeqpol',tint,initials,options,velfun);
-more on
+[t,Y]=ode45('rayeqpol',tspan,Y0,options,velfun);
 
-% Generate output
-Y(:,2)=Y(:,2)+spos(2);
-% disp(sprintf('Got rid of %i time steps',sum(Y(:,1)>Erad)))
-t=t(Y(:,1)<=Erad,:);
-Y=Y(Y(:,1)<=Erad,:);
-% Now still add the last bit in there
-% ONLY FOR THE P-VELOCITY...
-t=[t; 0];
-Y=[Y; Erad Y(end,2:3)];
+% Generate output - add the proper latitude back in
+Y(:,2)=Y(:,2)+qrth(2);
+% Protect against erroneous time steps
+t=t(Y(:,1)<=rmax,:);
+Y=Y(Y(:,1)<=rmax,:);
+% Now still add the last bit in there... a bit of a hack when you really
+% should do the last time steps more properly
+t=[t; t(end)];
+Y=[Y; rmax Y(end,2:3)];
 
-[pos(:,1),pos(:,2)]=pol2cart(Y(:,2),Y(:,1)/Erad*resc);
-rta=[Y(:,1) Y(:,2) pi-Y(:,3)];
-
-% Reminder of parameters
-% disp([ 'tmin= ',num2str(tmin)])
-% disp([ 'tmax= ',num2str(tmax)])
-% disp([ 'tstep= ',num2str(tstep)])
+% Get the Cartesian position of the ray
+[rxy(:,1),rxy(:,2)]=pol2cart(Y(:,2),Y(:,1));
+% Get the polar coordinate position of the ray
+rrtha=[Y(:,1) Y(:,2) pi-Y(:,3)];
