@@ -1,16 +1,16 @@
-function val=linmodpol(rad,fld,arg)
-% val=LINMODPOL(rad,fld,arg)
+function val=linmodpol(rad,psord,arg)
+% val=LINMODPOL(rad,psord,arg)
 %
 % Specifies a simple linear one-dimensional Earth model in polar coordinates
 %
 % INPUT:
 % 
 % rad       Radius [m]
-% fld       1 P-velocity [m/s]
+% psord     1 P-velocity [m/s]
 %           2 S-velocity [m/s]
 %           3 density [kg/m^3]
-% arg       1 need the field
-%           2 need the field gradient d(fld)/d(radius)
+% arg       1 returns the field
+%           2 returns the field gradient d(psord)/dr
 %
 % OUTPUT:
 %
@@ -20,18 +20,22 @@ function val=linmodpol(rad,fld,arg)
 %
 % RAYPATHPOL, RAYEQPOL, GROUPRAYS, AK135S, IASP91S, PREMISOS
 %
-% Last modified by fjsimons-at-alum.mit.edu, 06/02/2021
+% Last modified by fjsimons-at-alum.mit.edu, 06/09/2021
+
+% Default values
+defval('psord',1)
+defval('arg',1)
 
 % Slope and offset parameters
-rico=-0.0034703;
-offs=25563;
+c0=25563;
+dcdr=-0.0034703;
 
-% There is no distinction in the fld argument here
+% There is no distinction in the psord argument here
 switch arg
  case 1
-  val=rad*rico+offs; 
+  val=rad*dcdr+c0; 
  case 2
-  val=rico;
+  val=dcdr;
 end
 
 
