@@ -12,7 +12,7 @@ function dYdt=rayeq(t,Y,flag,velfun)
 % Y        The unknown functions whose time-derivatives are being specified:
 %          [x1 x2 p1 p2] with x1,x2 Cartesian coordinates and p1,p2 the 
 %          slowness components along those two directions
-% flag     An option flag that needs to remain empty
+% flag     A passthrough option flag that needs to remain empty
 % velfun   Function that interpolates a velocity model or its spatial
 %          gradients along either of the coordinate directions, so that
 %          velfun([x1 x2],[],1) is the propagation speed, and, respectively,
@@ -26,9 +26,9 @@ function dYdt=rayeq(t,Y,flag,velfun)
 %
 % SEE ALSO:
 %
-% RAYPATH, RAYPATHPOL, RAYEQPOL
+% RAYPATH, RAYPATHPOL, RAYEQPOL, BULLENRAYS
 %
-% Last modified by fjsimons-at-alum.mit.edu, 06/02/2021
+% Last modified by fjsimons-at-alum.mit.edu, 06/09/2021
 
 % P-velocity hardcoded here
 pors=1;
@@ -36,8 +36,8 @@ pors=1;
 % Find the applicable speed
 eval(sprintf('   c=%s(Y(1:2),%i,1);',velfun,pors))
 % Find the applicable speed gradients
-eval(sprintf('dcdx1=%s(Y(1:2),2);',velfun,pors))
-eval(sprintf('dcdx2=%s(Y(1:2),3);',velfun,pors))
+eval(sprintf('dcdx1=%s(Y(1:2),%i,2);',velfun,pors))
+eval(sprintf('dcdx2=%s(Y(1:2),%i,3);',velfun,pors))
 
 % Bullen & Bolt, 1985, p. 156, eq. (11) 
 dYdt(1,1)=c^2*Y(3);
