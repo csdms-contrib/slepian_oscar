@@ -1,5 +1,5 @@
 function varargout=cylindric(r,toplola,botlola,R,xver)
-% varargout=CYLINDRIC(r,toplola,botlola,R,xver)
+% [xyZ,topS,botS]=CYLINDRIC(r,toplola,botlola,R,xver)
 %
 % Finds the interection of a cylinder of radius r with a sphere of radius R
 %
