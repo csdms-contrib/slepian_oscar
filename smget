@@ -1,18 +1,19 @@
 #!/bin/tcsh -f
 #
-# SMGET CMTCODE, e.g.
-# SMGET C201606261117A
+# SMGET CMTCODE, e.g. SMGET C202106062316A
+# SMGET CMTCODE, e.g. SMGET C201606261117A
 #
 # Downloads simulations from the ShakeMovie website
 #
-# Last modified by fjsimons-at-alum.mit.edu, 07/26/2017
+# Last modified by fjsimons-at-alum.mit.edu, 06/17/2021
 
-# Make sure the environmental variable MC is set
+# Make sure the environmental variable MC is set, with subdirectory SEM, as
+# the results are designed to go in $MC and $MC/SEM!
 
 # Where is the website?
 set IP = 128.112.172.121
 set NS = global.shakemovie.princeton.edu
-set PR = http://
+set PR = https://
 
 # The CMT code
 set CMT = $1
@@ -43,8 +44,18 @@ test ! -d $mydcmt && mkdir $mydcmt
 foreach index (`seq 1 $#SIM`)
    # Destination filename
    set fname = $CMT\_$SIM[$index].sac.tar.gz
-   # Perform the query
-   curl -o $fname ''$PR''$NS'/shakemovie/dl?evid='$CMT'&product='$SIM[$index]''
+   # Makes the URL and performs the query
+
+   # The below line used to work with http but ShakeMovie got an update to https and it broke
+   # curl -o $fname ''$PR''$NS'/shakemovie/dl?evid='$CMT'&product='$SIM[$index]''
+
+   # So now we change it as we did in MCMS2EVT
+   set noglob ########################################
+   set evtquery = "$PR$NS/shakemovie/dl?evid=$CMT&product=$SIM[$index]"
+   set actquery = "wget -q $evtquery -O $fname"
+   echo `$actquery`
+   unset noglob ########################################
+
    # Make the destination
    set fpart = $NETW.$STAT.$CMP[$index]
    set lpart = $EXT[$index].sac
@@ -54,7 +65,7 @@ foreach index (`seq 1 $#SIM`)
                   {$fpart}Z.$lpart)
    # Extract the station etc of interest
    tar xvfz $fname $wewant
-   rm $fname
+   /bin/rm $fname
    # Now actually put it there
    mv $wewant $mydcmt
 end
