@@ -19,6 +19,7 @@ function varargout=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
 %
 % QUAKES         [time depth lat lon Mtensor]
 % Mw             All the scalar seismic moments
+% cmtcode        All the CMT codes    
 %
 % EXAMPLES:
 %
@@ -85,8 +86,9 @@ if isempty(strfind(fname,'demo'))
     mb=str2num(line(49:51));
     time=datenum(line(6:26));
     
-    % Skip second line %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    fgetl(fid);
+    % Second line %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    sl=fgetl(fid);
+    cmt=sl(1:8);
     
     % Third line %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     line = fgetl(fid);
@@ -123,6 +125,9 @@ if isempty(strfind(fname,'demo'))
       % Store in the output array
       QUAKES(i-nogood,:)=[time depth lat lon Mtensor];
       fgetl(fid);
+
+      % Add in the CMT code as a new output
+      cmtcode(i-nogood,:)=cmt
       
       % If earthquakes don't satisfy condition read 4th and 5th line to prepare
       % the pointer to read the next quake and count it as not used
@@ -145,6 +150,7 @@ if isempty(strfind(fname,'demo'))
   % Resize array to correct output
   QUAKES=QUAKES(1:Nquakes-nogood,:);
   Mw=Mw(1:Nquakes-nogood,:);
+  cmtcode=cmtcode(1:Nquakes-nogood,:);
 
 elseif strcmp(fname,'demo1')
   % Pick out Chao & Gross earthquakes including those at shallow depth
