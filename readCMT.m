@@ -2,11 +2,11 @@ function varargout=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
 % [QUAKES,Mw]=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
 %
 % Reads in CMT earthquake catalog in default format of www.globalcmt.org, 
-% http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/jan76_dec13.ndk
+% http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/jan76_dec20.ndk
 %
 % INPUT:
 %
-% fname          CMT filename in .ndk format [default: jan76_feb10.ndk]
+% fname          CMT filename in .ndk format [default: jan76_feb20.ndk]
 % dirn           Directory containing the CMT file [default: $IFILES/CMT]
 % tbeg, tend     Serial datenumbers [e.g. datenum('1985/03/31 00:00:01')]
 %                with the time interval of interest 
@@ -45,12 +45,12 @@ function varargout=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
 %
 % Last modified by efwelch@princeton.edu, 06/25/2010
 % Correction supplied by Xiaojun Chen (Yale), 04/14/2014
-% Last modified by fjsimons-at-alum.mit.edu, 09/17/2019
+% Last modified by fjsimons-at-alum.mit.edu, 10/29/2021
 
 % Check to see if it's a demo case
 if isempty(strfind(fname,'demo'))
   % Assign default catalog filename
-  defval('fname','jan76_dec17.ndk')
+  defval('fname','jan76_dec20.ndk')
   % You will need to make sure $IFILES returns something, or else change
   defval('dirn',fullfile(getenv('IFILES'),'CMT'))
   % Assign default catalog search parameters
