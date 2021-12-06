@@ -1,5 +1,5 @@
 function varargout=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
-% [QUAKES,Mw]=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
+% [QUAKES,Mw,cmtcode]=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
 %
 % Reads in CMT earthquake catalog in default format of www.globalcmt.org, 
 % http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/jan76_dec20.ndk
@@ -46,7 +46,7 @@ function varargout=readCMT(fname,dirn,tbeg,tend,mblo,mbhi,depmin,depmax)
 %
 % Last modified by efwelch@princeton.edu, 06/25/2010
 % Correction supplied by Xiaojun Chen (Yale), 04/14/2014
-% Last modified by fjsimons-at-alum.mit.edu, 10/29/2021
+% Last modified by fjsimons-at-alum.mit.edu, 12/06/2021
 
 % Check to see if it's a demo case
 if isempty(strfind(fname,'demo'))
@@ -88,7 +88,7 @@ if isempty(strfind(fname,'demo'))
     
     % Second line %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     sl=fgetl(fid);
-    cmt=sl(1:8);
+    cmt=sl(1:14);
     
     % Third line %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     line = fgetl(fid);
@@ -127,7 +127,7 @@ if isempty(strfind(fname,'demo'))
       fgetl(fid);
 
       % Add in the CMT code as a new output
-      cmtcode(i-nogood,:)=cmt
+      cmtcode(i-nogood,:)=cmt;
       
       % If earthquakes don't satisfy condition read 4th and 5th line to prepare
       % the pointer to read the next quake and count it as not used
@@ -193,11 +193,11 @@ elseif strcmp(fname,'demo2')
 elseif strcmp(fname,'demo3')
   % Get all earthquakes from CMT catalog for 1977 to however long you have it
   defval('dirn',fullfile(getenv('IFILES'),'CMT'))
-  fname=fullfile(dirn,'quakes77_2013.mat');
+  fname=fullfile(dirn,'quakes77_2020.mat');
   if exist(fname,'file')==2
     load(fname)
   else
-    [QUAKES,Mw]=readCMT('jan76_dec13.ndk',[],datenum('1977/01/01 00:00:01'),...
+    [QUAKES,Mw]=readCMT('jan76_dec20.ndk',[],datenum('1977/01/01 00:00:01'),...
 		   [],[],[],[],[]);
     save(fname,'QUAKES','Mw')
   end
@@ -210,7 +210,7 @@ elseif strcmp(fname,'demo4')
     load(fname)
   else
     [pre,Mwpre]=readCMT('demo2');
-    [post,Mwpost]=readCMT('jan76_dec13.ndk',[],datenum('1985/03/31 00:00:01'),...
+    [post,Mwpost]=readCMT('jan76_dec20.ndk',[],datenum('1985/03/31 00:00:01'),...
 		 [],[],[],[],[]);
     QUAKES=vertcat(pre,post);
     Mw=vertcat(Mwpre,Mwpost);
@@ -219,5 +219,5 @@ elseif strcmp(fname,'demo4')
 end
 
 % Provide output if requested
-varns={QUAKES,Mw};
+varns={QUAKES,Mw,cmtcode};
 varargout=varns(1:nargout);
