@@ -1,0 +1,17 @@
+#!/bin/tcsh
+#
+# Turns web-posted PTON weather files into a Last Weather Today file on the web!
+
+# Works with the defaults
+$MFILES/educational/guyotweather &
+
+# Give it reasonable time to finish
+sleep 60
+
+# Finds the last file
+set lastfile = `ls -rt $EPS/guyotweather_*.pdf | tail -1`
+set newfile =  $EPS/guyotweather_ywt.pdf
+/bin/cp -f $lastfile $newfile
+
+set finaldest = /home/www/people/simons/PTON
+rsync -ve "ssh -i /u/fjsimons/.ssh/id_remote_backup" $newfile  fjsimons@geoweb.princeton.edu:$finaldest
