@@ -10,7 +10,7 @@ function varargout=guyotweather(jday,year,nset)
 %
 % jday    Julian day (e.g., 212 is July 31 in 2019) [default: yesterday]
 % year    Gregorian year (e.g., 19 or 2019 assuming post 2000)
-% nset    One, two, three or four indices of the weather plot variable [default: 5 3 4 6]
+% nset    One, two, three or four indices of the weather variables plotted [default: 5 3 4 6]
 %         1 'MeanWindDirection_deg'
 %         2 'MeanWindSpeed_mps'
 %         3 'AirTemp_C'
@@ -36,7 +36,7 @@ function varargout=guyotweather(jday,year,nset)
 %
 % mcc guyotweather
 %
-% Last modified by fjsimons-at-alum.mit.edu, 01/21/2021
+% Last modified by fjsimons-at-alum.mit.edu, 07/15/2022
 
 % Default values are "yesterday" ...
 defval('jday',dat2jul-1)
@@ -50,7 +50,7 @@ defval('nset',[5 3 4 6])
 if year>2000; year=year-2000; end
 
 % Specify the web address
-urlbase='http://geoweb.princeton.edu/people/simons/PTON';
+urlbase='https://geoweb.princeton.edu/people/simons/PTON';
 % Custom-make the last bit
 urltail=sprintf('pton%3.3i0.%2.2i__ASC_ASCIIIn.mrk',jday,year);
 
@@ -58,7 +58,11 @@ urltail=sprintf('pton%3.3i0.%2.2i__ASC_ASCIIIn.mrk',jday,year);
 if year<2000; year=year+2000; end
 
 % WEBREAD or URLREAD are no different for this application
-dstring=urlread(sprintf('%s/%s',urlbase,urltail));
+try
+  dstring=urlread(sprintf('%s/%s',urlbase,urltail));
+catch
+  dstring=char(webread(sprintf('%s/%s',urlbase,urltail)))';
+end
 % Get rid of the header
 try
   % How many characters for the header?
