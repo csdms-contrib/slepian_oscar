@@ -1,8 +1,10 @@
 function val=bullen(rxy,fld,arg)
 % val=BULLEN(rxy,fld,arg)
 %
-% Specifies one-dimensional Earth model in Cartesian coordinates:
-% piecewise linear in the y direction with a low-velocity zone.
+% Evaluates a one-dimensional Earth model in Cartesian coordinates:
+% piecewise linear in the y direction with a low-velocity zone. There
+% is no variation of the wavespeed profile in x, yet the function
+% allows specifying an x position.
 %
 % INPUT:
 % 
