@@ -11,6 +11,7 @@ function bullenrays(polmol)
 %
 % figure(1); clf; bullenrays('bullen')
 % figure(2); clf; bullenrays('linmod')
+% figure(3); clf; munkrays
 %
 % SEE ALSO:
 %
