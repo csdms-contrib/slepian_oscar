@@ -1,15 +1,19 @@
 function [r,lags]=rdist(a,b,lags)
 % [r,lags]=RDIST(a,b,lags)
 %
-% Relative root-mean-squared difference between two time series, the
-% difference version of the multiplicative signal similarity measure XCORR,
-% normalized by the rmse of the first signal in the area of overlap. Note
-% that the signals are NOT demeaned, if you want that, that is your job.
+% Relative root-mean-squared difference between two vectors, e.g. time
+% series, the "difference" version of the "multiplicative" signal
+% similarity measure XCORR, normalized by the rmse of the first signal
+% in the area of overlap. One could think of normalizing using either
+% the first or the second signal, or in terms of the square root of
+% the products of the rmse of both, but only normalizing by the first
+% input is supported here. Note that the signals are NOT demeaned, if
+% you want that, that is your job, as it's a choice with consequences.
 %
 % INPUT:
 %
-% a,b         Two equal-length vectors (shortest zero-padded)
-% lags        The lags at which the measure is to be computed
+% a,b         Two equal-length vectors (shortest will be zero-padded)
+% lags        The lags at which the measure is to be computed (defaulted)
 %
 % OUTPUT:
 %
@@ -41,12 +45,14 @@ defval('lags',-maxlag:maxlag);
 % Initialize output
 r=nan(length(lags),1);
 
-% Do the computation, for loop might be slower but vectorization costs memory
+% Do the computation, "for" loop might be slower but vectorization costs memory
 i=0;
 for l=lags
   i=i+1;
-  r(i)=sqrt(sum([b(1-l*[l<0]:end-l*[l>0])-a(1+l*[l>0]:end+l*[l<0])].^2)...
-       /sum(a(1+l*[l>0]:end+l*[l<0]).^2));
+  r(i)=sqrt(...
+            sum([b(1-l*[l<0]:end-l*[l>0])-a(1+l*[l>0]:end+l*[l<0])].^2)...
+                                     /sum(a(1+l*[l>0]:end+l*[l<0]).^2)...
+            );
 end
 
 
