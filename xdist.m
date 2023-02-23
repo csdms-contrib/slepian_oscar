@@ -1,16 +1,21 @@
 function [x,lags]=xdist(a,b,lags)
 % [x,lags]=XDIST(a,b,lags)
 %
-% Normalized cross-correlation between two vectors, e.g. time series,
-% the "multiplicative" version of the "difference" signal similarity
-% measure RDIST, normalized by the cross-correlation of the signal at
-% zero lag in the area of overlap. One could think of normalizing
-% using the zero-lagautocorrelation of either the first or the second
-% signal, or in terms of the square root of the cross-correlation at
+% Lagged normalized cross-correlation between two vectors, e.g. time
+% series, i.e. the "multiplicative" version of the "difference" signal
+% similarity measure RDIST, i.e. the cross-correlation between two
+% vectors normalized by their cross-correlation at zero lag, in the
+% area of overlap. One could think of normalizing using the zero-lag
+% autocorrelation of either the first or the second signal, or in
+% terms of square root of the products of these autocorrelations at
 % zero lag, the latter of which is the only option supported here,
-% making this measure at truly shifted correlation coefficient... Note
-% that the signals are NOT demeaned, if you want that, that is your
-% job, as it's a choice with consequences.
+% making this measure a truly shifted correlation coefficient - if you
+% take care of demeaning the signals also... Note that the signals are
+% NOT demeaned, if you want that, that is your job, as it's a choice
+% with consequences. The difference with XCORR option 'corr' is that
+% the normalization there is NOT recomputed in the area of overlap,
+% but calculated once at the start, which is appropriate for
+% stationary signals.
 %
 % INPUT:
 %
