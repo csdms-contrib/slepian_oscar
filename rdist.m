@@ -1,14 +1,16 @@
 function [r,lags]=rdist(a,b,lags)
 % [r,lags]=RDIST(a,b,lags)
 %
-% Relative root-mean-squared difference between two vectors, e.g. time
-% series, the "difference" version of the "multiplicative" signal
-% similarity measure XCORR, normalized by the rmse of the first signal
-% in the area of overlap. One could think of normalizing using either
-% the first or the second signal, or in terms of the square root of
-% the products of the rmse of both, but only normalizing by the first
-% input is supported here. Note that the signals are NOT demeaned, if
-% you want that, that is your job, as it's a choice with consequences.
+% Lagged relative root-mean-squared difference between two vectors,
+% e.g. time series, i.e. the "difference" version of the
+% "multiplicative" signal similarity measure XCORR, i.e. the rms of
+% the difference between two vectors normalized by the rms of the
+% first one, in the area of overlap. One could think of normalizing
+% using either the first or the second signal, or in terms of the
+% square root of the products of the rms of both, but only normalizing
+% by the first input is supported here. Note that the signals are NOT
+% demeaned, if you want that, that is your job, as it's a choice with
+% consequences.
 %
 % INPUT:
 %
@@ -23,9 +25,9 @@ function [r,lags]=rdist(a,b,lags)
 %             the area of overlap
 % lags        The lags at which the measure was computed [defaulted]
 % 
-% SEE ALSO: XCORR and OST
+% SEE ALSO: XCORR and OST, and XDIST
 %
-% Last modified by fjsimons-at-alum.mit.edu, 07/12/2022
+% Last modified by fjsimons-at-alum.mit.edu, 02/22/2023
 
 % Only vectors, same length or zero-pad
 a=a(:);
