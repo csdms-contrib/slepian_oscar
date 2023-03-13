@@ -1,23 +1,25 @@
-function varargout=ost(fname,tw,delt,xver,xcor,subsi,fmt)
-% [c,o,s,t]=ost(fname,tw,delt,xver,xcor,subsi,fmt)
+function varargout=ost(fname,tw,delt,xver,xcor,subts,fmt)
+% [c,o,s,t]=ost(fname,tw,delt,xver,xcor,subts,fmt)
 %
 % Observation-synthetic-triplet. Reads in a binary file containing a triplet
-% of variables, one independent followed by two independent
-% ones. Computes multiplicative and differential distance measures and
-% makes a revealing plot if explicitly instructed.
+% of variables, one independent followed by two independent ones. Computes
+% multiplicative and differential distance measures of the demeaned time
+% series, and makes a revealing plot if explicitly instructed.
 %
 % INPUT:
 %
 % fname     A file name string containing binaries t, o, and s
-%           ... or a matrix with Mx3 entries
-% tw        Beginning and end of the time window (inclusive)
+%           ... or a matrix with Mx3 entries, used as input 
+% tw        Beginning and end of the time window of interest
+%           inclusive, in the same unit as the array input t
+% delt      Sampling step of these two signals in seconds
 % xver      1 Makes a plot 
 %           0 does not
 % xcor      1 option 'coeff' for XCORR [default]
 %           2 option 'unbiased' for XCORR
 %           3 option 'biased' for XCORR
 %           4 option 'none' for XCORR
-% subsi     Subset in seconds for XCORR/RMSE comparison (default: [-200:200])
+% subts     Subset in t units for XCORR/RMSE comparison (default: [-200 200])
 % fmt       The binary format of the data file (default: 'float64')
 %
 % OUTPUT:
@@ -29,22 +31,27 @@ function varargout=ost(fname,tw,delt,xver,xcor,subsi,fmt)
 %
 % EXAMPLE:
 %
-% 
+% ost % with no input - if you have the data file (see DATA) 
 %
+% tt=linspace(0,10,101); o=cos(2*pi/3*tt); s=3*cos(2*pi/3*[tt-0.2]);
+% c=ost([tt' o' s'],[3 7],tt(2)-tt(1),1,1,[-1 1]);
+% 
+%% Check the example in XCORR and apply RDIST for comparison!
+% 
 % SEE ALSO: XCORR and RDIST
 %
 % Written for 8.3.0.532 (R2014a)
-% Last modified by fjsimons-at-alum.mit.edu, 07/11/2022
+% Last modified by fjsimons-at-alum.mit.edu, 07/12/2022
 
 %% INPUT %%
 % Defaults
-defval('fname','IU.AFI_Z.dat')
+defval('fname','IU.AFI_Z.bin')
 defval('tw',[2275 2854])
 defval('delt',0.2)
 defval('xver',1)
 defval('xcor',1)
-defval('subsi',[-300:300])
-defval('fmt','float64')
+defval('subts',[-200 200])
+defval('fmt','float32')
 % Prepare for options
 xco={'coeff','unbiased','biased','none'};
 
@@ -73,7 +80,6 @@ ws= s(tmi:tma)-mean(s(tmi:tma));
 wo= o(tmi:tma)-mean(o(tmi:tma));
 
 %% Multiplicative distance using XCORR %%%%%%%%%%%%%%%%%%%%%%%%%%
-
 % Compute the appropriate correlation 
 [x,t]=xcorr(wo,ws,xco{xcor}); t=t(:);
 % Find the (arg)maximum, negative offset means ws is delayed wrt wo
@@ -95,7 +101,12 @@ rtxm=rdist(wo,ws,txm);
 r0=sqrt(sum([ws-wo].^2)/sum(wo.^2));
 
 % The normalized rmse at a subset around the cross-correlation maximum
-[r,ts]=rdist(wo,ws,txm+round(subsi/delt)); ts=ts(:);
+[r,ts]=rdist(wo,ws,txm+matranges(round(subts/delt))); ts=ts(:);
+
+% The amplitude scaling at the the cross-correlation maximum
+[dlnA,DlnA]=adist(wo,ws,txm); 
+% The amplitude scaling without any shifting
+[dlnA0,DlnA0]=adist(wo,ws,0); 
 
 % Find the (arg)minimum, negative offset means ws is delayed wrt wo
 [rm,j]=min(r);
@@ -138,7 +149,7 @@ c.rtxm=rtxm;
 if nargout==0 || xver==1
   % Here is the plot
   clf
-
+  set(gcf,'defaultLegendAutoUpdate','off');
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % Plots the data and the analysis window
 
@@ -172,7 +183,11 @@ if nargout==0 || xver==1
   longticks(gca,2)
   ylabel('traces')
   xlabel('time [s]')
-  title(nounder(fname))
+  if isstr(fname)
+    title(nounder(fname))
+  else
+    title('Signals input by user on command line')
+  end
   legend('observation','synthetic')
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,14 +198,25 @@ if nargout==0 || xver==1
   plot(wt,wo,'r','LineWidth',1); hold on
   % Synthetic
   plot(wt,ws,'b')
+
   % Plot the synthetic after shifting by cross-correlation optimizer
+  % and rescaling by the amplitude factor
+  oof=exp(dlnA);
+
   if txm~=0
-    pda=plot(tt(tmi+txm:tma+txm),ws,'k-');
+    pda=plot(tt(tmi+txm:tma+txm),oof*ws,'k--');
     if txm<0
-      legend(pda,sprintf('synthetic advanced by %4.1f s',abs(txms)))
+        legend(pda,sprintf(...
+            'synthetic advanced by %4.1f s\n%15sand scaled by %4.2f',...
+            abs(txms),'',oof),'Location','NorthEast')
     elseif txm>0
-      legend(pda,sprintf('synthetic delayed by %4.1f s',abs(txms)))
+        legend(pda,sprintf(...
+            'synthetic delayed by %4.1f s\n%15sand scaled by %4.2f',...
+            abs(txms),'',oof),'Location','NorthWest')
     end
+  else
+    disp(sprintf('%s\n%s','At this sampling, and with this window',...
+		 'the two time series are optimally aligned with respect to XCORR'))
   end
   axis tight
   yls1=ylim;
@@ -202,7 +228,7 @@ if nargout==0 || xver==1
   if txm<0
     delete(ma)
     plot([wt(end)+txms wt(end)+txms],yls1,'Color',grey)
-  elseif tm>0
+  elseif txm>0
     delete(mi)
     plot([wt(1)+txms wt(1)+txms],yls1,'Color',grey)
   end
