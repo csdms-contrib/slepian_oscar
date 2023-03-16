@@ -35,6 +35,11 @@ function varargout=ost(fname,tw,delt,xver,xcor,subts,fmt)
 %
 % tt=linspace(0,10,101); o=cos(2*pi/3*tt); s=3*cos(2*pi/3*[tt-0.2]);
 % c=ost([tt' o' s'],[3 7],tt(2)-tt(1),1,1,[-1 1]);
+%
+% ozrt=reshape(loadb('C201505191525A.IU.AFI.obs.ZRT.bin'),[],3);
+% szrt=reshape(loadb('C201505191525A.IU.AFI.syn.ZRT.bin'),[],3);
+% comp='R'; % Work in samples
+% ost([[1:size(ozrt,1)]' ozrt(:,2) szrt(:,2)],[6731 9830])
 % 
 %% Check the example in XCORR and apply RDIST for comparison!
 % 
@@ -145,6 +150,10 @@ c.r0=r0;
 % rmse optimum at the cross-correlation optimum (maximum)
 c.rtxm=rtxm;
 
+% The amplitude factors
+c.dlnA=dlnA;
+c.dlnA0=dlnA0;
+
 % Now make the plot if you like
 if nargout==0 || xver==1
   % Here is the plot
@@ -182,7 +191,7 @@ if nargout==0 || xver==1
   set(th,'HorizontalAlignment','center')
   longticks(gca,2)
   ylabel('traces')
-  xlabel('time [s]')
+  xlabel('time [samples]')
   if isstr(fname)
     title(nounder(fname))
   else
@@ -240,7 +249,7 @@ if nargout==0 || xver==1
   longticks(gca,2)
 
   ylabel('segments')
-  xlabel('time [s]')
+  xlabel('time [samples]')
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % Plots the correlation coefficient and the rescaled rmse
@@ -256,9 +265,13 @@ if nargout==0 || xver==1
   plot(txms,xm,'^','MarkerFaceColor','m','MarkerEdgeColor','m')
   axis tight
   ylim([-1.15 1.15])
-  xlabel('lag [s]')
+  xlabel('lag [samples]')
   ylabel(sprintf('x | %s cross-correl',xco{xcor}))
   xls=xlim;
+  hold on
+  text(xls(1)+[xls(2)-xls(1)]/20, 1,sprintf('%s = %4.2f','\tau',xm))
+  text(xls(1)+[xls(2)-xls(1)]/20,-1,sprintf('%s = %4.2f','dlnA',dlnA))
+  hold off
   longticks(gca)
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -279,9 +292,12 @@ if nargout==0 || xver==1
 
   yls=ylim;
   ylim([-yls(2)/15 yls(2)])
-  xlabel('lag [s]')
+  xlabel('lag [samples]')
   ylabel(sprintf('r | relative rmse (%s)','%'))
   xls=xlim;
+  hold on
+  text(xls(1)+[xls(2)-xls(1)]/20,0,sprintf('%s = %4.2f','\sigma',rm))
+  hold off
   
   set(gca,'YAxisLocation','r')
   
