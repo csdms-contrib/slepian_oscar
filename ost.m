@@ -172,12 +172,19 @@ c.trms=trms;
 c.rm=rm;
 % Value as presented at zero lag without any shifting
 c.r0=r0;
-% rmse optimum at the cross-correlation optimum (maximum)
+% rmse at the cross-correlation optimum (maximum)
 c.rtxm=rtxm;
 
 % The amplitude factors
 c.dlnA=dlnA;
 c.dlnA0=dlnA0;
+
+% The beginning and start times in units
+c.relbeg=tw(1);
+c.relend=tw(2);
+% The beginning and start times in samples
+c.relbegs=round(tw(1)/delt);
+c.relends=round(tw(2)/delt);
 
 % Now make the plot if you like
 if nargout==0 || xver==1
