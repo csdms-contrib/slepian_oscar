@@ -1,10 +1,11 @@
-function varargout=ost(fname,tw,delt,xver,xcor,subts,fmt)
-% [c,o,s,t]=ost(fname,tw,delt,xver,xcor,subts,fmt)
+function varargout=ost(fname,tw,xcor,subts,xver,fmt)
+% [c,o,s,t]=ost(fname,tw,xcor,subts,xver,fmt)
 %
-% Observation-synthetic-triplet. Reads in a binary file containing a triplet
-% of variables, one independent followed by two independent ones. Computes
-% multiplicative and differential distance measures of the demeaned time
-% series, and makes a revealing plot if explicitly instructed.
+% Observation-synthetic-triplet. Reads in a binary file containing a
+% triplet of variables, one independent followed by two independent
+% ones in the order "observation" then "synthetic". Computes
+% multiplicative and differential distance measures of the demeaned
+% time series, and makes a revealing plot if explicitly instructed.
 %
 % INPUT:
 %
@@ -12,15 +13,17 @@ function varargout=ost(fname,tw,delt,xver,xcor,subts,fmt)
 %           ... or a matrix with Mx3 entries, used as input 
 % tw        Beginning and end of the time window of interest
 %           inclusive, in the same unit as the array input t
-% delt      Sampling step of these two signals in seconds
-% xver      1 Makes a plot 
-%           0 does not
 % xcor      1 option 'coeff' for XCORR [default]
-%           2 option 'unbiased' for XCORR
-%           3 option 'biased' for XCORR
-%           4 option 'none' for XCORR
+%           2 option 'unbiased' for XCORR [bad plot axes...]
+%           3 option 'biased' for XCORR [bad plot axes...]
+%           4 option 'none' for XCORR [bad plot axes...]
+%           5 using XDIST with individual demeaning
+%           6 using XDIST without individual demeaning
 % subts     Subset in t units for XCORR/RMSE comparison (default: [-200 200])
-% fmt       The binary format of the data file (default: 'float64')
+%           and also used for options 5 and 6 to not pick the edges
+% xver      1 Makes a plot [default]
+%           0 does not
+% fmt       The binary format of the data file (default: 'float32')
 %
 % OUTPUT:
 %
@@ -34,33 +37,34 @@ function varargout=ost(fname,tw,delt,xver,xcor,subts,fmt)
 % ost % with no input - if you have the data file (see DATA) 
 %
 % tt=linspace(0,10,101); o=cos(2*pi/3*tt); s=3*cos(2*pi/3*[tt-0.2]);
-% c=ost([tt' o' s'],[3 7],tt(2)-tt(1),1,1,[-1 1]);
+% c=ost([tt' o' s'],[3 7],1,[-1 1],1);
 %
-% ozrt=reshape(loadb('C201505191525A.IU.AFI.obs.ZRT.bin'),[],3);
-% szrt=reshape(loadb('C201505191525A.IU.AFI.syn.ZRT.bin'),[],3);
-% comp='R'; % Work in samples
-% ost([[1:size(ozrt,1)]' ozrt(:,2) szrt(:,2)],[6731 9830])
+% ddir='/data1/fjsimons/POSTDOCS/MathurinWamba/Polynesia/DATA/C201505191525A_90_250_surface_wave';
+% ozrt=reshape(loadb(fullfile(ddir,'C201505191525A.IU.AFI.obs.ZRT.bin')),[],3);
+% szrt=reshape(loadb(fullfile(ddir,'C201505191525A.IU.AFI.syn.ZRT.bin')),[],3);
+% comp={'Z','R','T'} ; compi=2; delt=0.2;  % Work with the dt known from the outside
+% c1=ost([[0:size(ozrt,1)-1]'*delt ozrt(:,compi) szrt(:,compi)],[1346.2 1966.0],1);
+% c5=ost([[0:size(ozrt,1)-1]'*delt ozrt(:,compi) szrt(:,compi)],[1346.2 1966.0],5);
 % 
 %% Check the example in XCORR and apply RDIST for comparison!
 % 
-% SEE ALSO: XCORR and RDIST
+% SEE ALSO: XCORR, XDIST, RDIST, and adist
 %
 % Written for 8.3.0.532 (R2014a)
-% Last modified by fjsimons-at-alum.mit.edu, 07/12/2022
+% Last modified by fjsimons-at-alum.mit.edu, 03/16/2023
 
 %% INPUT %%
 % Defaults
 defval('fname','IU.AFI_Z.bin')
 defval('tw',[2275 2854])
-defval('delt',0.2)
 defval('xver',1)
 defval('xcor',1)
 defval('subts',[-200 200])
-defval('fmt','float32')
 % Prepare for options
-xco={'coeff','unbiased','biased','none'};
+xco={'coeff','unbiased','biased','none','xdist','xdist nm'};
 
 if isstr(fname)
+  defval('fmt','float32')
   % Load it, it was just a straight bitwrite
   ost=loadb(fname,fmt);
   % Split it
@@ -68,9 +72,18 @@ if isstr(fname)
   o=ost(  length(ost)/3+1:2*length(ost)/3);
   s=ost(2*length(ost)/3+1:  length(ost));
 else
+  % Take what's given as a data matrix
   tt=fname(:,1);
    o=fname(:,2);
    s=fname(:,3);
+end
+
+% Sampling step of these two signals in seconds
+delt=tt(2)-tt(1);
+% Talk about what it really is
+if length(unique(tt))~=1
+    disp(sprintf('dt = %4.2f ; mean %4.2e ; median %4.2e ; std %4.2e',...
+                 delt,mean(diff(tt)),median(diff(tt)),std(diff(tt))))
 end
 
 %% CALCULATION %%
@@ -86,15 +99,27 @@ wo= o(tmi:tma)-mean(o(tmi:tma));
 
 %% Multiplicative distance using XCORR %%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute the appropriate correlation 
-[x,t]=xcorr(wo,ws,xco{xcor}); t=t(:);
+if xcor<5
+    % Using the MATLAB function out of the box!
+    [x,t]=xcorr(wo,ws,xco{xcor}); t=t(:);
+elseif xcor==5
+    % Overlapping portions individually further demeaned
+    % Only look at the central lags since the edges are off
+    [x,t]=xdist(wo,ws,matranges(round(subts/delt)),1); t=t(:);
+elseif xcor==6
+    % Overlapping portions not individually further demeaned
+    % Only look at the central lags since the edges are off
+    [x,t]=xdist(wo,ws,matranges(round(subts/delt)),0); t=t(:);
+end
 % Find the (arg)maximum, negative offset means ws is delayed wrt wo
 [xm,j]=max(x);
     txm=t(j);
-% Convert tau to units
+% Convert tau to units using the sampling steps
     txms=delt*txm;
 
-% The zero-lag cross-correlation... is at length(ws)=length(wo) 
-x0=x(length(ws));
+% The zero-lag cross-correlation... is at length(ws)=length(wo) for
+% XCORR but could be anywhere for XDIST options 5 and 6
+x0=x(find(t==0));
 
 %% Difference distance using RDIST %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -105,10 +130,10 @@ rtxm=rdist(wo,ws,txm);
 % The zero-lag normalized rmse
 r0=sqrt(sum([ws-wo].^2)/sum(wo.^2));
 
-% The normalized rmse at a subset around the cross-correlation maximum
+% The normalized rmse at a subset around the XCORR/XDIST maximum
 [r,ts]=rdist(wo,ws,txm+matranges(round(subts/delt))); ts=ts(:);
 
-% The amplitude scaling at the the cross-correlation maximum
+% The amplitude scaling at the the XCORR/XDIST maximum
 [dlnA,DlnA]=adist(wo,ws,txm); 
 % The amplitude scaling without any shifting
 [dlnA0,DlnA0]=adist(wo,ws,0); 
@@ -119,7 +144,7 @@ r0=sqrt(sum([ws-wo].^2)/sum(wo.^2));
 % Convert ts to units
     trms=delt*trm;
 
-% What is the cross-correlation optimized at the optimal rmse lag
+% What is the XCORR/XDIST optimized at the optimal rmse lag
 xtrm=x(find(t==ts(j)));
 
 % Make the output structure
@@ -191,12 +216,13 @@ if nargout==0 || xver==1
   set(th,'HorizontalAlignment','center')
   longticks(gca,2)
   ylabel('traces')
-  xlabel('time [samples]')
+  xlabel('time [s]')
   if isstr(fname)
-    title(nounder(fname))
+    titi=title(nounder(fname));
   else
-    title('Signals input by user on command line')
+    titi=title('Signals input by user on command line');
   end
+  movev(titi,range(yls2)/20)
   legend('observation','synthetic')
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -225,7 +251,7 @@ if nargout==0 || xver==1
     end
   else
     disp(sprintf('%s\n%s','At this sampling, and with this window',...
-		 'the two time series are optimally aligned with respect to XCORR'))
+		 'the two time series ARE optimally aligned with respect to XCORR/XDIST'))
   end
   axis tight
   yls1=ylim;
@@ -244,12 +270,13 @@ if nargout==0 || xver==1
         
   hold off
   openup(gca,6,20)
+  % The horizontal limits widened a bit
   xlim([wt(1) wt(end)]+[wt(end)-wt(1)]/10*[-1 1])
   grid on
   longticks(gca,2)
 
   ylabel('segments')
-  xlabel('time [samples]')
+  xlabel('time [s]')
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % Plots the correlation coefficient and the rescaled rmse
@@ -265,11 +292,12 @@ if nargout==0 || xver==1
   plot(txms,xm,'^','MarkerFaceColor','m','MarkerEdgeColor','m')
   axis tight
   ylim([-1.15 1.15])
-  xlabel('lag [samples]')
+  xlabel('lag [s]')
   ylabel(sprintf('x | %s cross-correl',xco{xcor}))
+  % The horizontal axis are all possible lags
   xls=xlim;
   hold on
-  text(xls(1)+[xls(2)-xls(1)]/20, 1,sprintf('%s = %4.2f','\tau',xm))
+  text(xls(1)+[xls(2)-xls(1)]/20, 1,sprintf('%s = %4.2f','X(\tau)',xm))
   text(xls(1)+[xls(2)-xls(1)]/20,-1,sprintf('%s = %4.2f','dlnA',dlnA))
   hold off
   longticks(gca)
@@ -292,11 +320,11 @@ if nargout==0 || xver==1
 
   yls=ylim;
   ylim([-yls(2)/15 yls(2)])
-  xlabel('lag [samples]')
+  xlabel('lag [s]')
   ylabel(sprintf('r | relative rmse (%s)','%'))
   xls=xlim;
   hold on
-  text(xls(1)+[xls(2)-xls(1)]/20,0,sprintf('%s = %4.2f','\sigma',rm))
+  text(xls(1)+[xls(2)-xls(1)]/20,0,sprintf('%s = %4.2f','R(\sigma)',rm))
   hold off
   
   set(gca,'YAxisLocation','r')
@@ -307,4 +335,3 @@ end
 % Optional output
 varns={c,o,s,tt};
 varargout=varns(1:nargout);
-
