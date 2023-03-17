@@ -17,9 +17,9 @@ function varargout=ost(fname,tw,xcor,subts,xver,fmt)
 %           2 option 'unbiased' for XCORR [bad plot axes...]
 %           3 option 'biased' for XCORR [bad plot axes...]
 %           4 option 'none' for XCORR [bad plot axes...]
-%           5 using XDIST with individual demeaning
+%           5 using XDIST with individual demeaning [preferred]
 %           6 using XDIST without individual demeaning
-% subts     Subset in t units for XCORR/RMSE comparison (default: [-200 200])
+% subts     Subset in t units for XCORR/RMSE comparison (default: [central half])
 %           and also used for options 5 and 6 to not pick the edges
 % xver      1 Makes a plot [default]
 %           0 does not
@@ -36,22 +36,45 @@ function varargout=ost(fname,tw,xcor,subts,xver,fmt)
 %
 % ost % with no input - if you have the data file (see DATA) 
 %
-% tt=linspace(0,10,101); o=cos(2*pi/3*tt); s=3*cos(2*pi/3*[tt-0.2]);
-% c=ost([tt' o' s'],[3 7],1,[-1 1],1);
+% tt=linspace(0,10,101); o=cos(2*pi/3*tt); s=3*cos(2*pi/3*[tt-0.3]);
+% c=ost([tt' o' s'],[2 8],1,[-1 1],1);
 %
+% comp={'Z','R','T'} ;
 % ddir='/data1/fjsimons/POSTDOCS/MathurinWamba/Polynesia/DATA/C201505191525A_90_250_surface_wave';
 % ozrt=reshape(loadb(fullfile(ddir,'C201505191525A.IU.AFI.obs.ZRT.bin')),[],3);
 % szrt=reshape(loadb(fullfile(ddir,'C201505191525A.IU.AFI.syn.ZRT.bin')),[],3);
-% comp={'Z','R','T'} ; compi=2; delt=0.2;  % Work with the dt known from the outside
+% compi=2; delt=0.2;  % Work with the dt known from the outside
 % c1=ost([[0:size(ozrt,1)-1]'*delt ozrt(:,compi) szrt(:,compi)],[1346.2 1966.0],1);
 % c5=ost([[0:size(ozrt,1)-1]'*delt ozrt(:,compi) szrt(:,compi)],[1346.2 1966.0],5);
+%
+% ddir='/data1/fjsimons/POSTDOCS/MathurinWamba/Polynesia/DATA/C091496G_17_40_body_wave';
+% ozrt=reshape(loadb(fullfile(ddir,'C091496G.XU.DOTA.obs.ZRT.bin')),[],3);
+% szrt=reshape(loadb(fullfile(ddir,'C091496G.XU.DOTA.syn.ZRT.bin')),[],3);
+% compi=2; delt=0.2;
+% c1=ost([[0:size(ozrt,1)-1]'*delt ozrt(:,compi) szrt(:,compi)],[667.0 763.2],1);
+% c5=ost([[0:size(ozrt,1)-1]'*delt ozrt(:,compi) szrt(:,compi)],[667.0 763.2,5);
 % 
+% ddir='/data1/fjsimons/POSTDOCS/MathurinWamba/Polynesia/DATA/C201407041500A_40_100#surface_wave';
+% ozrt=reshape(loadb(fullfile(ddir,'C201407041500A.G.TAOE.obs.ZRT.bin')),[],3);
+% szrt=reshape(loadb(fullfile(ddir,'C201407041500A.G.TAOE.syn.ZRT.bin')),[],3);
+% compi=1; delt=0.2;
+% c1=ost([[0:size(ozrt,1)-1]'*delt ozrt(:,compi) szrt(:,compi)],[1769.0 2108.8],1);
+% c5=ost([[0:size(ozrt,1)-1]'*delt ozrt(:,compi) szrt(:,compi)],[1769.0 2108.8],5);
+% 
+% ddir='/data1/fjsimons/POSTDOCS/MathurinWamba/Polynesia/DATA/C201303102251A_40_100#body_wave';
+% ozrt=reshape(loadb(fullfile(ddir,'C201303102251A.G.PPTF.obs.ZRT.bin')),[],3);
+% szrt=reshape(loadb(fullfile(ddir,'C201303102251A.G.PPTF.syn.ZRT.bin')),[],3);
+% compi=3; delt=0.2;
+% c1=ost([[0:size(ozrt,1)-1]'*delt ozrt(:,compi) szrt(:,compi)],[1229.6 1028.2],1);
+% c5=ost([[0:size(ozrt,1)-1]'*delt ozrt(:,compi) szrt(:,compi)],[1229.6 1028.2],5);
+
+        
 %% Check the example in XCORR and apply RDIST for comparison!
 % 
 % SEE ALSO: XCORR, XDIST, RDIST, and adist
 %
-% Written for 8.3.0.532 (R2014a)
-% Last modified by fjsimons-at-alum.mit.edu, 03/16/2023
+% Written for 9.7.0.1190202 (R2019b)
+% Last modified by fjsimons-at-alum.mit.edu, 03/17/2023
 
 %% INPUT %%
 % Defaults
@@ -59,7 +82,7 @@ defval('fname','IU.AFI_Z.bin')
 defval('tw',[2275 2854])
 defval('xver',1)
 defval('xcor',1)
-defval('subts',[-200 200])
+defval('subts',[-1 1]*[max(tw)-min(tw)]/2)
 % Prepare for options
 xco={'coeff','unbiased','biased','none','xdist','xdist nm'};
 
@@ -89,8 +112,8 @@ end
 %% CALCULATION %%
 
 % The indices corresponding to the time window
-tmi=min(find(tt>=tw(1)));
-tma=max(find(tt<=tw(2)));
+tmi=min(find(tt>=min(tw)));
+tma=max(find(tt<=max(tw)));
 
 % Identify the segments and demean 
 wt=tt(tmi:tma); 
@@ -98,7 +121,8 @@ ws= s(tmi:tma)-mean(s(tmi:tma));
 wo= o(tmi:tma)-mean(o(tmi:tma));
 
 %% Multiplicative distance using XCORR %%%%%%%%%%%%%%%%%%%%%%%%%%
-% Compute the appropriate correlation 
+% Compute the appropriate correlation
+kb
 if xcor<5
     % Using the MATLAB function out of the box!
     [x,t]=xcorr(wo,ws,xco{xcor}); t=t(:);
@@ -134,7 +158,8 @@ r0=sqrt(sum([ws-wo].^2)/sum(wo.^2));
 [r,ts]=rdist(wo,ws,txm+matranges(round(subts/delt))); ts=ts(:);
 
 % The amplitude scaling at the the XCORR/XDIST maximum
-[dlnA,DlnA]=adist(wo,ws,txm); 
+[dlnA,DlnA]=adist(wo,ws,txm);
+
 % The amplitude scaling without any shifting
 [dlnA0,DlnA0]=adist(wo,ws,0); 
 
@@ -143,9 +168,8 @@ r0=sqrt(sum([ws-wo].^2)/sum(wo.^2));
     trm=ts(j);
 % Convert ts to units
     trms=delt*trm;
-
 % What is the XCORR/XDIST optimized at the optimal rmse lag
-xtrm=x(find(t==ts(j)));
+    xtrm=x(find(t==ts(j)));
 
 % Make the output structure
 % Cross-correlation option, lags, values
@@ -180,11 +204,11 @@ c.dlnA=dlnA;
 c.dlnA0=dlnA0;
 
 % The beginning and start times in units
-c.relbeg=tw(1);
-c.relend=tw(2);
+c.relbeg=min(tw);
+c.relend=max(tw);
 % The beginning and start times in samples
-c.relbegs=round(tw(1)/delt);
-c.relends=round(tw(2)/delt);
+c.relbegs=round(min(tw)/delt);
+c.relends=round(max(tw)/delt);
 
 % Now make the plot if you like
 if nargout==0 || xver==1
