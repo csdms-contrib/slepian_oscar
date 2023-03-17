@@ -27,7 +27,7 @@ function [r,lags]=rdist(a,b,lags)
 % 
 % SEE ALSO: XCORR and OST, and XDIST
 %
-% Last modified by fjsimons-at-alum.mit.edu, 02/22/2023
+% Last modified by fjsimons-at-alum.mit.edu, 03/16/2023
 
 % Only vectors, same length or zero-pad
 a=a(:);
@@ -50,12 +50,11 @@ r=nan(length(lags),1);
 % Do the computation, "for" loop might be slower but vectorization costs memory
 i=0;
 for l=lags
-  i=i+1;
-  r(i)=sqrt(...
-            sum([b(1-l*[l<0]:end-l*[l>0])-a(1+l*[l>0]:end+l*[l<0])].^2)...
-                                     /sum(a(1+l*[l>0]:end+l*[l<0]).^2)...
-            );
+    i=i+1;
+    % The index into b of the interval of overlap
+    blap=1-l*[l<0]:M-l*[l>0];
+    % The index into a of the interval of overlap
+    alap=1+l*[l>0]:M+l*[l<0];
+    % The a-normalized rmse where e=a-b;
+    r(i)=sqrt(sum([b(blap)-a(alap)].^2)/sum(a(alap).^2));
 end
-
-
-
