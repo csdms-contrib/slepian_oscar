@@ -12,6 +12,7 @@ function varargout=swpressure(dorp,lat,dtop)
 % lat      Latitude(s), in decimal degrees
 % dtop     1 Input is depth and output is pressure [default]    
 %          2 Input is pressure and output is depth
+%          3 Input is depth and output is pressure [obsolete]
 %
 % OUTPUT:
 %
@@ -25,11 +26,12 @@ function varargout=swpressure(dorp,lat,dtop)
 %
 % SEE ALSO:
 %
-% RDGDEM3.f by Michael Carnes, Naval Oceanographic Office (2002)
+% RDGDEM3S.f by Michael Carnes, Naval Oceanographic Office (2002)
 % SW_PRES.f by Phil Morgan, CSIRO (1993)
 % CALPRESSURE.m by Yifeng Wang, Princeton (2010)
 %
-% Last modified by fjsimons-at-alum.mit.edu, 05/27/2021
+% Last modified by Thalia Gueroult, 05/10/2023
+% Last modified by fjsimons-at-alum.mit.edu, 05/10/2023
 
 % Default - the result should be 7500 db give or take
 defval('dorp',7321.45)
@@ -44,7 +46,7 @@ lat=lat(:);
 c1=(5.92+5.25*sin(abs(lat)*pi/180).^2)*1e-3;
 c2=2.21*1e-6;
 
-% The equation in m and decibar is the quadratic in 2
+% The equation in m and decibar is the quadratic in 2]
 switch dtop
  case 1
   % Depth to pressure via the quadratic equation solution
@@ -52,6 +54,12 @@ switch dtop
  case 2
   % Pressure to depth
   pord=(1-c1).*dorp-c2*dorp.^2;
+  case 3
+  % Note thPythonOceans (note they hardwire for 45 degrees latitude)
+  % "From the UNESCO algorithms (referring to ANON (1970) BULLETIN
+  % GEODESIQUE) we have this formula for g as a function of latitude"
+  % First in kg/cm^2 then in dbar
+  pord=(dorp/9.780318*(1.0+(5.2788e-3+2.36e-5*sin(lat*pi/180))*sin(lat*pi/180))+1.092e-6*dorp)/1.01972*10;;
 end
 
 % Variable output
