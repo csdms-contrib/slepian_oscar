@@ -133,7 +133,7 @@ switch meth
     dcdS=sqrt(dASdS.^2+dBSdT.^2+dCdS.^2+dDSdS.^2);
 
     % SOUND C STANDARD DEVIATION
-    c=sqrt((TSD.*dcdt).^2+(SSD.*dcds).^2);
+    c=sqrt((TSD.*dcdT).^2+(SSD.*dcdS).^2);
  case 4
     % Del Grosso
     % Convert input in decibar = 1e4 Pa to kg/cm^2 of Pressure for this calculation, generic
@@ -166,6 +166,6 @@ switch meth
   dcdS=abc(:,2).^2.*([T S P].*[abc(:,1)   abs(:,2)-1 abs(:,3)]  ).^2*DT;
   dcdP=abc(:,3).^2.*([T S P].*[abc(:,1)   abs(:,2)   abs(:,3)-1]).^2*DT;
 
-  % SOUND SPEED VARIANCE
-  c=c_abc.^2*[dcdT dcdS dcdP];
+  % SOUND SPEED STANDARD DEVIATION
+  c=sqrt(sum(c_abc.^2*[dcdT dcdS dcdP]));
 end
