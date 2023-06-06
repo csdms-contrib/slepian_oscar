@@ -154,7 +154,7 @@ if ~strcmp(rquake,'demo1')
   varns={rr,del,s,alfa};
   varargout=varns(1:nargout);
 elseif strcmp(rquake,'demo1')
-  defval('ddir','/u/fjsimons/IFILES/EARTHMODELS/MATFILES/')
+  defval('ddir','/Users/fjsimons/IFILES/EARTHMODELS/MATFILES/')
   load(fullfile(ddir,'ak135s')); 
 
   % Pick depth and some ray parameter
