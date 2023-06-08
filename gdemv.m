@@ -34,9 +34,9 @@ function [T,S,DT,DS]=gdemv(lat1,lon1,dep1,Mmm,xver,T,S,DT,DS)
 %
 % % Or you could want a data CUBE, i.e. a grid at many depths
 %
-% dp=[0:2:10 15:5:100 110:10:200 220:20:300 350 400:100:1600 1800:200:6600];
+% deps=[0:2:10 15:5:100 110:10:200 220:20:300 350 400:100:1600 1800:200:6600];
 % lats=[-70:1:72]; lons=[200:1:210]-40; [LAT,LON]=ndgrid(lats,lons);
-% [Ti,Si]=gdemv(lats,lons,dp,'Jan',[],T,S);
+% [Ti,Si]=gdemv(lats,lons,deps,'Jan',[],T,S);
 % hold on; plot([min(lons) max(lons) max(lons) min(lons) min(lons)],...
 %               [min(lats) min(lats) max(lats) max(lats) min(lats)],...
 %               'Color','k'); hold off
@@ -48,11 +48,14 @@ function [T,S,DT,DS]=gdemv(lat1,lon1,dep1,Mmm,xver,T,S,DT,DS)
 % lon1=[180.225]; lat1=[-70.895]; lon2=[250.445]; lat2=[15.979];
 % lolag=grcircle([lon1 lat1]*pi/180,[lon2 lat2]*pi/180,75); figure(1); hold on
 % twoplot(lolag*180/pi); hold off
-% [Ti,Si]=gdemv(lolag(:,2)*180/pi,lolag(:,1)*180/pi,dp,'Jan',3,T,S);
+% [Ti,Si]=gdemv(lolag(:,2)*180/pi,lolag(:,1)*180/pi,deps,'Jan',3,T,S);
 % % Now get the right pressure
-% swpressure(dp,)
+% [DEPS,LATS]=ndgrid(deps,lolag(:,1)*180/pi);
+% Pi=reshape(swpressure(DEPS,LATS,1),size(DEPS));;
 % % And feed it right into the sound speed calculation
-% imagesc(swspeed(dp,Ti,Si,1))
+% c=nan(size(DEPS)); % Maybe bake or avoid for loop in SWPRESSURE later
+% for index=1:prod(size(c)); c(index)=swspeed(Pi(index),Ti(index),Si(index),1);) end
+% imagesc(c)
 %
 % SEE ALSO:
 %
