@@ -30,7 +30,7 @@ function c=swspeed(P,T,S,meth,DP,DT,DS)
 % CALSNDSPD.m by Yifeng Wang, 03/28/2010
 % CALSNDSPDSD.m by Yifeng Wang, 03/28/2010
 % Last modified by Thalia Gueroult, 05/10/2023
-% Last modified by fjsimons-at-alum.mit.edu, 05/10/2023
+% Last modified by fjsimons-at-alum.mit.edu, 06/8/2023
 
 % Approximate pressure in dbar at 100 m but see SWPRESSURE
 defval('P',100)
@@ -47,9 +47,10 @@ switch meth
     % Convert input in decibar = 1e4 Pa to kg/cm^2 of Pressure for this calculation, generic
     P=P*1.01972/10;
     % Get the powers of the expansion and do the expansion
-    abs=homopoly; rTSP=repmat([T S P],size(abc,1),1);
+    abc=homopoly;
+    rTSP=repmat([T S P],size(abc,1),1);
     % SOUND SPEED IN M/S
-    c=delgrosso*prod(.^abc,2);
+    c=delgrosso*prod(rTSP.^abc,2);
  case 2
     % Convert input in decibar = 1e4 Pa to kg/cm^2 of Pressure for this calculation, generic
     P=P*1.01972/10;
@@ -182,6 +183,6 @@ cdg=[1402.392           +0.501109398873e+1 +0.132952290781e+1 ...
      +0.265484716608e-7  0                 -0.161674495909e-8 ...
      +0.522116437235e-9  0];
     % Here are those powers for your reference (transposed for space)
-     0 1 0 0 2 1 0 1 0 0 3 2 1 0 2 1 0 1 0 0 3 2 1 3 2 1 0 2 1 0 1 0
-     0 0 1 0 0 1 2 0 1 0 0 1 2 3 0 1 2 0 1 0 1 2 3 0 1 2 3 0 1 2 0 1
-     0 0 0 1 0 0 0 1 1 2 0 0 0 0 1 1 1 2 2 3 0 0 0 1 1 1 1 2 2 2 3 3
+    % 0 1 0 0 2 1 0 1 0 0 3 2 1 0 2 1 0 1 0 0 3 2 1 3 2 1 0 2 1 0 1 0
+    % 0 0 1 0 0 1 2 0 1 0 0 1 2 3 0 1 2 0 1 0 1 2 3 0 1 2 3 0 1 2 0 1
+    % 0 0 0 1 0 0 0 1 1 2 0 0 0 0 1 1 1 2 2 3 0 0 0 1 1 1 1 2 2 2 3 3
