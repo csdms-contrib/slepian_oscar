@@ -20,6 +20,16 @@ function [T,S,DT,DS]=gdemv(lat1,lon1,dep1,Mmm,xver,T,S,DT,DS)
 % T,S,DT,DS    The specific values requested, in latxlonxdepth
 %              or the whole database, which is in depthxlatxlon
 %
+% TESTING: (OAML-DBD-72E_Oct_2003_U example 2 on page 24)
+%
+% deps=[0:2:10 15:5:85]; lon=29.6; lat=-88.1;
+% [T,S,DT,DS]=gdemv(lon,lat,deps,'Dec');
+% P=swpressure(deps,lat,1); clear c
+% for i=1:length(deps); c(i)=swspeed(P(i),T(i),S(i),1); end
+% disp(sprintf('%5.2f %6.3f %6.3f %7.2f\n',[deps(:) T(:) S(:) c(:)]'))
+% for i=1:length(deps); c(i)=swspeed(P(i),T(i),S(i),3); end
+% disp(sprintf('%5.2f %6.3f %6.3f %7.2f %5.3f %5.3f\n',[deps(:) T(:) S(:) c(:) DT(:) DS(:)]'))
+%
 % EXAMPLE:
 %
 % tic; [T,S,DT,DS]=gdemv([],[],[],'Jan',2); toc % database loading
