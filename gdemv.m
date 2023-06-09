@@ -28,9 +28,11 @@ function [T,S,DT,DS]=gdemv(lat1,lon1,dep1,Mmm,xver,T,S,DT,DS)
 %
 % % It will be common to feed it an entire GRID at one depth, e.g.
 %
-% lats=-80:1:80; lons=0:1:360;
+% lats=-80:0.25:80; lons=0:0.25:360;
 % figure(1); clf ; imagesc(lons,lats,gdemv(lats,lons,100,'Jan',[],T));
-% axis xy image; caxis([-5 30])
+% axis xy image; caxis([-5 30]); longticks(gca,2); title('January')
+% xlabel('longitude'); ylabel('latitude'); cb=colorbar('horizontal');
+% xlabel(cb,sprintf('temperature [%sC]',176))
 %
 % % Or you could want a data CUBE, i.e. a grid at many depths
 %
@@ -45,17 +47,37 @@ function [T,S,DT,DS]=gdemv(lat1,lon1,dep1,Mmm,xver,T,S,DT,DS)
 %
 % % Or you could want a LINE like a great-circle path at many depths
 %
-% lon1=[180.225]; lat1=[-70.895]; lon2=[250.445]; lat2=[15.979];
-% lolag=grcircle([lon1 lat1]*pi/180,[lon2 lat2]*pi/180,75); figure(1); hold on
-% twoplot(lolag*180/pi); hold off
-% [Ti,Si]=gdemv(lolag(:,2)*180/pi,lolag(:,1)*180/pi,deps,'Jan',3,T,S);
-% % Now get the right pressure
-% [DEPS,LATS]=ndgrid(deps,lolag(:,1)*180/pi);
-% Pi=reshape(swpressure(DEPS,LATS,1),size(DEPS));;
+% lon1=180.225; lat1=-70.895;
+% lon2=250.445; lat2=15.979;
+% lon1=216.159; lat1=52.106;
+% lon2=350.0834; lat2=-62.437;
+%
+% [gkm,gdeg]=grcdist([lon1 lat1],[lon2 lat2]);
+% lon1=lon1*pi/180; lon2=lon2*pi/180;
+% lat1=lat1*pi/180; lat2=lat2*pi/180;
+% [lolag,delta]=grcircle([lon1 lat1],[lon2 lat2],round(gdeg/0.25));
+% figure(1); hold on
+% pc=twoplot(lolag*180/pi); set(pc,'LineWidth',2,'Color','k'); hold off 
+% lons=lolag(:,1)*180/pi;
+% lats=lolag(:,2)*180/pi;
+% dels=delta*180/pi*fralmanac('DegDis','Earth')/1000;
+% [Ti,Si]=gdemv(lats,lons,deps,'Jan',3,T,S);
+% % Now get the right pressure, which depends on depth and latitude
+% [DEPS,LATS]=ndgrid(deps,lats);
+% Pi=reshape(swpressure(DEPS,LATS,1),size(DEPS));
 % % And feed it right into the sound speed calculation
-% c=nan(size(DEPS)); % Maybe bake or avoid for loop in SWPRESSURE later
-% for index=1:prod(size(c)); c(index)=swspeed(Pi(index),Ti(index),Si(index),1);) end
-% imagesc(c)
+% c=nan(size(DEPS)); % Maybe bake or avoid for loop in SWSPEED later
+% for index=1:prod(size(c)); c(index)=swspeed(Pi(index),Ti(index),Si(index),1); end
+% % Interpolate in the down dimension with a 2 m spacing
+% ci=interp2(dels,deps,c,dels,deps(1):2:deps(end));
+% figure(3); clf; imagesc(dels,deps,ci)
+% xlabel('incremental distance [km]'); ylabel('depth [m]')
+% shrink(gca,1,1.5); longticks(gca,2)
+% % Pull out the GEBCO depths
+% z=gebco(lons-[lons>180]*360,lats); hold on
+% pg=plot(dels,-z,'k'); hold off
+% cb=colorbar('horizontal');
+% xlabel(cb,sprintf('sound speed [%s]','m/s'))
 %
 % SEE ALSO:
 %
