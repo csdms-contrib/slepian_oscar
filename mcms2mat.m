@@ -102,7 +102,7 @@ defval('pdf',1)
 % Collect the day of year already as it will be needed later
 doy=ceil(datenum(yyyy,mm,dd)-datenum(yyyy,00,00));
 % SAC file pre-format expected by the conversion via MSEED2SAC
-sacfmt=sprintf(scfmt,'%s',yyyy,juld,'%s');
+sacfmt=sprintf(scfmt,'%s',yyyy,doy,'%s');
 
 % Input reply default
 defval('reply','y')
