@@ -1,5 +1,5 @@
-function varargout=guyotweather(jday,year,nset)
-% [data,hdrv]=GUYOTWEATHER(jday,year,nset)
+function varargout=guyotweather(doy,year,nset)
+% [data,hdrv]=GUYOTWEATHER(doy,year,nset)
 %
 % Reads a day of Guyot Weather data as collected by the Vaisala WXT530
 % weather station integrated with the Septentrio PolaRx5 receiver. 
@@ -8,7 +8,7 @@ function varargout=guyotweather(jday,year,nset)
 %
 % INPUT:
 %
-% jday    Day of year (e.g., 212 is July 31 in 2019) [default: yesterday]
+% doy     Day of year (e.g., 212 is July 31 in 2019) [default: yesterday]
 % year    Gregorian year (e.g., 19 or 2019 assuming post 2000)
 % nset    One, two, three or four indices of the weather variables plotted [default: 5 3 4 6]
 %         1 'MeanWindDirection_deg'
@@ -39,7 +39,7 @@ function varargout=guyotweather(jday,year,nset)
 % Last modified by fjsimons-at-alum.mit.edu, 09/20/2023
 
 % Default values are "yesterday" ...
-defval('jday',dat2doy-1)
+defval('doy',dat2doy-1)
 % ... and using this year's two-digit code
 %defval('year',str2num(datestr(today,11)))
 defval('year',str2num(datestr(now,11)))
@@ -52,7 +52,7 @@ if year>2000; year=year-2000; end
 % Specify the web address
 urlbase='https://geoweb.princeton.edu/people/simons/PTON';
 % Custom-make the last bit
-urltail=sprintf('pton%3.3i0.%2.2i__ASC_ASCIIIn.mrk',jday,year);
+urltail=sprintf('pton%3.3i0.%2.2i__ASC_ASCIIIn.mrk',doy,year);
 
 % Four digit again for good measure 
 if year<2000; year=year+2000; end
@@ -116,7 +116,7 @@ if nargout==0
   end
   
   % Remove the weird first data point in the preceding UTC day, see DAT2DOY
-  jdai=ceil(datenum(data.Timestamp-['01-Jan-',datestr(data.Timestamp(end),'YYYY')]))==jday;
+  jdai=ceil(datenum(data.Timestamp-['01-Jan-',datestr(data.Timestamp(end),'YYYY')]))==doy;
   % Make title string in the original time zone
   titsdate=datestr(data.Timestamp(min(find(jdai))),1);
 
@@ -152,7 +152,7 @@ if nargout==0
   [var1,varu1]=getvars(nset(1),jdai,data,hdrv);
   plot(taxis,var1,col{1})
   str1='%s %s (UTC day %i)';
-  t(1)=title(sprintf(str1,varu1,titsdate,jday));
+  t(1)=title(sprintf(str1,varu1,titsdate,doy));
   ylabel(varu1);
   nsets1=1; ofs=20;
   
@@ -166,7 +166,7 @@ if nargout==0
     plot(taxis,var2,col{2})
     ylabel(varu2);
     yyaxis left
-    t(1)=title(sprintf(str2,varu1,varu2,titsdate,jday));
+    t(1)=title(sprintf(str2,varu1,varu2,titsdate,doy));
 
     % Make the ylabels the same color as what's being plotted
     ah(1).YAxis(1).Color=col{1};
@@ -179,7 +179,7 @@ if nargout==0
     axes(ah(2))
     plot(taxis,var3,col{3})
     str1='%s %s (UTC day %i)';
-    t(2)=title(sprintf(str1,varu3,titsdate,jday));
+    t(2)=title(sprintf(str1,varu3,titsdate,doy));
     ylabel(varu3);
  
     if length(nset)==4
@@ -192,7 +192,7 @@ if nargout==0
       plot(taxis,var4,col{4})
       ylabel(varu4);
       yyaxis left
-      t(2)=title(sprintf(str2,varu3,varu4,titsdate,jday));
+      t(2)=title(sprintf(str2,varu3,varu4,titsdate,doy));
     
       ah(2).YAxis(1).Color=col{3};
       ah(2).YAxis(2).Color=col{4};
@@ -229,13 +229,13 @@ if nargout==0
   set(xl,'FontSize',11)
   
   if length(nset)==1
-    figdisp([],sprintf('%3.3i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
+    figdisp([],sprintf('%3.3i_%i_%i',doy,year,nset),'-bestfit',1,'pdf')
   elseif length(nset)==2
-    figdisp([],sprintf('%3.3i_%i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
+    figdisp([],sprintf('%3.3i_%i_%i_%i',doy,year,nset),'-bestfit',1,'pdf')
   elseif length(nset)==3
-    figdisp([],sprintf('%3.3i_%i_%i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
+    figdisp([],sprintf('%3.3i_%i_%i_%i_%i',doy,year,nset),'-bestfit',1,'pdf')
   elseif length(nset)==4
-    figdisp([],sprintf('%3.3i_%i_%i_%i_%i_%i',jday,year,nset),'-bestfit',1,'pdf')
+    figdisp([],sprintf('%3.3i_%i_%i_%i_%i_%i',doy,year,nset),'-bestfit',1,'pdf')
   end
 end
 
