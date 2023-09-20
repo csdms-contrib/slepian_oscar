@@ -1,23 +1,23 @@
-function julday=dat2jul(month,day,year)
-% julday=DAT2JUL(month,day,year)
+function doy=dat2doy(month,day,year)
+% doy=DAT2DOY(month,day,year)
 %
-% Calculates Julian day from calendar day 
+% Calculates day of year from calendar date.
 %
 % INPUT:
 %
 % month   The month (a number)
 % day     The day (a number)
-% year    The year (a number)
+% year    The Gregorian year (a number)
 % 
 % OUTPUT:
 %
-% serial  The corresponding Julian day
+% serial  The corresponding day of year
 %
 % TESTED ON:
 %
 % 8.3.0.532 (R2014a) and 9.0.0.314360 (R2016a)
 %
-% Last modified by fjsimons-at-alum.mit.edu, 02/21/2021
+% Last modified by fjsimons-at-alum.mit.edu, 09/20/2023
 
 % Default values are today!
 %defval('month',str2num(datestr(today, 5)))
@@ -28,4 +28,4 @@ defval('day',str2num(datestr(now, 7)))
 defval('year', str2num(datestr(now,10)))
 
 % Do the calculation!
-julday=datenum(year,month,day)-datenum(['01-Jan-',num2str(year)])+1;
+doy=datenum(year,month,day)-datenum(['01-Jan-',num2str(year)])+1;
