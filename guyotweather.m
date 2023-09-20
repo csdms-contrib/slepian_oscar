@@ -36,10 +36,10 @@ function varargout=guyotweather(jday,year,nset)
 %
 % mcc guyotweather
 %
-% Last modified by fjsimons-at-alum.mit.edu, 07/15/2022
+% Last modified by fjsimons-at-alum.mit.edu, 09/20/2023
 
 % Default values are "yesterday" ...
-defval('jday',dat2jul-1)
+defval('jday',dat2doy-1)
 % ... and using this year's two-digit code
 %defval('year',str2num(datestr(today,11)))
 defval('year',str2num(datestr(now,11)))
@@ -115,7 +115,7 @@ if nargout==0
      ah(2)=subplot(2,1,2);
   end
   
-  % Remove the weird first data point in the preceding UTC day, see DAT2JUL
+  % Remove the weird first data point in the preceding UTC day, see DAT2DOY
   jdai=ceil(datenum(data.Timestamp-['01-Jan-',datestr(data.Timestamp(end),'YYYY')]))==jday;
   % Make title string in the original time zone
   titsdate=datestr(data.Timestamp(min(find(jdai))),1);
