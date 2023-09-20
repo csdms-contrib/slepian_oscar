@@ -1,12 +1,12 @@
-function monthdayyear=jul2dat(year,serial)
-% [month,day,year]=JUL2DAT(year,serial)
+function monthdayyear=doy2dat(year,serial)
+% [month,day,year]=DOY2DAT(year,serial)
 %
-% Calculates calendar day from Julian day.
+% Calculates calendar date from day of year.
 %
 % INPUT:
 %
 % year    The Gregorian year
-% serial  The Julian day
+% serial  The day of year
 %
 % OUTPUT:
 %
@@ -18,12 +18,12 @@ function monthdayyear=jul2dat(year,serial)
 %
 % 8.3.0.532 (R2014a) and 9.0.0.314360 (R2016a)
 %
-% Last modified by fjsimons-at-alum.mit.edu, 07/31/2019
+% Last modified by fjsimons-at-alum.mit.edu, 09/20/2023
 
 % Default values are today!
 defval('year',str2num(datestr(today,10)))
 defval('serial',...
-       dat2jul(str2num(datestr(today,5)),...
+       dat2doy(str2num(datestr(today,5)),...
 	       str2num(datestr(today,7)),...
 	       str2num(datestr(today,10))))
 
