@@ -8,7 +8,7 @@ function varargout=guyotweather(jday,year,nset)
 %
 % INPUT:
 %
-% jday    Julian day (e.g., 212 is July 31 in 2019) [default: yesterday]
+% jday    Day of year (e.g., 212 is July 31 in 2019) [default: yesterday]
 % year    Gregorian year (e.g., 19 or 2019 assuming post 2000)
 % nset    One, two, three or four indices of the weather variables plotted [default: 5 3 4 6]
 %         1 'MeanWindDirection_deg'
