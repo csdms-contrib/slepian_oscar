@@ -48,7 +48,7 @@ function mcms2mat(yyyy,mm,dd,HH,MM,SS,qp,pdf,of,xls,icor)
 %
 % Tested on 8.3.0.532 (R2014a) and 9.0.0.341360 (R2016a)
 % Last modified by abrummen-at-princeton.edu, 07/14/2016
-% Last modified by fjsimons-at-alum.mit.edu, 07/29/2020
+% Last modified by fjsimons-at-alum.mit.edu, 09/20/2023
 
 % FIXED STUFF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 
@@ -99,8 +99,8 @@ defval('qp',1)
 % Save the plot as a pdf?
 defval('pdf',1)
 
-% Collect the Julian date already as it will be needed later
-juld=ceil(datenum(yyyy,mm,dd)-datenum(yyyy,00,00));
+% Collect the day of year already as it will be needed later
+doy=ceil(datenum(yyyy,mm,dd)-datenum(yyyy,00,00));
 % SAC file pre-format expected by the conversion via MSEED2SAC
 sacfmt=sprintf(scfmt,'%s',yyyy,juld,'%s');
 
