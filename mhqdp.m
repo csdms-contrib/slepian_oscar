@@ -19,7 +19,7 @@ function mhqdp(dirname,fname,evpars,vitdat,vitlat,vitlon)
 % vitlon     A string from the *.vit file with the last known longitude:
 %            e.g. E134deg57.367mn
 %
-% Last modified by fjsimons-at-alum.mit.edu, 05/29/2018
+% Last modified by fjsimons-at-alum.mit.edu, 09/20/2023
 
 % Default values 
 defval('dirname','/u/fjsimons/MERMAID/KobeShip2/')
@@ -48,7 +48,7 @@ EVDP=evpars(10);
 eqdt=datetime(evyr,evmo,evdy,evhh,evmn,evsc);
 
 % Seismogram date-time class variable
-smmdy=jul2dat(h.NZYEAR,h.NZJDAY);
+smmdy=doy2dat(h.NZYEAR,h.NZJDAY);
 % It's in UTC, by the way
 smdt=datetime(...
     h.NZYEAR,smmdy(1),smmdy(2),h.NZHOUR,h.NZMIN,h.NZSEC,h.NZMSEC,...
