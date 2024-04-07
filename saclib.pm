@@ -6,12 +6,12 @@
 # getvar           - Returns a named SAC header variable
 # setvar           - Updates a named SAC header variable
 # hvars            - List of SAC header-variable word positions
-# julianDate       - Julian day from MMDDYYYY
+# dayofyear        - Day of year from MMDDYYYY date
 # leapday          - Does this date fall in a leap year?
-# julianDateLocal  - Julian date from TIME
+# dayofyearLocal  - Day of year from TIME
 #
 # Contributions by Thomas R. Kimpton
-# Last modified by fjsimons-at-alum.mit.edu, 06/30/2019
+# Last modified by fjsimons-at-alum.mit.edu, 09/20/2023
 
 # You can just say pands.pl seismogram.SAC and it'll do it
 # as opposed what I now do in NEIC?.M and TMINS.M
@@ -134,9 +134,9 @@ sub hvars {
 }
 1;
 ########################################################################	    
-sub julianDate      
+sub dayofyear      
 {
-    @theJulianDate = ( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 );
+    @thedayofyear = ( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 );
     my $mon = substr($_[0],0,2);
     my $mday = substr($_[0],2,2);
     my $year = substr($_[0],4,2);
@@ -145,7 +145,7 @@ sub julianDate
     if ($year<38){$year="20$year"}
 
     # Note that month starts with 0 but mday starts with 1
-    return($year,$theJulianDate[$mon-1] + $mday + &leapDay($year,$mon,$mday));
+    return($year,$thedayofyear[$mon-1] + $mday + &leapDay($year,$mon,$mday));
 }
 1;
 ########################################################################
@@ -181,16 +181,16 @@ sub leapDay
 }
 1;
 ########################################################################	    
-sub julianDateLocal
+sub dayofyearLocal
 #************************************************************************
 #****   Pass in the date, in seconds, of the day you want the       *****
-#****   Julian date for. If your LOCALTIME returns the year-day     *****
-#****   return that, otherwise figure out the Julian date.          *****
+#****   day of year for. If your LOCALTIME returns the year-day     *****
+#****   return that, otherwise figure out the day of year.          *****
 #************************************************************************
 {           
-    @theJulianDate = ( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 );
+    @thedayofyear = ( 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 );
     
-    # This takes the input which, for juliantoday.pl is PERL's TIME...
+    # This takes the input which, for doytoday.pl is PERL's TIME...
     my($dateInSeconds) = @_;
     my($sec, $min, $hour, $mday, $mon, $year, $wday, $yday);
 
@@ -202,8 +202,8 @@ sub julianDateLocal
     if (defined($yday)) {
 	return($yday+1);
     } else {
-	# FJS could replace this with a call to julianDate on a string made from mon+1 mday year
-	return($theJulianDate[$mon] + $mday + &leapDay($year+1900,$mon,$mday));
+	# FJS could replace this with a call to dayofyear on a string made from mon+1 mday year
+	return($thedayofyear[$mon] + $mday + &leapDay($year+1900,$mon,$mday));
     }
 }
 1;
