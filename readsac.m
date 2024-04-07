@@ -59,7 +59,7 @@ fclose(fid);
 % station and event coordinates. But I don't know how to set this
 % variable to a logical yet using setvar.pl. What is the TRUE/FALSE
 % format in SAC? 18.1.2006
-keyboard
+
 % If you change any of this, change it in WRITESAC as well!
 HdrData=struct(...
   'AZ',HdrF(52),...
