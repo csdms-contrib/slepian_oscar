@@ -1,0 +1,255 @@
+#!/bin/csh
+#
+# Documentation:
+# https://api.arable.cloud/api/v2/doc
+
+# See crontab -l
+
+# Downloads the schemas
+#set flag = 4
+# Downloads the schema data
+#set flag = 3
+# Downloads the data daily
+#set flag = 1
+# Downloads the data hourly - last hour - this needs to be on for CRONTAB
+set flag = 2
+
+# GuyotRoof
+set device = C003384
+# HerrontownWoods 
+set device = C013711
+
+# Run this every day in local time?
+set DDD = `$home/PROGRAMS/LFILES/doytoday.pl | awk '{printf "%3.3i", $6}'`
+set YYYY = `date | awk '{print $6}'`
+
+# Keep the key private
+set server = https://api.arable.cloud/api/v2
+set apikey = XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# Output parameters
+set local_time = America/New_York
+set order = desc
+# Units are pct,dec
+set ratio = pct
+# Units are c,f
+set temp = c
+# Units are mb,kp
+set pres = kp
+# Units are mm,in
+set size = mm
+
+if ($flag == 1) then
+    # Destination
+    set file1 = "$device"_{$YYYY}_{$DDD}
+    set destination1 =  ~/CLASSES/FRS-Spain/SensorData/Arable/CronData/$file1
+    set limit1 = 24
+
+    # See the schemas below
+    set request = data/daily
+    # I see the webpage quotes sealevel pressure
+    set select1 = time,mint,maxt,min_rh,max_rh,precip
+
+    # A whole day
+    curl \
+      -G ""$server""/""$request""\
+      -H "Authorization: Apikey "$apikey"" \
+      -H "Accept: text/csv" \
+      -d "device="$device"" \
+      -d "order="$order"" \
+      -d "ratio="$ratio"" \
+      -d "temp="$temp"" \
+      -d "pres="$pres"" \
+      -d "size="$size"" \
+      -d "local_time="$local_time"" \
+      -d "select="$select1"" \
+      -d "limit="$limit1"" \
+      -o "$destination1"
+ endif
+
+if ($flag == 2) then
+    # Destination
+    set file2 = "$device"_LastHour
+    set destination2 =  ~/CLASSES/FRS-Spain/SensorData/Arable/CronData/$file2
+    set limit2 = 1
+
+    # See the schemas below
+    set request = data/hourly
+    # I see the webpage quotes sealevel pressure
+    set select2 = time,tair,tbelow,rh,slp,precip,swdw
+
+    # Just one hour, the last
+    curl \
+      -G ""$server""/""$request""\
+      -H "Authorization: Apikey "$apikey"" \
+      -H "Accept: text/csv" \
+      -d "device="$device"" \
+      -d "order="$order"" \
+      -d "ratio="$ratio"" \
+      -d "temp="$temp"" \
+      -d "pres="$pres"" \
+      -d "size="$size"" \
+      -d "local_time="$local_time"" \
+      -d "select="$select2"" \
+      -d "limit="$limit2"" \
+      -o "$destination2"
+  
+    # Add time stamp to the last hour
+    date >> $destination2
+
+    # And then extract what little information we need to read
+    # set line1 = `head -1 $destination2`
+    set line2 = `tail -2 $destination2 | head -1`
+    # set line3 = `tail -1 $destination2`
+    # echo $line1,"query_time",$line2,$line3 >! $destination3
+
+    # Parse line 2 attractively
+    set time   = `echo $line2 | sed 's/,/ /g' | awk '{print $1}'`
+    set tair   = `echo $line2 | sed 's/,/ /g' | awk '{print $2}'`
+    set tbelow = `echo $line2 | sed 's/,/ /g' | awk '{print $3}'`
+    set rh     = `echo $line2 | sed 's/,/ /g' | awk '{print $4}'`
+    set slp    = `echo $line2 | sed 's/,/ /g' | awk '{print $5}'`
+    set precip = `echo $line2 | sed 's/,/ /g' | awk '{print $6}'`
+    set swdw   = `echo $line2 | sed 's/,/ /g' | awk '{print $7}'`
+    set local_time = `echo $line2 | sed 's/,/ /g' | awk '{print $8}'`
+    set deet = `echo $local_time | sed 's/T/ /' | awk '{print $1}'`
+    set taim = `echo $local_time | sed 's/T/ /' | awk '{print $2}'| sed 's/-/ /' | awk '{print $1}'`
+
+    # Make a mini webpage
+    echo "<\!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">" >! $destination2:r.html
+    echo "<html>" >> $destination2:r.html
+    echo "<body bgcolor="white">" >> $destination2:r.html
+    # echo "<h1>Herrontown Woods Weather</h1>" >> $destination2:r.html
+    cat $destination2:r.css >> $destination2:r.html
+    echo "<table id="weather">" >> $destination2:r.html
+    echo "<caption>" >> $destination2:r.html
+ 	 echo "<b>Herrontown Woods<br> $deet <br> $taim</b>" >> $destination2:r.html
+    echo "</caption>" >> $destination2:r.html
+    echo "<tr>" >> $destination2:r.html
+         echo "<th>" >> $destination2:r.html
+         echo "</th>" >> $destination2:r.html
+         echo "<th>Description" >> $destination2:r.html
+         echo "</th>" >> $destination2:r.html
+         echo "<th>Unit" >> $destination2:r.html
+         echo "</th>" >> $destination2:r.html
+    echo "</tr>" >> $destination2:r.html
+    echo "<tr>" >> $destination2:r.html
+         echo "<td width=50 align="right">" >> $destination2:r.html
+	 echo "$tair" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+         echo "<td width=225>" >> $destination2:r.html
+ 	 echo "Air temperature" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+         echo "<td width=50>" >> $destination2:r.html
+ 	 echo "&deg;C" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+    echo "</tr>" >> $destination2:r.html
+    echo "<tr>" >> $destination2:r.html
+         echo "<td align="right">" >> $destination2:r.html
+	 echo "$tbelow" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+         echo "<td>" >> $destination2:r.html
+	 echo "Leaf/Ground temperature" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+         echo "<td>" >> $destination2:r.html
+	 echo "&deg;C" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+    echo "</tr>" >> $destination2:r.html
+    echo "<tr>" >> $destination2:r.html
+         echo "<td align="right">" >> $destination2:r.html
+	 echo "$rh" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+         echo "<td>" >> $destination2:r.html
+	 echo "Relative humidity" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+         echo "<td>" >> $destination2:r.html
+	 echo "%" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+    echo "</tr>" >> $destination2:r.html
+    echo "<tr>" >> $destination2:r.html
+         echo "<td align="right">" >> $destination2:r.html
+	 echo "$slp" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+         echo "<td>" >> $destination2:r.html
+	 echo "Sea level pressure" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+         echo "<td>" >> $destination2:r.html
+	 echo "kPa" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+    echo "</tr>" >> $destination2:r.html
+    echo "<tr>" >> $destination2:r.html
+         echo "<td align="right">" >> $destination2:r.html
+	 echo "$swdw" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+         echo "<td>" >> $destination2:r.html
+	 echo "Solar radiation" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+         echo "<td>" >> $destination2:r.html
+	 echo "W/m<sup>2</sup>" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+    echo "</tr>" >> $destination2:r.html
+    echo "<tr>" >> $destination2:r.html
+         echo "<td align="right">" >> $destination2:r.html
+	 echo "$precip" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+         echo "<td>" >> $destination2:r.html
+	 echo "Precipitation" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+         echo "<td>" >> $destination2:r.html
+	 echo "mm" >> $destination2:r.html
+         echo "</td>" >> $destination2:r.html
+    echo "</tr>" >> $destination2:r.html
+    echo "</table>" >> $destination2:r.html
+    echo "</body></html>" >> $destination2:r.html
+    
+    # Push this to the Web
+    set finaldest = /home/www/people/simons/Arable
+    rsync -ve "ssh -i /u/fjsimons/.ssh/id_remote_backup" $destination2  fjsimons@geoweb.princeton.edu:$finaldest
+    rsync -ve "ssh -i /u/fjsimons/.ssh/id_remote_backup" $destination2:r.html  fjsimons@geoweb.princeton.edu:$finaldest
+endif
+    
+################################################################################  
+
+# Figure out what there is, use json_reformat
+if ($flag == 3) then
+    set request = schemas/hourly
+    set request = schemas/daily
+    set request = schemas/sentek_hourly
+    set request = schemas/sentek_daily
+
+    curl -i \
+      -G ""$server""/""$request""\
+      -H "Authorization: Apikey "$apikey"" \
+      -H "Accept: text/csv" \
+      -d "device="$device""
+endif   
+
+# Figure out what there is, use json_reformat
+if ($flag == 4) then
+    set request = schemas
+    curl -i \
+      -G ""$server""/""$request""\
+      -H "Authorization: Apikey "$apikey"" \
+      -H "Accept: text/csv" \
+      -d "device="$device""
+endif   
+
+goto label999
+
+# Notes, these are the schemas on 4/1/2024
+[   "aux_raw",
+    "daily",
+    "disease_model",
+    "disease_model_location",
+    "fleet_health",
+    "health",
+    "hourly",
+    "irrigation_runtime_daily",
+    "irrigation_runtime_hourly",
+    "local_hourly",
+    "location_irrigation_forecast_daily",
+    "sentek_daily",
+    "sentek_hourly"
+]
+# Other schemas stored in Arable/API
+label999:
