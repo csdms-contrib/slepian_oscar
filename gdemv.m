@@ -199,7 +199,7 @@ elseif strcmp(lat1,'demo4')
     lon1=-175.39;
     lat1=-20.546;
     % H03S1
-    H03S1=[-33.818199     -78.835297       837]
+    H03S1=[-33.818199     -78.835297       837];
     lon2=H03S1(2);
     lat2=H03S1(1);
     % Maybe we actually want to overshoot it a little
@@ -214,7 +214,9 @@ elseif strcmp(lat1,'demo4')
     [gkm3,gdeg3]=grcdist([lon1 lat1],[lon3 lat3]);
     [lolag,delta]=grcircle([lon1 lat1]*pi/180,[lon3 lat3]*pi/180,round(gdeg3/0.25));
 
-    figure(1); hold on
+    figure(1)
+    gdemv('demo2')
+    hold on
     pc=twoplot(lolag*180/pi); set(pc,'LineWidth',2,'Color','k'); hold off 
     lons=lolag(:,1)*180/pi;
     lats=lolag(:,2)*180/pi;
@@ -264,7 +266,7 @@ elseif strcmp(lat1,'demo4')
     co=colororder;
     for index=1:length(mh)
         gkm=grcdist([lon1 lat1],mhlatlondep(index,[2 1]));
-        p(index)=plot(gkm,mhlonlatdep(index,3),'o');
+        p(index)=plot(gkm,mhlatlondep(index,3),'o');
         p(index).MarkerSize=3;
         p(index).MarkerFaceColor=co(index,:);
         p(index).MarkerEdgeColor='k';
@@ -282,6 +284,8 @@ elseif strcmp(lat1,'demo4')
     set(ah,'Position',ahp)
     xlabel(cb,sprintf('sound speed [%s]','m/s'))
     longticks(cb)
+
+    ah.FontSize=6;
     % Print figure
     figdisp('HTHH_1',[],[],2)
 end
