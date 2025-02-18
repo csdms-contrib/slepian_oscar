@@ -1,4 +1,4 @@
-function [T,S,DT,DS]=gdemv(lat1,lon1,dep1,Mmm,xver,T,S,DT,DS)
+function varargout=gdemv(lat1,lon1,dep1,Mmm,xver,T,S,DT,DS)
 % [T,S,DT,DS]=GDEMV(lat,lon,dep,Mmm,xver,T,S,DT,DS)
 %
 % Temperature, salinity and their standard deviations at a particular
@@ -138,11 +138,20 @@ if ~isstr(lat1)
                     DT=nsdso(DT(depi,lati,loni),scale_factor,add_offset);
                     if nargout>3
                         DS=nsdso(DS(depi,lati,loni),scale_factor,add_offset);
+                    else
+                        DS=[];
                     end
+                else
+                    DT=[]; DS=[];
                 end
+            else
+                S=[]; DS=[]; DT=[];
             end
         end
     end
+    % Output if necessary
+    varns={T,S,DT,DS};
+    varargout=varns(1:nargout);
 elseif strcmp(lat1,'demo1')
     deps=[0:2:10 15:5:85]; lon=29.6; lat=-88.1;
     [T,S,DT,DS]=gdemv(lon,lat,deps,'Dec');
@@ -153,6 +162,7 @@ elseif strcmp(lat1,'demo1')
     disp(sprintf('%5.2f %6.3f %6.3f %7.2f %5.3f %5.3f\n',[deps(:) T(:) S(:) c(:) DT(:) DS(:)]'))
 elseif strcmp(lat1,'demo2')
      lats=-80:0.25:80; lons=0:0.25:360;
+     [T,S,DT,DS]=gdemv([],[],[],'Jan',2);
      figure(1); clf ; imagesc(lons,lats,gdemv(lats,lons,100,'Jan',[],T));
      axis xy image; caxis([-5 30]); longticks(gca,2); title('January')
      xlabel('longitude'); ylabel('latitude'); cb=colorbar('horizontal');
@@ -199,6 +209,7 @@ elseif strcmp(lat1,'demo4')
     cb=colorbar('horizontal');
     xlabel(cb,sprintf('sound speed [%s]','m/s'))
 end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function s=nsdso(stuff,sf,ao)
