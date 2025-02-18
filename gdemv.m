@@ -46,6 +46,8 @@ function varargout=gdemv(lat1,lon1,dep1,Mmm,xver,T,S,DT,DS)
 %
 % OAML for the preprocessing, GEBCO for a better bathymetry grid
 %
+% LAST TESTED VERSION: 9.7.0.1190202 (R2019b)
+%
 % Last modified by fjsimons-at-alum.mit.edu, 02/18/2024
 
 % Where are the data being kept?
@@ -126,8 +128,14 @@ if ~isstr(lat1)
                     DT=nsdsol(DT,B,scale_factor,add_offset);
                     if nargout>3
                         DS=nsdsol(DS,B,scale_factor,add_offset);
+                    else
+                        DS=[];
                     end
+                else
+                    DT=[]; DS=[];
                 end
+            else
+                S=[]; DS=[]; DT=[];
             end
         else
             % But then you have it all, don't forget to reorder
@@ -162,7 +170,7 @@ elseif strcmp(lat1,'demo1')
     disp(sprintf('%5.2f %6.3f %6.3f %7.2f %5.3f %5.3f\n',[deps(:) T(:) S(:) c(:) DT(:) DS(:)]'))
 elseif strcmp(lat1,'demo2')
      lats=-80:0.25:80; lons=0:0.25:360;
-     [T,S,DT,DS]=gdemv([],[],[],'Jan',2);
+     T=gdemv([],[],[],'Jan',2);
      figure(1); clf ; imagesc(lons,lats,gdemv(lats,lons,100,'Jan',[],T));
      axis xy image; caxis([-5 30]); longticks(gca,2); title('January')
      xlabel('longitude'); ylabel('latitude'); cb=colorbar('horizontal');
@@ -170,22 +178,42 @@ elseif strcmp(lat1,'demo2')
 elseif strcmp(lat1,'demo3')
     deps=[0:2:10 15:5:100 110:10:200 220:20:300 350 400:100:1600 1800:200:6600];
     lats=[-70:1:72]; lons=[200:1:210]-40; [LAT,LON]=ndgrid(lats,lons);
+    [T,S]=gdemv([],[],[],'Jan',2);
     [Ti,Si]=gdemv(lats,lons,deps,'Jan',[],T,S);
     hold on; plot([min(lons) max(lons) max(lons) min(lons) min(lons)],...
-                  [min(lats) min(lats) max(lats) max(lats) min(lats)],...
-                  'Color','k'); hold off
+    [min(lats) min(lats) max(lats) max(lats) min(lats)],...
+        'Color','k'); hold off
     figure(2); imagesc(lons,lats,Ti(:,:,24)); axis xy image; caxis([-5 30])
     axis([0 360 -80 80])
 elseif strcmp(lat1,'demo4')
+    [T,S]=gdemv([],[],[],'Jan',2);
+    % Define the intervals where the sounds speeds will be read as being available
+    deps=[0:2:10 15:5:100 110:10:200 220:20:300 350 400:100:1600 1800:200:6600];
+    % Some random example
     lon1=180.225; lat1=-70.895;
     lon2=250.445; lat2=15.979;
+    % Some random example
     lon1=216.159; lat1=52.106;
     lon2=350.0834; lat2=-62.437;
-    
+    % Hunga Tonga to somewhere 
+    lon1=-175.39;
+    lat1=-20.546;
+    % H03S1
+    H03S1=[-33.818199     -78.835297       837]
+    lon2=H03S1(2);
+    lat2=H03S1(1);
+    % Maybe we actually want to overshoot it a little
+    angl=truecourse([lon1 lat1],[lon2 lat2]);
+    % Calculate source-receiver great-circle distance
     [gkm,gdeg]=grcdist([lon1 lat1],[lon2 lat2]);
-    lon1=lon1*pi/180; lon2=lon2*pi/180;
-    lat1=lat1*pi/180; lat2=lat2*pi/180;
-    [lolag,delta]=grcircle([lon1 lat1],[lon2 lat2],round(gdeg/0.25));
+    % Calculate points along the great-circle path
+    [lolag,delta]=grcircle([lon1 lat1]*pi/180,[lon2 lat2]*pi/180,round(gdeg/0.25));
+    % Calculate a few more points past the end point
+    [lon3,lat3]=grcazim([lon1 lat1],gkm*1.05,angl,'Earth');
+    [lon3,lat3]=grcazim([lon1 lat1],10000,angl,'Earth');
+    [gkm3,gdeg3]=grcdist([lon1 lat1],[lon3 lat3]);
+    [lolag,delta]=grcircle([lon1 lat1]*pi/180,[lon3 lat3]*pi/180,round(gdeg3/0.25));
+
     figure(1); hold on
     pc=twoplot(lolag*180/pi); set(pc,'LineWidth',2,'Color','k'); hold off 
     lons=lolag(:,1)*180/pi;
@@ -197,17 +225,65 @@ elseif strcmp(lat1,'demo4')
     Pi=reshape(swpressure(DEPS,LATS,1),size(DEPS));
     % And feed it right into the sound speed calculation
     c=nan(size(DEPS)); % Maybe bake or avoid for loop in SWSPEED later
-    for index=1:prod(size(c)); c(index)=swspeed(Pi(index),Ti(index),Si(index),1); end
+    for index=1:prod(size(c))
+        c(index)=swspeed(Pi(index),Ti(index),Si(index),1);
+    end
     % Interpolate in the down dimension with a 2 m spacing
     ci=interp2(dels,deps,c,dels,deps(1):2:deps(end));
-    figure(3); clf; imagesc(dels,deps,ci)
-    xlabel('incremental distance [km]'); ylabel('depth [m]')
-    shrink(gca,1,1.5); longticks(gca,2)
     % Pull out the GEBCO depths
-    z=gebco(lons-[lons>180]*360,lats); hold on
+    z=gebco(lons-[lons>180]*360,lats); 
+
+    % Make the actual figure
+    figure(2)
+    clf
+    ah=gca;
+    % Some vague land color
+    sc=sergeicol; sc=sc(86,:);
+    % The actual color
+    cm=colormap('parula');
+    % imagesc(dels,deps,ci)
+    imagefnan([dels(1) deps(1)],[dels(end) deps(end)],ci,cm,...
+        [round(min(ci(:))) round(max(ci(:)))],sc)
+    axis normal ij
+    xlabel('incremental great-circle distance [km]'); ylabel('depth [m]')
+    shrink(ah,1,3.375);
+    longticks(ah,2)
+    hold on
     pg=plot(dels,-z,'k'); hold off
-    cb=colorbar('horizontal');
+    ylim(minmax(deps))
+    % Now plot the various other MERMAIDS
+    % Calculate source-receiver great-circle distance
+    mh=[45 41 53 23 40 999];
+    mhlatlondep=[-25.295368    -165.846100      1500;
+                 -27.382092    -161.752670      1500;
+                 -29.972130    -157.877655      1500;
+                 -27.977253    -156.394760      1500;
+                 -29.231997    -154.042633      1500;
+                 H03S1];
+    hold on
+    co=colororder;
+    for index=1:length(mh)
+        gkm=grcdist([lon1 lat1],mhlatlondep(index,[2 1]));
+        p(index)=plot(gkm,mhlonlatdep(index,3),'o');
+        p(index).MarkerSize=3;
+        p(index).MarkerFaceColor=co(index,:);
+        p(index).MarkerEdgeColor='k';
+    end
+    hold off
+    % Now take care of various cosmetics
+    cb=colorbar('vertical');
+    cbt=[round(min(ci(:))) round(max(ci(:)))];
+    cbarticks(cb,cbt,linspace(cbt(1),cbt(end),5),'vert')
+    cb.YDir='reverse';
+    % Workarounds
+    ahp=get(ah,'Position');
+    cbp=get(cb,'Position');
+    shrink(cb,1.5,1)
+    set(ah,'Position',ahp)
     xlabel(cb,sprintf('sound speed [%s]','m/s'))
+    longticks(cb)
+    % Print figure
+    figdisp('HTHH_1',[],[],2)
 end
 
 
