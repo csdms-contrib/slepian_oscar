@@ -39,7 +39,7 @@ set distaz = irisws/distaz/1
 set ttimes = irisws/traveltime/1
 # Target specific phases? e.g., phases=P
 set option = "mintimeonly=true&noheader=true"
-#------n--------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------
 
 # Remember where you were, then go to $toplev, at the end return
 set wasere = `pwd`
