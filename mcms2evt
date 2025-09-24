@@ -6,7 +6,7 @@
 # approximate epicentral distance (two versions) and arrival time of
 # the first-quoted TauP travel time for all those earthquakes, and
 # writes the results to a table. This code takes a LONG time to run. I
-# thought about acting on a fastert-to-make table using a dedicated
+# thought about acting on a faster-to-make table using a dedicated
 # GCDIST and PARRIVAL or TMINS etc either from FORTRAN or within
 # MATLAB but then the best thing seemed to ALSO query IRIS for their
 # great-circle distances, and travel-time calculations, for
@@ -20,12 +20,12 @@
 # earthquake has actually been recorded.
 #
 # Last modified by ytamama-at-princeton.edu on 4/22/2020
-# Last modified by fjsimons-at-alum.mit.edu on 4/26/2020
+# Last modified by fjsimons-at-alum.mit.edu on 9/22/2025
 
-# Define the overarching directories
-set toplev = /data2/seismometer/MeridianCompact-PH1-0248
+# Define the overarching directories for MeridianCompact-PH1-0248
+set toplev = /data1/seismometer/
 # Set the years you want to focus on - manually, why not
-set years = ( 2017 2018 2019 )
+set years = ( 2020 )
 # Set the location of Guyot Hall
 set stalat =  40.34585
 set stalon = -74.65475 
@@ -39,7 +39,7 @@ set distaz = irisws/distaz/1
 set ttimes = irisws/traveltime/1
 # Target specific phases? e.g., phases=P
 set option = "mintimeonly=true&noheader=true"
-#--------------------------------------------------------------------------------------------
+#------n--------------------------------------------------------------------------------------
 
 # Remember where you were, then go to $toplev, at the end return
 set wasere = `pwd`
@@ -68,6 +68,8 @@ foreach year ($years[*])
 	# Watch out for possible overzealous expansion due to the ? mark - an argument against csh...
 	set noglob ##################################################################################
            # Literally make the query; if you printed it you'd be able to enter it in a Web browser
+           # EXAMPLE:
+           # http://service.iris.edu/fdsnws/event/1/query?format=text&starttime=2018-03-19T10:44:01&endtime=2018-03-19T11:44:01
 	   set evtquery = "$server/$quakes/query?format=$format&starttime=$startt&endtime=$endtim"
 	   # echo Preparing $evtquery
 	   # Now specify how to make this query;  in this case, by using wget to a temporary output file
@@ -109,7 +111,10 @@ foreach year ($years[*])
   	     set actquery = "wget -q $gcdquery -O dresult"
 	     echo `$actquery`
 	     # Get the spherical epicentral distance and the iasp91 travel time... note that you can even get a picture!
+	     # by specifying format=svg as an option
 	     # and you could get different models also
+	     # EXAMPLE: 
+	     # http://service.iris.edu/irisws/traveltime/1/query?&staloc=[-13.9322,-179.8524]&evloc=[-16.16,177.93]&evdepth=10
 	     set ttsquery = "$server/$ttimes/query?&staloc=[$stalat,$stalon]&evloc=[$eqlat,$eqlon]&evdepth=$eqdep&$option"
 	     #  echo Preparing $ttsquery
   	     set actquery = "wget -q $ttsquery -O tresult"
@@ -146,6 +151,7 @@ foreach year ($years[*])
         # then split it and spit it out again...
 	# Note that the penultimate query returns five decimal digits; %8.3f rounded so I changed it to %9.5f
 	# Note that the last query returns only two decimal digits; %8.3f tacked on a zero so I changed to %8.2f
+	# A header would be CODE DATESTRING LAT LON DEPTH MAG DIST DIST TIME
 	awk 'NR>1' qresult | sed 's/|/ /g' | \
              awk  -v a="$eqdats" -v b="$dist1" -v c="$dist2" -v d="$first" \
                    '{split(a,aa," ") ; \
