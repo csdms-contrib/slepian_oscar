@@ -121,7 +121,7 @@ foreach year ($years[*])
 	     echo `$actquery`
            unset noglob ################################################################################
 
-	   # Now parse those results, not the epicentral distances are different
+	   # Now parse those results, note the epicentral distances are different
 	   set matchi = distance
 	   set gcdst1 = `awk '/<'$matchi'>/' dresult | sed 's/<'$matchi'>/ /' | sed 's/<\/'$matchi'>/ /'`
 	   # Only every get the first returned phase
