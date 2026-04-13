@@ -1,5 +1,5 @@
-function [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=mtm(X,Y,NW,K)
-% [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=MTM(X,Y,NW,K)
+function [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=mtm(X,Y,NW,K,nfft)
+% [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=MTM(X,Y,NW,K,nfft)
 %
 % Calculates power spectral densities, coherence and admittance between
 % two time series or two-dimensional data sets using a Slepian multitaper
@@ -11,6 +11,7 @@ function [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=mtm(X,Y,NW,K)
 % Y        The second data set - could be empty
 % NW       The time-bandwidth product [default: 3]
 % K        The number of tapers used [default: max(2*NW-1,1)]
+% nfftrc   Number of frequencies in the [row column] dimension
 %
 % OUTPUT:
 %
@@ -26,11 +27,7 @@ function [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=mtm(X,Y,NW,K)
 % nfftc    Number of frequencies in the column dimension
 % K        Number of Slepian windows actually used
 %
-% SEE ALSO:
-%
-% 
-%
-% Last modified by fjsimons-alum-mit.edu, 10/22/2012
+% Last modified by fjsimons-alum-mit.edu, 04/13/2026
 
 % Supply default values
 defval('Y',[])
@@ -90,8 +87,8 @@ disp(sprintf('Number of tapers used = %i',K))
 
 % Resolution of the FFT-routine is determined by the size of the data
 [irow,icol]=size(X);
-nfftr=irow;
-nfftc=icol;
+defval('nfftr',irow);
+defval('nfftc',icol);
 
 % Calculate the first k data windows in the column dimension
 [Ecol,Vcol]=feval(wintype,icol,NW,K);
