@@ -17,7 +17,7 @@ function [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=mtm(X,Y,NW,K,nfftrc)
 %
 % SX       The power spectral density of the first data set
 % SY       The power spectral density of the second data set
-% SXY      The cross-power spectral density of the two data set
+% SXY      The cross-power spectral density of the two data sets
 % COH2     The coherence between the two data sets
 % vCOH2    The estimated variance of the coherence 
 % ADM      The admittance where the X field is in the denominator
