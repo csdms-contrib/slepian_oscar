@@ -1,5 +1,5 @@
-function [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=mtm(X,Y,NW,K,nfft)
-% [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=MTM(X,Y,NW,K,nfft)
+function [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=mtm(X,Y,NW,K,nfftrc)
+% [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=MTM(X,Y,NW,K,nfftrc)
 %
 % Calculates power spectral densities, coherence and admittance between
 % two time series or two-dimensional data sets using a Slepian multitaper
@@ -87,8 +87,9 @@ disp(sprintf('Number of tapers used = %i',K))
 
 % Resolution of the FFT-routine is determined by the size of the data
 [irow,icol]=size(X);
-defval('nfftr',irow);
-defval('nfftc',icol);
+defval('nfftrc',[irow icol])
+nfftr=nfftrc(1);
+nfftc=nfftrc(2);
 
 % Calculate the first k data windows in the column dimension
 [Ecol,Vcol]=feval(wintype,icol,NW,K);
