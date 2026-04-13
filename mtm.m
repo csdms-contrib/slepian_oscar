@@ -88,6 +88,9 @@ disp(sprintf('Number of tapers used = %i',K))
 % Resolution of the FFT-routine is determined by the size of the data
 [irow,icol]=size(X);
 defval('nfftrc',[irow icol])
+if length(nfftrc)==1
+    nfftrc=[1 nfftrc];
+end
 nfftr=nfftrc(1);
 nfftc=nfftrc(2);
 
