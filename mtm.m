@@ -1,5 +1,5 @@
-function [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=mtm(X,Y,NW,K,nfftrc,sq)
-% [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=MTM(X,Y,NW,K,nfftrc,sq)
+function [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=mtm(X,Y,NW,K,nfftrc)
+% [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=MTM(X,Y,NW,K,nfftrc)
 %
 % Calculates power spectral densities, coherence and admittance between
 % two time series or two-dimensional data sets using a Slepian multitaper
@@ -12,8 +12,6 @@ function [SX,SY,SXY,COH2,vCOH2,ADM,E,W,nfftr,nfftc,K]=mtm(X,Y,NW,K,nfftrc,sq)
 % NW       The time-bandwidth product [default: 3]
 % K        The number of tapers used [default: max(2*NW-1,1)]
 % nfftrc   Number of frequencies in the [row column] dimension
-% sq       1 Indeed calculates the squared coherence
-%          0 Calculates the phase angle
 %
 % OUTPUT:
 %
@@ -36,7 +34,6 @@ defval('Y',[])
 defval('NW',3)
 defval('K',max(2*NW-1,1));
 defval('wintype','dpss');
-defval('sq',2);
 
 % Error checks
 if ~all(size(X)==size(Y)) 
@@ -179,17 +176,11 @@ end
   
 % Calculate Coherence-Squared and Admittance-----------------------------
 if nvar>1
-    if sq==1
-        COH2=abs(SXY).^2./SX./SY;
-        % Calculate the CRAMER-RAO bound of the variance of coherence-squared 
-        % Which seems somewhat optimistic, but then again, it should be close
-        vCOH2=2*COH2.*(1-COH2).^2/K;
-    else
-        % Calculate the phase angle
-        keyboard
-        COH2=SXY./sqrt(SX)./sqrt(SY);
-    end
-  ADM=SXY./SX;
+    COH2=abs(SXY).^2./SX./SY;
+    ADM=SXY./SX;
+    % Calculate the CRAMER-RAO bound of the variance of coherence-squared 
+    % Which seems somewhat optimistic, but then again, it should be close
+    vCOH2=2*COH2.*(1-COH2).^2/K;
 end
 
 % Provide blank outputs for completeness
